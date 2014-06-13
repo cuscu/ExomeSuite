@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -145,13 +146,19 @@ public class AlignTool {
         aligner.progressProperty().addListener((
                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             tool.updateProgress(aligner.getMessage(), newValue.doubleValue());
-            if (newValue.intValue() == 1) {
-                endAligner();
-            }
+//            if (newValue.intValue() == 1) {
+//                endAligner();
+//            }
         });
         aligner.messageProperty().addListener((ObservableValue<? extends String> observable,
                 String oldValue, String newValue) -> {
             tool.updateProgress(newValue, aligner.getProgress());
+        });
+        aligner.setOnCancelled((WorkerStateEvent event) -> {
+            tool.setStatus(Status.RED);
+        });
+        aligner.setOnSucceeded((WorkerStateEvent event) -> {
+            tool.setStatus(Status.GREEN);
         });
         tool.showPane(runningPane);
         tool.setStatus(ToolPane.Status.RUNNING);
@@ -173,7 +180,6 @@ public class AlignTool {
     }
 
     private void endAligner() {
-        System.out.println("Done");
         tool.setStatus(ToolPane.Status.GREEN);
     }
 

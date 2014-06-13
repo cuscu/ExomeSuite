@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author uichuimi03
+ * @author Pascual Lorente Arencibia
  */
 public class MainViewController {
 
@@ -109,8 +109,6 @@ public class MainViewController {
         tab.setContent(project.getToolsPane());
         tabList.add(tab);
         projects.getSelectionModel().select(tab);
-
-        System.out.println("Openninnnnnng ...");
     }
 
     public static String getGenome() {

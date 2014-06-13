@@ -28,20 +28,51 @@ import javafx.scene.layout.VBox;
  */
 public class Project {
 
+    /*
+     * Settings.
+     */
     public final static String FORWARD = "forward_sequence";
     public final static String REVERSE = "reverse_sequence";
     public final static String GENOME = "reference_genome";
     public final static String DBSNP = "dbsnp";
     public final static String MILLS = "mills";
     public final static String PHASE1 = "phase1";
+    /*
+     * Structure tree.
+     */
     public final static String PATH_ALIGNMENT = "alignments";
     public final static String PATH_TEMP = "temp";
+    public final static String PATH_VARIANTS = "variants";
 
+    /**
+     * Project name. Will be used for tab title and file naming.
+     */
     private String name;
+    /**
+     * Path to root folder.
+     */
     private File path;
+    /**
+     * A Node (VBox) that stores all the tools.
+     */
     private final VBox toolsPane;
+    /**
+     * Configuration for this project. Config file use to be name.config.
+     */
     private final Config config;
 
+    /**
+     * New projects will create a folder name under parent an an empty config file.
+     * <p>
+     * parent
+     * <p>
+     * [Folder]name
+     * <p>
+     * [File] name/name.config
+     *
+     * @param name
+     * @param parent
+     */
     Project(String name, File parent) {
         path = new File(parent, name);
         path.mkdirs();
@@ -53,6 +84,10 @@ public class Project {
         loadTools();
     }
 
+    /**
+     * Add the tools for each project. I tried to create and interface or abstract class. but didn't
+     * succeed. The tree is too long: ??->ToolPane->ToolViewController.
+     */
     private void loadTools() {
         toolsPane.getChildren().add(new SequenceTool(this).getTool().getView());
         toolsPane.getChildren().add(new AlignTool(this).getTool().getView());

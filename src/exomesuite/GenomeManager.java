@@ -19,6 +19,8 @@ package exomesuite;
 import exomesuite.tool.ToolPane;
 import exomesuite.utils.OS;
 import java.io.File;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -35,6 +37,8 @@ public class GenomeManager {
 
     private final ToolPane tool;
     private Button index;
+    private Indexer indexer;
+    private String name;
 
     /**
      * Creates a GenomeManager, if you want to show it, use the getView.
@@ -65,6 +69,9 @@ public class GenomeManager {
                 setProject(f);
             }
         });
+        index.setOnAction((ActionEvent event) -> {
+            startIndex();
+        });
         // Checks if there is a genome in config file.
         if (MainViewController.getGenome() != null) {
             File f = new File(MainViewController.getGenome());
@@ -79,7 +86,7 @@ public class GenomeManager {
      * @param f A file containing the reference genome path.
      */
     private void setProject(File f) {
-        String name = f.getName().replace(".fasta", "").replace(".fa", "");
+        name = f.getName().replace(".fasta", "").replace(".fa", "");
         tool.setName(name);
         MainViewController.setGenome(f.getAbsolutePath());
         if (isIndexed(f)) {
@@ -108,15 +115,47 @@ public class GenomeManager {
      */
     private boolean isIndexed(File f) {
         final String[] extensions = {".fai", ".pac", ".rbwt", ".amb", ".rpac", ".ann", ".rsa",
-            ".bwt", ".sa"};
+            ".bwt", ".sa", ".dict"};
         final File parent = f.getParentFile();
-        final String name = f.getName().replace(".fasta", "").replace(".fa", "");
         for (String ext : extensions) {
             if (!new File(parent, f.getName() + ext).exists()) {
                 return false;
             }
         }
-        return new File(parent, name + ".dict").exists();
+        return true;
+    }
+
+    private void startIndex() {
+        String genome = MainViewController.getGenome();
+        if (genome != null) {
+            tool.setName("");
+            indexer = new Indexer(genome);
+            indexer.setOnSucceeded((WorkerStateEvent event) -> {
+                tool.setStatus(ToolPane.Status.GREEN);
+                tool.setName(name);
+            });
+            indexer.setOnCancelled((WorkerStateEvent event) -> {
+                tool.setStatus(ToolPane.Status.RED);
+                tool.setName(name);
+            });
+            // Listen to progress and messages.
+            indexer.progressProperty().addListener((
+                    ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+                    -> {
+                tool.updateProgress(indexer.getMessage(), newValue.doubleValue());
+                if (newValue.intValue() == 1) {
+                    tool.setStatus(ToolPane.Status.GREEN);
+                    tool.setName(name);
+                }
+            });
+            indexer.messageProperty().addListener((
+                    ObservableValue<? extends String> observable, String oldValue, String newValue)
+                    -> {
+                tool.updateProgress(newValue, indexer.getProgress());
+            });
+            // Go go go, fire in the hole!!
+            new Thread(indexer).start();
+        }
     }
 
 }

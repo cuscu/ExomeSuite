@@ -118,6 +118,9 @@ public final class ToolPane {
                 controller.getHeader().getStyleClass().add("progress");
                 break;
         }
+        if (status != Status.RUNNING) {
+            updateProgress("", -1);
+        }
     }
 
     public Node getView() {
