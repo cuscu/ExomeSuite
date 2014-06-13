@@ -25,6 +25,7 @@ public class ExomeSuite extends Application {
 
         stage.setScene(scene);
         stage.show();
+        stage.setTitle("Exome Suite");
     }
 
     /**

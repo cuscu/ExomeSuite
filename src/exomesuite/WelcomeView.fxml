@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+
+<VBox alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
+        <HBox alignment="CENTER">
+            <children>
+                <Separator orientation="HORIZONTAL" visible="false" HBox.hgrow="ALWAYS"/>
+                <VBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Create a new project." >
+                            <graphic>
+                                <ImageView  >
+                                    <image>
+                                        <Image url="exomesuite/img/new.png" />
+                                    </image>  
+                                </ImageView>
+                            </graphic>
+                        </Label>
+                        <Label alignment="CENTER" text="Open an existing project." >
+                            <graphic>
+                                <ImageView  >
+                                    <image>
+                                        <Image url="exomesuite/img/open.png" />
+                                    </image>  
+                                </ImageView>
+                            </graphic>
+                        </Label>
+                    </children>
+                </VBox> 
+                <Separator orientation="HORIZONTAL" visible="false" HBox.hgrow="ALWAYS"/>      
+            </children>
+        </HBox> 
+        <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS"  />
+    </children>
+</VBox>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="main" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ToolViewController">
+    <children>
+        <HBox fx:id="header" alignment="CENTER_LEFT" VBox.vgrow="SOMETIMES">
+            <children>
+                <StackPane HBox.hgrow="ALWAYS">
+                    <children>
+                        <Region fx:id="region" />
+                        <Label fx:id="title" alignment="CENTER_LEFT"  />
+                        <Label fx:id="progressText" alignment="CENTER_RIGHT" /> 
+                    </children>
+                </StackPane> 
+                <HBox fx:id="buttons" HBox.hgrow="SOMETIMES" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" spacing="5" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
+    <children>
+        <TextField fx:id="name" promptText="Choose project name" prefWidth="400" />
+        <TextField fx:id="path" promptText="Choose root path" /> 
+        <Label fx:id="finalPath" />
+        <Button fx:id="acceptButton" text="Create" />
+    </children>
+</VBox>
