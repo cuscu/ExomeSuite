@@ -15,7 +15,7 @@
                         <Label fx:id="progressText" alignment="CENTER_RIGHT" /> 
                     </children>
                 </StackPane> 
-                <HBox fx:id="buttons" HBox.hgrow="SOMETIMES" />
+                <HBox fx:id="buttons" HBox.hgrow="SOMETIMES" alignment="CENTER_LEFT"  />
             </children>
         </HBox>
     </children>

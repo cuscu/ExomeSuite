@@ -1,5 +1,7 @@
 package exomesuite;
 
+import exomesuite.phase.databases.Databases;
+import exomesuite.phase.reference.GenomeManager;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -65,6 +68,7 @@ public class MainViewController {
 
     private void initializeGenomes() {
         genomes.getChildren().add(new GenomeManager().getView());
+        genomes.getChildren().add(new Databases().getView());
     }
 
     private void newProject() {
@@ -84,12 +88,7 @@ public class MainViewController {
             if (name.isEmpty() || path == null) {
                 return;
             }
-            final Tab tab = new Tab(name);
-            projects.getTabs().add(0, tab);
-            Project project = new Project(name, path);
-            tab.setContent(project.getToolsPane());
-            tabList.add(tab);
-            projects.getSelectionModel().select(tab);
+            addProjectTab(name, path);
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -103,20 +102,27 @@ public class MainViewController {
         }
         File path = f.getParentFile().getParentFile();
         String name = f.getParentFile().getName();
+        addProjectTab(name, path);
+
+    }
+
+    /**
+     *
+     * @param name
+     * @param path
+     */
+    private void addProjectTab(String name, File path) {
         final Tab tab = new Tab(name);
         projects.getTabs().add(0, tab);
         Project project = new Project(name, path);
         tab.setContent(project.getToolsPane());
+        tab.setOnCloseRequest((Event event) -> {
+            if (!project.close()) {
+                event.consume();
+            }
+        });
         tabList.add(tab);
         projects.getSelectionModel().select(tab);
-    }
-
-    public static String getGenome() {
-        return config.getProperty("genome");
-    }
-
-    public static void setGenome(String genome) {
-        config.setProperty("genome", genome);
     }
 
     public static Config getConfig() {

@@ -16,11 +16,22 @@
  */
 package exomesuite;
 
-import exomesuite.tool.align.AlignTool;
-import exomesuite.tool.sequences.SequenceTool;
+import exomesuite.phase.align.AlignPhase;
+import exomesuite.phase.call.CallPhase;
+import exomesuite.phase.mist.MistPhase;
+import exomesuite.phase.sequences.SequencesPhase;
 import exomesuite.utils.Config;
+import exomesuite.utils.Phase;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.event.ActionEvent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  *
@@ -29,20 +40,12 @@ import javafx.scene.layout.VBox;
 public class Project {
 
     /*
-     * Settings.
-     */
-    public final static String FORWARD = "forward_sequence";
-    public final static String REVERSE = "reverse_sequence";
-    public final static String GENOME = "reference_genome";
-    public final static String DBSNP = "dbsnp";
-    public final static String MILLS = "mills";
-    public final static String PHASE1 = "phase1";
-    /*
      * Structure tree.
      */
     public final static String PATH_ALIGNMENT = "alignments";
     public final static String PATH_TEMP = "temp";
     public final static String PATH_VARIANTS = "variants";
+    public final static String PATH_MIST = "mist";
 
     /**
      * Project name. Will be used for tab title and file naming.
@@ -60,6 +63,8 @@ public class Project {
      * Configuration for this project. Config file use to be name.config.
      */
     private final Config config;
+
+    private final List<Phase> phases = new ArrayList<>();
 
     /**
      * New projects will create a folder name under parent an an empty config file.
@@ -89,14 +94,31 @@ public class Project {
      * succeed. The tree is too long: ??->ToolPane->ToolViewController.
      */
     private void loadTools() {
-        toolsPane.getChildren().add(new SequenceTool(this).getTool().getView());
-        toolsPane.getChildren().add(new AlignTool(this).getTool().getView());
+        phases.add(new SequencesPhase(this));
+        phases.add(new AlignPhase(this));
+        phases.add(new CallPhase(this));
+        phases.add(new MistPhase(this));
+        phases.forEach((Phase phase) -> {
+            toolsPane.getChildren().add(phase.getView());
+            config.addListener(phase);
+        });
     }
 
+    /**
+     * Returns the directory where all the files are stored.
+     *
+     * @return
+     */
     public File getPath() {
         return path;
     }
 
+    /**
+     * Don't use it please. It is intended to move everything to a new place, but now it only
+     * changes the path.
+     *
+     * @param path
+     */
     public void setPath(File path) {
         this.path = path;
     }
@@ -115,6 +137,48 @@ public class Project {
 
     public Config getConfig() {
         return config;
+    }
+
+    /**
+     * This method must be called to ensure everything within this project is properly closed.
+     *
+     * @return
+     */
+    public boolean close() {
+        for (Phase phase : phases) {
+            if (phase.isRunning()) {
+                if (!askUserToClose()) {
+                    return false;
+                } else {
+                    phase.stop();
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean exit = false;
+
+    private boolean askUserToClose() {
+        Stage stage = new Stage();
+        Label ask = new Label("There are still tasks running, are you sure you want to exit?");
+        Button yes = new Button("Exit");
+        yes.setOnAction((ActionEvent event) -> {
+            stage.close();
+            exit = true;
+        });
+        Button no = new Button("Continue");
+        no.setOnAction((ActionEvent event) -> {
+            stage.close();
+            exit = false;
+        });
+        HBox hBox = new HBox(5, yes, no);
+        VBox box = new VBox(5, ask, hBox);
+        Scene scene = new Scene(box);
+        stage.setScene(scene);
+        stage.setTitle("Leave? :'-(");
+        stage.showAndWait();
+        return exit;
     }
 
 }

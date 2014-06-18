@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite;
+package exomesuite.systemtask;
 
-import exomesuite.utils.Command;
 import java.io.File;
-import javafx.concurrent.Task;
+import java.io.PrintStream;
 
 /**
  * This class will create the proper indexes for bwa, samtools and picard in the same directory
@@ -26,12 +25,12 @@ import javafx.concurrent.Task;
  *
  * @author Pascual Lorente Arencibia
  */
-public class Indexer extends Task<Integer> {
+public class Indexer extends SystemTask {
 
     private final String genome;
-    private Command command;
 
-    public Indexer(String genome) {
+    public Indexer(PrintStream printStream, String genome) {
+        super(printStream);
         this.genome = genome;
     }
 
@@ -39,31 +38,25 @@ public class Indexer extends Task<Integer> {
     protected Integer call() throws Exception {
         updateMessage("Generating BWA index...");
         updateProgress(5, 100);
-        command = new Command("bwa", "index", "-a", "bwtsw", genome);
-        int ret = command.execute();
+        int ret = execute("bwa", "index", "-a", "bwtsw", genome);
         if (ret != 0) {
             return ret;
         }
         updateMessage("Generating samtools index...");
         updateProgress(60, 100);
-        command = new Command("samtools", "faidx", genome);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("samtools", "faidx", genome)) != 0) {
             return ret;
         }
         updateMessage("Generating Picard index...");
         updateProgress(80, 100);
-        new Command("java", "-jar", "software" + File.separator
-                + "picard" + File.separator + "CreateSequenceDictionary.jar",
-                "R=" + genome, "O=" + genome + ".dict").execute();
+        if ((ret = execute("java", "-jar", "software" + File.separator + "picard" + File.separator
+                + "CreateSequenceDictionary.jar", "R=" + genome,
+                "O=" + genome.replace(".fasta", ".fa").replace(".fa", ".dict"))) != 0) {
+            return ret;
+        }
         updateMessage("Done");
         updateProgress(1, 1);
-        return 0;
-    }
-
-    @Override
-    protected void cancelled() {
-        super.cancelled();
-        command.kill();
+        return ret;
     }
 
 }

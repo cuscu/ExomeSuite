@@ -14,28 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.tool.align;
+package exomesuite.systemtask;
 
-import exomesuite.utils.Command;
+import exomesuite.utils.OS;
 import java.io.File;
-import javafx.concurrent.Task;
+import java.io.PrintStream;
 
 /**
  *
  * @author Pascual Lorente Arencibia
  */
-class Aligner extends Task<Integer> {
+public class Aligner extends SystemTask {
 
     final String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
     final boolean illumina;
     final int cores;
-    final String java7 = scanJava7();
+    final String java7 = OS.scanJava7();
     private final static String gatk = "software" + File.separator + "gatk"
             + File.separator + "GenomeAnalysisTK.jar";
-    Command command;
 
-    public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
-            String mills, String phase1, String output, boolean illumina) {
+    public Aligner(PrintStream printStream, String temp, String forward, String reverse,
+            String genome, String dbsnp, String mills, String phase1, String output,
+            boolean illumina) {
+        super(printStream);
         this.temp = temp;
         this.forward = forward;
         this.reverse = reverse;
@@ -48,10 +49,6 @@ class Aligner extends Task<Integer> {
         name = new File(output).getName().replace(".bam", "");
         cores = Runtime.getRuntime().availableProcessors();
 
-    }
-
-    private String scanJava7() {
-        return "/usr/java/jre1.7.0_51/bin/java";
     }
 
     @Override
@@ -83,13 +80,8 @@ class Aligner extends Task<Integer> {
         }
         updateMessage("Done");
         updateProgress(1, 1);
-        return null;
+        return ret;
 
-//        for (double i = 0.0; i < 1.01; i += 0.01) {
-//            updateProgress(i, 1);
-//            updateMessage("Step" + i);
-//            Thread.sleep(100);
-//        }
     }
 
     /**
@@ -98,13 +90,13 @@ class Aligner extends Task<Integer> {
      * <p>
      * 1 and 2: Align both sequences.</p>
      * <p>
-     * bwa aln -t 4 genome.fasta sequence1.fq.gz -I > seq1.sai</p>
+     * bwa aln -t 4 genome.fasta sequence1.fq.gz -I -f seq1.sai</p>
      * <p>
-     * bwa aln -t 4 genome.fasta sequence2.fq.gz -I > seq2.sai</p>
+     * bwa aln -t 4 genome.fasta sequence2.fq.gz -I -f seq2.sai</p>
      * <p>
      * -I : if the sequence is Illumina 1.3+ encoding</p>
      * -t 4 : number of threads The reference genome must be indexed 3: Generate alignments. bwa
-     * sampe genome.fasta seq1.sai seq2.sai sequence1.fq.gz sequence2.fq.gz > bwa.sam
+     * sampe genome.fasta seq1.sai seq2.sai sequence1.fq.gz sequence2.fq.gz -f bwa.sam
      */
     private int firstAlignment() {
         String seq1 = new File(temp, name + "_seq1.sai").getAbsolutePath();
@@ -113,23 +105,20 @@ class Aligner extends Task<Integer> {
         int ret;
         updateMessage(new File(forward).getName() + "...");
         updateProgress(2, 100);
-        command = new Command("bwa", "aln", "-t", String.valueOf(cores), (illumina ? "-I" : ""),
-                genome, forward, "-f", seq1);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), (illumina ? "-I" : ""),
+                genome, forward, "-f", seq1)) != 0) {
             return ret;
         }
         updateMessage(new File(reverse).getName() + "...");
         updateProgress(12, 100);
-        command = new Command(
-                "bwa", "aln", "-t", String.valueOf(cores),
-                (illumina ? "-I" : ""), genome, reverse, "-f", seq2);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), (illumina ? "-I" : ""),
+                genome, reverse, "-f", seq2)) != 0) {
             return ret;
         }
         updateMessage("Matching pairs...");
         updateProgress(20, 100);
-        command = new Command("bwa", "sampe", "-P", genome, seq1, seq2, forward, reverse, "-f", bwa);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("bwa", "sampe", "-P", "-f", bwa, genome, seq1, seq2, forward, reverse))
+                != 0) {
             return ret;
         }
         new File(seq1).delete();
@@ -171,51 +160,46 @@ class Aligner extends Task<Integer> {
         int ret;
         updateMessage("Cleaning...");
         updateProgress(30, 100);
-        command = new Command("java", "-jar", picard + "CleanSam.jar",
-                "INPUT=" + bwa, "OUTPUT=" + picard1);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("java", "-jar", picard + "CleanSam.jar",
+                "INPUT=" + bwa, "OUTPUT=" + picard1)) != 0) {
             return ret;
         }
         new File(bwa).delete();
         updateMessage("Sorting...");
         updateProgress(35, 100);
-        command = new Command("java", "-jar", picard + "SortSam.jar",
+        if ((ret = execute("java", "-jar", picard + "SortSam.jar",
                 "INPUT=" + picard1,
                 "OUTPUT=" + picard2,
-                "SORT_ORDER=coordinate");
-        if ((ret = command.execute()) != 0) {
+                "SORT_ORDER=coordinate")) != 0) {
             return ret;
         }
         new File(picard1).delete();
         updateMessage("Deleting duplicates...");
         updateProgress(40, 100);
-        command = new Command("java", "-jar", picard + "MarkDuplicates.jar",
+        if ((ret = execute("java", "-jar", picard + "MarkDuplicates.jar",
                 "INPUT=" + picard2,
                 "OUTPUT=" + picard3,
                 "REMOVE_DUPLICATES=true",
-                "METRICS_FILE=" + metrics);
-        if ((ret = command.execute()) != 0) {
+                "METRICS_FILE=" + metrics)) != 0) {
             return ret;
         }
         new File(picard2).delete();
         new File(metrics).delete();
-        updateMessage("Repairing headers.");
+        updateMessage("Repairing headers...");
         updateProgress(45, 100);
-        command = new Command("java", "-jar", picard + "AddOrReplaceReadGroups.jar",
+        if ((ret = execute("java", "-jar", picard + "AddOrReplaceReadGroups.jar",
                 "INPUT=" + picard3,
                 "OUTPUT=" + picard4,
                 "RGPL=ILLUMINA",
                 "RGSM=" + name,
                 "RGPU=flowcell-barcode.lane",
-                "RGLB=BAITS");
-        if ((ret = command.execute()) != 0) {
+                "RGLB=BAITS")) != 0) {
             return ret;
         }
         new File(picard3).delete();
         updateMessage("Creating index...");
         updateProgress(50, 100);
-        command = new Command("java", "-jar", picard + "BuildBamIndex.jar", "INPUT=" + picard4);
-        if ((ret = command.execute()) != 0) {
+        if ((ret = execute("java", "-jar", picard + "BuildBamIndex.jar", "INPUT=" + picard4)) != 0) {
             return ret;
         }
         return 0;
@@ -241,23 +225,21 @@ class Aligner extends Task<Integer> {
         updateMessage("Prealigning...");
         updateProgress(60, 100);
         int ret;
-        command = new Command(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk,
                 "-T", "RealignerTargetCreator",
                 "-R", genome, "-I", picard4,
                 "-known", mills, "-known", phase1,
-                "-o", intervals);
-        if ((ret = command.execute()) != 0) {
+                "-o", intervals)) != 0) {
             return ret;
         }
         updateMessage("Aligning...");
         updateProgress(70, 100);
-        command = new Command(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk,
                 "-T", "IndelRealigner",
                 "-R", genome, "-I", picard4,
                 "-known", mills, "-known", phase1,
                 "-targetIntervals", intervals,
-                "-o", gatk1);
-        if ((ret = command.execute()) != 0) {
+                "-o", gatk1)) != 0) {
             return ret;
         }
         new File(picard4).delete();
@@ -286,27 +268,25 @@ class Aligner extends Task<Integer> {
         updateProgress(80, 100);
         updateMessage("Pre-recalibrating...");
         int ret;
-        command = new Command(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk,
                 "-T", "BaseRecalibrator",
                 "-I", gatk1,
                 "-R", genome,
                 "--knownSites", dbsnp,
                 "--knownSites", mills,
                 "--knownSites", phase1,
-                "-o", recal);
-        if ((ret = command.execute()) != 0) {
+                "-o", recal)) != 0) {
             return ret;
         }
 
         updateProgress(90, 100);
         updateMessage("Recalibrating...");
-        command = new Command(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk,
                 "-T", "PrintReads",
                 "-R", genome,
                 "-I", gatk1,
                 "-BQSR", recal,
-                "-o", output);
-        if ((ret = command.execute()) != 0) {
+                "-o", output)) != 0) {
             return ret;
         }
         new File(gatk1).delete();
@@ -314,10 +294,5 @@ class Aligner extends Task<Integer> {
         new File(recal).delete();
 
         return 0;
-    }
-
-    void stop() {
-        command.kill();
-        cancel();
     }
 }

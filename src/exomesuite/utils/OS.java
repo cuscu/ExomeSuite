@@ -252,4 +252,13 @@ public class OS {
         return (file != null) ? (lastPath = file) : null;
     }
 
+    /**
+     * TODO: search for jre1.7.0_51/bin/java.
+     *
+     * @return a String with java7 path.
+     */
+    public static String scanJava7() {
+        return "/usr/java/jre1.7.0_51/bin/java";
+    }
+
 }

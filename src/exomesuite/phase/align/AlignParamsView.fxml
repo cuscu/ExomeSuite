@@ -6,11 +6,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.align.AlignParamsViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.phase.align.AlignParamsViewController">
     <children>
-        <TextField fx:id="mills" promptText="Mills VCF" />
-        <TextField fx:id="phase1" promptText="1000 Genome Phase 1" />
-        <TextField fx:id="dbsnp" promptText="dbSNP" />   
         <RadioButton fx:id="phred64" text="Phred + 64 (Illumina 1.3 to 1.6)"  selected="true" />  
         <RadioButton fx:id="phred33" text="Phred + 33 (Sanger)" />             
     </children>

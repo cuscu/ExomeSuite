@@ -14,14 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.tool.sequences;
+package exomesuite.phase.sequences;
 
 import exomesuite.Project;
 import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
+import exomesuite.utils.Phase;
 import java.io.File;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -33,17 +35,15 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class SequenceTool {
+public class SequencesPhase extends Phase {
 
     private final ToolPane tool = new ToolPane("Sequences", ToolPane.Status.RED);
-    private final Project project;
     private final Config config;
     private File forward, reverse;
     private final Button acceptButton;
     private final TextField forwardTF, reverseTF;
 
-    public SequenceTool(Project project) {
-        this.project = project;
+    public SequencesPhase(Project project) {
         this.config = project.getConfig();
         // Create buttons.
         Button openButton = new Button(null, new ImageView("exomesuite/img/rd_arrow.png"));
@@ -76,12 +76,12 @@ public class SequenceTool {
             openReverse();
         });
         // Check if the files have already been selected.
-        String fw = config.getProperty(Project.FORWARD);
+        String fw = config.getProperty(Config.FORWARD);
         if (fw != null) {
             forwardTF.setText(fw);
             forward = new File(fw);
         }
-        String rv = config.getProperty(Project.REVERSE);
+        String rv = config.getProperty(Config.REVERSE);
         if (rv != null) {
             reverseTF.setText(rv);
             reverse = new File(rv);
@@ -103,14 +103,10 @@ public class SequenceTool {
     }
 
     private void accept() {
-        config.setProperty(Project.FORWARD, forward.getAbsolutePath());
-        config.setProperty(Project.REVERSE, reverse.getAbsolutePath());
+        config.setProperty(Config.FORWARD, forward.getAbsolutePath());
+        config.setProperty(Config.REVERSE, reverse.getAbsolutePath());
         tool.hidePane();
         tool.setStatus(ToolPane.Status.GREEN);
-    }
-
-    public ToolPane getTool() {
-        return tool;
     }
 
     private void openForward() {
@@ -125,6 +121,20 @@ public class SequenceTool {
         if (forward != null && reverse != null) {
             sequencesSelected();
         }
+    }
+
+    @Override
+    protected void configChanged() {
+    }
+
+    @Override
+    public Node getView() {
+        return tool.getView();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return false;
     }
 
 }

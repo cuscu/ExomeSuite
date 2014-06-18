@@ -14,11 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite;
+package exomesuite.phase.reference;
 
+import exomesuite.MainViewController;
+import exomesuite.systemtask.Indexer;
+import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
+import exomesuite.utils.Config;
 import exomesuite.utils.OS;
+import exomesuite.utils.Phase;
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -33,12 +40,13 @@ import javafx.scene.image.ImageView;
  *
  * @author Pascual Lorente Arencibia
  */
-public class GenomeManager {
+public class GenomeManager extends Phase {
 
     private final ToolPane tool;
     private Button index;
     private Indexer indexer;
     private String name;
+    private final DateFormat df = new SimpleDateFormat("yyMMdd");
 
     /**
      * Creates a GenomeManager, if you want to show it, use the getView.
@@ -73,8 +81,8 @@ public class GenomeManager {
             startIndex();
         });
         // Checks if there is a genome in config file.
-        if (MainViewController.getGenome() != null) {
-            File f = new File(MainViewController.getGenome());
+        if (MainViewController.getConfig().containsKey("genome")) {
+            File f = new File(MainViewController.getConfig().getProperty("genome"));
             setProject(f);
         }
     }
@@ -88,7 +96,7 @@ public class GenomeManager {
     private void setProject(File f) {
         name = f.getName().replace(".fasta", "").replace(".fa", "");
         tool.setName(name);
-        MainViewController.setGenome(f.getAbsolutePath());
+        MainViewController.getConfig().setProperty("genome", f.getAbsolutePath());
         if (isIndexed(f)) {
             System.out.println("Indexed");
             tool.setStatus(ToolPane.Status.GREEN);
@@ -102,6 +110,7 @@ public class GenomeManager {
      *
      * @return the root pane.
      */
+    @Override
     public Node getView() {
         return tool.getView();
     }
@@ -115,28 +124,29 @@ public class GenomeManager {
      */
     private boolean isIndexed(File f) {
         final String[] extensions = {".fai", ".pac", ".rbwt", ".amb", ".rpac", ".ann", ".rsa",
-            ".bwt", ".sa", ".dict"};
+            ".bwt", ".sa"};
         final File parent = f.getParentFile();
         for (String ext : extensions) {
             if (!new File(parent, f.getName() + ext).exists()) {
                 return false;
             }
         }
-        return true;
+        return new File(parent, f.getName().replace(".fasta", ".fa").replace(".fa", ".dict")).
+                exists();
     }
 
     private void startIndex() {
-        String genome = MainViewController.getGenome();
+        String genome = MainViewController.getConfig().getProperty("genome");
         if (genome != null) {
             tool.setName("");
-            indexer = new Indexer(genome);
+            Console console = new Console();
+            tool.showPane(console.getView());
+            indexer = new Indexer(console.getPrintStream(), genome);
             indexer.setOnSucceeded((WorkerStateEvent event) -> {
-                tool.setStatus(ToolPane.Status.GREEN);
-                tool.setName(name);
+                endIndex(true);
             });
             indexer.setOnCancelled((WorkerStateEvent event) -> {
-                tool.setStatus(ToolPane.Status.RED);
-                tool.setName(name);
+                endIndex(false);
             });
             // Listen to progress and messages.
             indexer.progressProperty().addListener((
@@ -156,6 +166,24 @@ public class GenomeManager {
             // Go go go, fire in the hole!!
             new Thread(indexer).start();
         }
+    }
+
+    private void endIndex(boolean ok) {
+        if (ok) {
+            tool.setStatus(ToolPane.Status.GREEN);
+            tool.setName(name);
+            MainViewController.getConfig().setProperty(Config.INDEX_DATE, df.format(System.
+                    currentTimeMillis()));
+        } else {
+            tool.setStatus(ToolPane.Status.RED);
+            tool.setName(name);
+        }
+
+    }
+
+    @Override
+    public boolean isRunning() {
+        return tool.getStatus() == ToolPane.Status.RUNNING;
     }
 
 }

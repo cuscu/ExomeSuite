@@ -14,36 +14,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.tool;
+package exomesuite.phase.align;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 
 /**
  * FXML Controller class
  *
  * @author Pascual Lorente Arencibia
  */
-public class ConsoleController {
+public class AlignParamsViewController {
 
     @FXML
-    private TextArea console;
+    private RadioButton phred64;
+    @FXML
+    private RadioButton phred33;
+
+    private ToggleGroup group;
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
+        group = new ToggleGroup();
+        phred33.setToggleGroup(group);
+        phred64.setToggleGroup(group);
     }
 
-    public void addText(String text) {
-        Platform.runLater(() -> {
-            console.appendText(text);
-        });
-    }
-
-    public void clear() {
-        console.setText("");
+    boolean isPhred64() {
+        return phred64.isSelected();
     }
 
 }

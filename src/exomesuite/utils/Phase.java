@@ -14,36 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.tool;
+package exomesuite.utils;
 
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
+import javafx.scene.Node;
 
 /**
- * FXML Controller class
+ *
+ * Phase is only a temporary name to package all the tools for a single project. I don't want to use
+ * the word tool because it has been used too much.
  *
  * @author Pascual Lorente Arencibia
  */
-public class ConsoleController {
-
-    @FXML
-    private TextArea console;
+public abstract class Phase {
 
     /**
-     * Initializes the controller class.
+     * When a property is added, removed or updated in the config, this method will be called.
+     *
      */
-    public void initialize() {
+    protected void configChanged() {
+
     }
 
-    public void addText(String text) {
-        Platform.runLater(() -> {
-            console.appendText(text);
-        });
-    }
+    public abstract Node getView();
 
-    public void clear() {
-        console.setText("");
-    }
+    public abstract boolean isRunning();
 
+    public void stop() {
+
+    }
 }
