@@ -16,10 +16,10 @@
  */
 package exomesuite;
 
-import exomesuite.phase.align.AlignPhase;
-import exomesuite.phase.call.CallPhase;
-import exomesuite.phase.mist.MistPhase;
-import exomesuite.phase.sequences.SequencesPhase;
+import exomesuite.phase.CallPhase;
+import exomesuite.phase.MistPhase;
+import exomesuite.phase.SequencesPhase;
+import exomesuite.phase.AlignPhase;
 import exomesuite.utils.Config;
 import exomesuite.utils.Phase;
 import java.io.File;

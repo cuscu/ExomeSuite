@@ -22,10 +22,11 @@ public class ExomeSuite extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("MainView.fxml"));
 
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
 
         stage.setScene(scene);
-        stage.show();
         stage.setTitle("Exome Suite");
+        stage.show();
     }
 
     /**
@@ -35,4 +36,7 @@ public class ExomeSuite extends Application {
         launch(args);
     }
 
+    public static void showAndWait(Stage stage) {
+        stage.showAndWait();
+    }
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.databases;
+package exomesuite.phase;
 
 import exomesuite.MainViewController;
 import exomesuite.tool.ToolPane;
@@ -42,7 +42,7 @@ public class Databases extends Phase {
 
     public Databases() {
         this.config = MainViewController.getConfig();
-        toolPane = new ToolPane("Databases", properStatus());
+        toolPane = new ToolPane("Databases", properStatus(), "database.png");
         Button set = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         Button ok = new Button(null, new ImageView("exomesuite/img/accept.png"));
         toolPane.addButton(ToolPane.Status.RED, set);

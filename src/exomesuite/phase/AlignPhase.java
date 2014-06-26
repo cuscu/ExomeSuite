@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.align;
+package exomesuite.phase;
 
 import exomesuite.MainViewController;
 import exomesuite.Project;
@@ -25,16 +25,15 @@ import exomesuite.tool.ToolPane.Status;
 import exomesuite.utils.Config;
 import exomesuite.utils.Phase;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 
 /**
  *
@@ -44,17 +43,15 @@ public class AlignPhase extends Phase {
 
     private final ToolPane tool;
     private final Project project;
-    private final Config config;
     private final Node paramsView;
-    private AlignParamsViewController params;
+    private RadioButton phred64;
     private Aligner aligner;
     private Status prevStatus;
 
     public AlignPhase(Project project) {
         this.project = project;
-        this.config = MainViewController.getConfig();
         paramsView = getParamsView();
-        tool = new ToolPane("Align sequences", ToolPane.Status.GREEN);
+        tool = new ToolPane("Align sequences", ToolPane.Status.GREEN, "align.png");
         // Service buttons.
         Button goButton = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         goButton.setOnAction((ActionEvent event) -> {
@@ -79,26 +76,24 @@ public class AlignPhase extends Phase {
         tool.addButton(ToolPane.Status.OPEN, goButton);
         tool.addButton(ToolPane.Status.RUNNING, stopButton);
         tool.addButton(ToolPane.Status.GREEN, settingsButton);
-        selectProperStatus();
+        tool.setStatus(getProperStatus());
     }
 
     private Node getParamsView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignParamsView.fxml"));
-            loader.load();
-            params = loader.getController();
-            return loader.getRoot();
-        } catch (IOException ex) {
-            Logger.getLogger(AlignPhase.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        ToggleGroup group = new ToggleGroup();
+        phred64 = new RadioButton("Phred + 64 (Illumina 1.3 to 1.6)");
+        phred64.setSelected(true);
+        RadioButton phred33 = new RadioButton("Phred + 33 (Sanger)");
+        group.getToggles().addAll(phred33, phred64);
+        return new VBox(2, phred64, phred33);
     }
 
     private void runAligner() {
-        boolean phred64 = params.isPhred64();
-        String dbsnp = config.getProperty(Config.DBSNP);
-        String mills = config.getProperty(Config.MILLS);
-        String phase1 = config.getProperty(Config.PHASE1);
+        boolean isPhred64 = phred64.isSelected();
+        final Config general = MainViewController.getConfig();
+        String dbsnp = general.getProperty(Config.DBSNP);
+        String mills = general.getProperty(Config.MILLS);
+        String phase1 = general.getProperty(Config.PHASE1);
         // Aligner will not run if any of the params is not present.
         if (dbsnp.isEmpty() || mills.isEmpty() || phase1.isEmpty()) {
             return;
@@ -107,16 +102,17 @@ public class AlignPhase extends Phase {
         File pathTemp = new File(project.getPath(), Project.PATH_TEMP);
         pathTemp.mkdirs();
         String temp = pathTemp.getAbsolutePath();
-        String forward = config.getProperty(Config.FORWARD);
-        String reverse = config.getProperty(Config.REVERSE);
+        String forward = project.getConfig().getProperty(Config.FORWARD);
+        String reverse = project.getConfig().getProperty(Config.REVERSE);
         String genome = MainViewController.getConfig().getProperty("genome");
         File out = new File(project.getPath(), Project.PATH_ALIGNMENT);
         out.mkdirs();
         String output = new File(out, project.getName() + ".bam").getAbsolutePath();
+        // Pretty nice console.
         Console console = new Console();
-        aligner
-                = new Aligner(console.getPrintStream(), temp, forward, reverse, genome, dbsnp, mills,
-                        phase1, output, phred64);
+        aligner = new Aligner(console.getPrintStream(), temp, forward, reverse, genome, dbsnp,
+                mills, phase1, output, isPhred64);
+        // Binding progress and messages.
         aligner.progressProperty().addListener((
                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             tool.updateProgress(aligner.getMessage(), newValue.doubleValue());
@@ -125,23 +121,28 @@ public class AlignPhase extends Phase {
                 String oldValue, String newValue) -> {
             tool.updateProgress(newValue, aligner.getProgress());
         });
+        // What to do when finish.
         aligner.setOnCancelled((WorkerStateEvent event) -> {
             tool.setStatus(Status.RED);
+//            tool.hidePane();
         });
         aligner.setOnSucceeded((WorkerStateEvent event) -> {
             tool.setStatus(Status.GREEN);
+            tool.hidePane();
         });
         aligner.progressProperty().addListener((
                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             tool.updateProgress(aligner.getMessage(), newValue.doubleValue());
             if (newValue.intValue() == 1) {
                 tool.setStatus(ToolPane.Status.GREEN);
+                tool.hidePane();
             }
         });
         aligner.messageProperty().addListener((
                 ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
             tool.updateProgress(newValue, aligner.getProgress());
         });
+        tool.showPane(console.getView());
         tool.setStatus(ToolPane.Status.RUNNING);
         new Thread(aligner).start();
     }
@@ -153,7 +154,7 @@ public class AlignPhase extends Phase {
     }
 
     @Override
-    public void stop() {
+    public final void stop() {
         if (aligner != null) {
             aligner.cancel();
         }
@@ -168,7 +169,7 @@ public class AlignPhase extends Phase {
 
     @Override
     protected void configChanged() {
-        selectProperStatus();
+        tool.setStatus(getProperStatus());
     }
 
     @Override
@@ -176,19 +177,20 @@ public class AlignPhase extends Phase {
         return tool.getView();
     }
 
-    private void selectProperStatus() {
+    private Status getProperStatus() {
         // Green if this sample has been aligned yet.
         // Red if sequences, genome and dbSNP are available.
         // Otherwise, disabled.
+        prevStatus = tool.getStatus();
         if (project.getConfig().containsKey(Config.ALIGN_DATE)) {
-            tool.setStatus(Status.GREEN);
+            return Status.GREEN;
         } else if (project.getConfig().containsKey(Config.FORWARD)
                 && project.getConfig().containsKey(Config.REVERSE)
                 && MainViewController.getConfig().containsKey(Config.GENOME)
                 && MainViewController.getConfig().containsKey(Config.DBSNP)) {
-            tool.setStatus(Status.RED);
+            return Status.RED;
         } else {
-            tool.setStatus(Status.DISABLED);
+            return Status.DISABLED;
         }
     }
 

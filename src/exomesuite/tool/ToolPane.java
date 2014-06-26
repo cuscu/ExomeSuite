@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 
 /**
  *
@@ -45,17 +46,26 @@ public final class ToolPane {
     ToolViewController controller;
     private Node view;
 
-    public ToolPane(String name, Status status) {
+    /**
+     * Ico is the name of the ico, it must be on the exomesuite/img/ directory.
+     *
+     * @param name
+     * @param status
+     * @param ico
+     */
+    public ToolPane(String name, Status status, String ico) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ToolView.fxml"));
             loader.load();
             controller = loader.getController();
             view = loader.getRoot();
-            controller.getHeader().getStylesheets().add("exomesuite/styles/default.css");
         } catch (IOException ex) {
             Logger.getLogger(ToolPane.class.getName()).log(Level.SEVERE, null, ex);
         }
         controller.getName().setText(name);
+        if (ico != null && !ico.equals("")) {
+            controller.getName().setGraphic(new ImageView("exomesuite/img/" + ico));
+        }
         setStatus(status);
         hidePane();
     }

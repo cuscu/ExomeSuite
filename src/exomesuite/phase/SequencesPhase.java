@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.sequences;
+package exomesuite.phase;
 
 import exomesuite.Project;
 import exomesuite.tool.ToolPane;
@@ -37,7 +37,7 @@ import javafx.scene.layout.VBox;
  */
 public class SequencesPhase extends Phase {
 
-    private final ToolPane tool = new ToolPane("Sequences", ToolPane.Status.RED);
+    private final ToolPane tool = new ToolPane("Sequences", ToolPane.Status.RED, "seqs.png");
     private final Config config;
     private File forward, reverse;
     private final Button acceptButton;

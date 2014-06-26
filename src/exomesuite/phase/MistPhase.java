@@ -14,21 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.mist;
+package exomesuite.phase;
 
 import exomesuite.MainViewController;
 import exomesuite.Project;
+import exomesuite.systemtask.Mist;
+import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
 import exomesuite.tool.ToolPane.Status;
 import exomesuite.utils.Config;
 import exomesuite.utils.Phase;
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -45,10 +49,11 @@ public class MistPhase extends Phase {
     private final Node params;
     private Status prevStatus;
     private Slider threshold;
+    private final DateFormat df = new SimpleDateFormat("yyMMdd");
 
     public MistPhase(Project project) {
         this.project = project;
-        toolPane = new ToolPane("MIST analysis", properStatus());
+        toolPane = new ToolPane("MIST analysis", properStatus(), "mist.png");
         Button go = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         go.setOnAction((ActionEvent event) -> {
             go();
@@ -97,21 +102,35 @@ public class MistPhase extends Phase {
 
     private void go() {
         toolPane.setStatus(ToolPane.Status.RUNNING);
-        toolPane.showPane(new HBox(new Label("Progress"), new ProgressBar(-1)));
+        toolPane.hidePane();
         int val = new Double(threshold.getValue()).intValue();
         // INPUT=path/alignments/name.bam
         File aln = new File(project.getPath(), Project.PATH_ALIGNMENT);
         File input = new File(aln, project.getName() + ".bam");
         // OUTPUT=path/mist/name.mist
-        File mist = new File(project.getPath(), Project.PATH_MIST);
-        mist.mkdirs();
-        File output = new File(mist, project.getName() + ".mist");
-        String ensembl = MainViewController.getConfig().getProperty(Config.ENSEMBL_EXONS);
+        File mistDir = new File(project.getPath(), Project.PATH_MIST);
+        mistDir.mkdirs();
+        File output = new File(mistDir, project.getName() + ".mist");
+        File ensembl = new File(MainViewController.getConfig().getProperty(Config.ENSEMBL_EXONS));
         System.out.println("Input:" + input);
         System.out.println("Output:" + output);
         System.out.println("Threshold:" + val);
         System.out.println("Ensembl:" + ensembl);
-
+        Console console = new Console();
+        Mist mist = new Mist(console.getPrintStream(), input, output, ensembl, val);
+        mist.setOnSucceeded((WorkerStateEvent event) -> {
+            project.getConfig().setProperty(Config.MIST_DATE, df.format(System.currentTimeMillis()));
+            toolPane.setStatus(Status.GREEN);
+        });
+        mist.progressProperty().addListener((ObservableValue<? extends Number> observable,
+                Number old, Number current) -> {
+            toolPane.updateProgress(mist.getMessage(), mist.getProgress());
+        });
+        mist.messageProperty().addListener((ObservableValue<? extends String> observable,
+                String oldValue, String newValue) -> {
+            toolPane.updateProgress(mist.getMessage(), mist.getProgress());
+        });
+        new Thread(mist).start();
     }
 
     private void settings() {
@@ -126,7 +145,7 @@ public class MistPhase extends Phase {
     }
 
     @Override
-    public void stop() {
+    public final void stop() {
         toolPane.setStatus(Status.RED);
         toolPane.hidePane();
     }

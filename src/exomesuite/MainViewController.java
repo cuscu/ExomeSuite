@@ -1,27 +1,23 @@
 package exomesuite;
 
-import exomesuite.phase.databases.Databases;
-import exomesuite.phase.reference.GenomeManager;
+import exomesuite.phase.Databases;
+import exomesuite.phase.GenomeManager;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 /**
  *
@@ -29,25 +25,22 @@ import javafx.stage.Stage;
  */
 public class MainViewController {
 
-    @FXML
-    private TabPane projects;
-    @FXML
-    private VBox genomes;
-    private List<Tab> tabList;
     private static Config config;
 
+    @FXML
+    private TabPane projects;
+
     public void initialize() {
-        tabList = new ArrayList<>();
         initializeManager();
-        initializeGenomes();
+        initializeNewProjectTab();
+        initializeDatabases();
     }
 
     private void initializeManager() {
         config = new Config(new File("exomesuite.config"));
         final Tab newTab = new Tab();
-        Button newButton = new Button(null, new ImageView("exomesuite/img/new.png"));
         Button openButton = new Button(null, new ImageView("exomesuite/img/open.png"));
-        HBox newOpenProject = new HBox(openButton, newButton);
+        HBox newOpenProject = new HBox(openButton);
         newTab.setGraphic(newOpenProject);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeView.fxml"));
@@ -58,37 +51,38 @@ public class MainViewController {
         }
         newTab.setClosable(false);
         projects.getTabs().add(newTab);
-        newButton.setOnAction((ActionEvent event) -> {
-            newProject();
-        });
         openButton.setOnAction((ActionEvent event) -> {
             openProject();
         });
+
     }
 
-    private void initializeGenomes() {
-        genomes.getChildren().add(new GenomeManager().getView());
-        genomes.getChildren().add(new Databases().getView());
+    private void initializeDatabases() {
+        final Tab tab = new Tab();
+        tab.setGraphic(new ImageView("exomesuite/img/database.png"));
+        projects.getTabs().add(tab);
+        tab.setClosable(false);
+        tab.setContent(new VBox(new Databases().getView(), new GenomeManager().getView()));
     }
 
-    private void newProject() {
+    private void initializeNewProjectTab() {
+        final Tab tab = new Tab();
+        tab.setGraphic(new ImageView("exomesuite/img/add.png"));
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"));
             loader.load();
             NewProjectViewController controller = loader.getController();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(loader.getRoot()));
-            controller.setStage(stage);
-            stage.showAndWait();
-            if (!controller.isAccepted()) {
-                return;
-            }
-            String name = controller.getName();
-            File path = controller.getPath();
-            if (name.isEmpty() || path == null) {
-                return;
-            }
-            addProjectTab(name, path);
+            controller.getAcceptButton().setOnAction((ActionEvent event) -> {
+                String name = controller.getName();
+                File path = controller.getPath();
+                if (!name.isEmpty() && !(path == null)) {
+                    addProjectTab(name, path);
+                    controller.clear();
+                }
+            });
+            tab.setContent(loader.getRoot());
+            tab.setClosable(false);
+            projects.getTabs().add(tab);
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -121,7 +115,7 @@ public class MainViewController {
                 event.consume();
             }
         });
-        tabList.add(tab);
+//        tabList.add(tab);
         projects.getSelectionModel().select(tab);
     }
 

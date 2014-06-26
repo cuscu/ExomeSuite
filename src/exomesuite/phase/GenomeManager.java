@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.reference;
+package exomesuite.phase;
 
 import exomesuite.MainViewController;
 import exomesuite.systemtask.Indexer;
@@ -57,7 +57,7 @@ public class GenomeManager extends Phase {
          *        genome not indexed (select:enable, index:enable)
          * GREEN: genome selected and indexed (remove:enabled)
          */
-        tool = new ToolPane("Reference genome", ToolPane.Status.RED);
+        tool = new ToolPane("Reference genome", ToolPane.Status.RED, "reference.png");
         Button delete = new Button(null, new ImageView("exomesuite/img/delete.png"));
         Button add = new Button(null, new ImageView("exomesuite/img/add.png"));
         index = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));

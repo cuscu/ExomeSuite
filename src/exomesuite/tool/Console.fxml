@@ -2,11 +2,15 @@
 
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import java.net.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <ScrollPane fitToHeight="true" fitToWidth="true"  xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ConsoleController">
+        <stylesheets>
+        <URL value="@../../main.css"/>
+    </stylesheets>
     <content>
         <TextArea fx:id="console" prefRowCount="8" wrapText="false" editable="false"  />
     </content>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 UICHUIMI
+ * Copyright (C) 2014 uichuimi03
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,37 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.align;
+package exomesuite;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
  *
- * @author Pascual Lorente Arencibia
+ * @author uichuimi03
  */
-public class AlignParamsViewController {
+public class WelcomeViewController {
 
     @FXML
-    private RadioButton phred64;
-    @FXML
-    private RadioButton phred33;
-
-    private ToggleGroup group;
+    private VBox settings;
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
-        group = new ToggleGroup();
-        phred33.setToggleGroup(group);
-        phred64.setToggleGroup(group);
     }
 
-    boolean isPhred64() {
-        return phred64.isSelected();
+    public VBox getSettings() {
+        return settings;
     }
 
 }

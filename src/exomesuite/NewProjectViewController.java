@@ -25,7 +25,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -38,27 +37,23 @@ public class NewProjectViewController {
     private TextField name;
     @FXML
     private TextField path;
-
     @FXML
     private Button acceptButton;
-    private File pathDir;
-    private Stage stage;
-    private boolean accepted = false;
     @FXML
     private Label finalPath;
+
+    private File pathDir;
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
+        path.setEditable(false);
         path.setOnAction((ActionEvent event) -> {
             selectPath();
         });
         path.setOnMouseClicked((MouseEvent event) -> {
             selectPath();
-        });
-        acceptButton.setOnAction((ActionEvent event) -> {
-            accept();
         });
         name.setOnKeyTyped((KeyEvent event) -> {
             updateFolder();
@@ -84,23 +79,22 @@ public class NewProjectViewController {
         return name.getText();
     }
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    private void accept() {
-        accepted = true;
-        stage.close();
-    }
-
-    boolean isAccepted() {
-        return accepted;
-    }
-
     private void updateFolder() {
         if (pathDir != null) {
             finalPath.setText(pathDir + File.separator + name.getText() + " will be created.");
         }
+    }
+
+    public Button getAcceptButton() {
+        return acceptButton;
+    }
+
+    public void clear() {
+        name.setText("");
+        path.setText("");
+        finalPath.setText("");
+        pathDir = null;
+
     }
 
 }

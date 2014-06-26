@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase.call;
+package exomesuite.phase;
 
 import exomesuite.MainViewController;
 import exomesuite.Project;
@@ -51,7 +51,7 @@ public class CallPhase extends Phase {
     public CallPhase(Project project) {
         this.project = project;
         config = project.getConfig();
-        toolPane = new ToolPane("Call variants", ToolPane.Status.RED);
+        toolPane = new ToolPane("Call variants", ToolPane.Status.RED, "call.png");
         Button go = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         go.setOnAction((ActionEvent event) -> {
             call();

@@ -2,21 +2,10 @@
 
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.MainViewController" prefHeight="600" prefWidth="800" >
+<HBox prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.MainViewController">
     <children>
-        <VBox>
-            <children>
-                <ImageView pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image smooth="false" url="exomesuite/img/dna_brand.png" />
-                    </image> 
-                </ImageView>
-                <VBox fx:id="genomes"/> 
-            </children>
-        </VBox>
-        <TabPane fx:id="projects" HBox.hgrow="SOMETIMES" />
+        <TabPane fx:id="projects" HBox.hgrow="SOMETIMES" /> 
     </children>
 </HBox>
