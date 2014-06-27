@@ -20,7 +20,6 @@ import exomesuite.MainViewController;
 import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
-import exomesuite.utils.Phase;
 import java.io.File;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -80,12 +79,13 @@ public class Databases extends Phase {
      * @return a VBox with a TextField for each database.
      */
     private VBox getParamsView() {
-        TextField mills = getParamTF(Config.MILLS, "Mills VCF");
-        TextField phase1 = getParamTF(Config.PHASE1, "1000 Genome Phase 1");
-        TextField dbsnp = getParamTF(Config.DBSNP, "dbSNP");
-        TextField omni = getParamTF(Config.OMNI, "OMNI");
+        TextField mills = getVcfParam(Config.MILLS, "Mills VCF");
+        TextField phase1 = getVcfParam(Config.PHASE1, "1000 Genome Phase 1");
+        TextField dbsnp = getVcfParam(Config.DBSNP, "dbSNP");
+        TextField omni = getVcfParam(Config.OMNI, "OMNI");
+        TextField hapmap = getVcfParam(Config.HAPMAP, "Hapmap");
         TextField ensembl = getTsvTf(Config.ENSEMBL_EXONS, "Ensembl exons database (TSV)");
-        return new VBox(3, mills, phase1, dbsnp, omni, ensembl);
+        return new VBox(3, mills, phase1, dbsnp, omni, hapmap, ensembl);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Databases extends Phase {
      * @param desc A prompt text.
      * @return
      */
-    private TextField getParamTF(String name, String desc) {
+    private TextField getVcfParam(String name, String desc) {
         TextField textField = new TextField();
         if (config.containsKey(name)) {
             textField.setText(config.getProperty(name));

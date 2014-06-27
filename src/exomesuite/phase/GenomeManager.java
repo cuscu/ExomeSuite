@@ -22,7 +22,6 @@ import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
-import exomesuite.utils.Phase;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

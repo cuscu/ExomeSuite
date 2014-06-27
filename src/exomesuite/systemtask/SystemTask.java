@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.utils.Config;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -30,7 +31,7 @@ import javafx.concurrent.Task;
  */
 public abstract class SystemTask extends Task<Integer> {
 
-    private final PrintStream printStream;
+    private PrintStream printStream;
     private Process process;
 
     public SystemTask(PrintStream printStream) {
@@ -81,6 +82,21 @@ public abstract class SystemTask extends Task<Integer> {
             System.out.println("Destroying...");
             process.destroy();
         }
+    }
+
+    /**
+     * Must return true if the task could be configured successfully, otherwise return false. If
+     * this method returns true, it means the task can be launch.
+     *
+     * @param mainConfig The configuration of the application.
+     * @param projectConfig The configuration of the project.
+     * @param stepConfig The configuration of the tool.
+     * @return
+     */
+    public abstract boolean configure(Config mainConfig, Config projectConfig, Config stepConfig);
+
+    public void setPrintStream(PrintStream printStream) {
+        this.printStream = printStream;
     }
 
 }

@@ -23,8 +23,8 @@ import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
 import exomesuite.tool.ToolPane.Status;
 import exomesuite.utils.Config;
-import exomesuite.utils.Phase;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -127,20 +127,7 @@ public class AlignPhase extends Phase {
 //            tool.hidePane();
         });
         aligner.setOnSucceeded((WorkerStateEvent event) -> {
-            tool.setStatus(Status.GREEN);
-            tool.hidePane();
-        });
-        aligner.progressProperty().addListener((
-                ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            tool.updateProgress(aligner.getMessage(), newValue.doubleValue());
-            if (newValue.intValue() == 1) {
-                tool.setStatus(ToolPane.Status.GREEN);
-                tool.hidePane();
-            }
-        });
-        aligner.messageProperty().addListener((
-                ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            tool.updateProgress(newValue, aligner.getProgress());
+            finish();
         });
         tool.showPane(console.getView());
         tool.setStatus(ToolPane.Status.RUNNING);
@@ -168,7 +155,7 @@ public class AlignPhase extends Phase {
     }
 
     @Override
-    protected void configChanged() {
+    public void configChanged() {
         tool.setStatus(getProperStatus());
     }
 
@@ -197,6 +184,13 @@ public class AlignPhase extends Phase {
     @Override
     public boolean isRunning() {
         return tool.getStatus() == Status.RUNNING;
+    }
+
+    private void finish() {
+        tool.setStatus(Status.GREEN);
+        tool.hidePane();
+        project.getConfig().setProperty(Config.ALIGN_DATE,
+                new SimpleDateFormat("yyMMdd").format(System.currentTimeMillis()));
     }
 
 }

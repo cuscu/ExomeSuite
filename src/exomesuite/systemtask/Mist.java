@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.utils.Config;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -382,6 +383,11 @@ public class Mist extends SystemTask {
             output.delete();
         }
         writeLine(output, headers);
+    }
+
+    @Override
+    public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
+        return true;
     }
 
 }

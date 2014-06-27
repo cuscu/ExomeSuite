@@ -16,6 +16,7 @@
  */
 package exomesuite.utils;
 
+import exomesuite.phase.Phase;
 import exomesuite.Project;
 import exomesuite.phase.GenomeManager;
 import java.io.File;
@@ -61,6 +62,10 @@ public class Config {
      * Database with Mills and 1000 Genome indels.
      */
     public static final String MILLS = "mills";
+    /**
+     * Hapmap database.
+     */
+    public static final String HAPMAP = "hapmap";
 
     /* **************************************
      * Settings for a single project.
@@ -85,6 +90,10 @@ public class Config {
      * Date of success for mist analysis.
      */
     public static String MIST_DATE = "mist_date";
+    /**
+     * Date of success for recalibration.
+     */
+    public static String RECAL_DATE = "recal_date";
     /**
      * Exons from Ensembl.
      */

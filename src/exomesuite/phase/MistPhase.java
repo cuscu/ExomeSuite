@@ -23,7 +23,6 @@ import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
 import exomesuite.tool.ToolPane.Status;
 import exomesuite.utils.Config;
-import exomesuite.utils.Phase;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -85,7 +84,7 @@ public class MistPhase extends Phase {
     }
 
     @Override
-    protected void configChanged() {
+    public void configChanged() {
         toolPane.setStatus(properStatus());
     }
 

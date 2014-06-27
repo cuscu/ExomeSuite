@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.utils;
+package exomesuite.phase;
 
 import javafx.scene.Node;
 
@@ -31,7 +31,7 @@ public abstract class Phase {
      * When a property is added, removed or updated in the config, this method will be called.
      *
      */
-    protected void configChanged() {
+    public void configChanged() {
 
     }
 

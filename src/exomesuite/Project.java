@@ -16,12 +16,13 @@
  */
 package exomesuite;
 
+import exomesuite.phase.AlignPhase;
 import exomesuite.phase.CallPhase;
 import exomesuite.phase.MistPhase;
+import exomesuite.phase.RecalibratePhase;
 import exomesuite.phase.SequencesPhase;
-import exomesuite.phase.AlignPhase;
 import exomesuite.utils.Config;
-import exomesuite.utils.Phase;
+import exomesuite.phase.Phase;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,7 @@ public class Project {
         phases.add(new AlignPhase(this));
         phases.add(new CallPhase(this));
         phases.add(new MistPhase(this));
+        phases.add(new RecalibratePhase(this));
         phases.forEach((Phase phase) -> {
             toolsPane.getChildren().add(phase.getView());
             config.addListener(phase);

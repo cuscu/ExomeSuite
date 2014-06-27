@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.PrintStream;
@@ -294,5 +295,10 @@ public class Aligner extends SystemTask {
         new File(recal).delete();
 
         return 0;
+    }
+
+    @Override
+    public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
+        return true;
     }
 }

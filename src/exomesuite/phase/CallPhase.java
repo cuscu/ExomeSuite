@@ -23,7 +23,6 @@ import exomesuite.tool.Console;
 import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
-import exomesuite.utils.Phase;
 import java.io.File;
 import java.io.PrintStream;
 import java.text.DateFormat;
@@ -43,14 +42,14 @@ public class CallPhase extends Phase {
 
     private final ToolPane toolPane;
     private Caller caller;
-    private final Config config;
+    private final Config projectConfig;
     private final Project project;
 
     private final DateFormat df = new SimpleDateFormat("yyMMdd");
 
     public CallPhase(Project project) {
         this.project = project;
-        config = project.getConfig();
+        projectConfig = project.getConfig();
         toolPane = new ToolPane("Call variants", ToolPane.Status.RED, "call.png");
         Button go = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         go.setOnAction((ActionEvent event) -> {
@@ -89,11 +88,11 @@ public class CallPhase extends Phase {
         toolPane.setStatus(ToolPane.Status.RUNNING);
         caller = new Caller(genome, output, input, dbsnp, console.getPrintStream());
         caller.setOnCancelled((WorkerStateEvent event) -> {
-            endCall();
+            finish();
             toolPane.setStatus(ToolPane.Status.RED);
         });
         caller.setOnSucceeded((WorkerStateEvent event) -> {
-            endCall();
+            finish();
         });
         caller.progressProperty().addListener((
                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
@@ -125,18 +124,18 @@ public class CallPhase extends Phase {
         toolPane.hidePane();
     }
 
-    private void endCall() {
+    private void finish() {
         if (caller.getValue() == 0) {
-            config.setProperty("call_date", df.format(System.currentTimeMillis()));
             toolPane.setStatus(ToolPane.Status.GREEN);
+            projectConfig.setProperty(Config.CALL_DATE, df.format(System.currentTimeMillis()));
         } else {
             toolPane.setStatus(ToolPane.Status.RED);
-            config.removeProperty("call_date");
+            projectConfig.removeProperty(Config.CALL_DATE);
         }
     }
 
     @Override
-    protected void configChanged() {
+    public void configChanged() {
         selectProperStatus();
     }
 
@@ -187,6 +186,11 @@ public class CallPhase extends Phase {
             updateMessage("Done.");
             updateProgress(1, 1);
             return ret;
+        }
+
+        @Override
+        public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
+            return true;
         }
     }
 
