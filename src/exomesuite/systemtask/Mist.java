@@ -25,7 +25,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,8 +37,8 @@ import java.util.logging.Logger;
  */
 public class Mist extends SystemTask {
 
-    private final File input, output, ensembl;
-    private final int threshold;
+    private File input, output, ensembl;
+    private int threshold;
     private final static int WINDOW_SIZE = 10;
     private final static String INSIDE = "inside";
     private final static String OVERLAP = "overlap";
@@ -83,19 +82,19 @@ public class Mist extends SystemTask {
     private static int GENE_BIO;
     private static int ENSEMBL_N_HEADS = 10;
 
-    private static int OUT_CHR = 0;
-    private static int OUT_EXON_START = 1;
-    private static int OUT_EXON_END = 2;
-    private static int OUT_POOR_START = 3;
-    private static int OUT_POOR_END = 4;
-    private static int OUT_GENE_ID = 5;
-    private static int OUT_GENE_NAME = 6;
-    private static int OUT_EXON_NUMBER = 7;
-    private static int OUT_EXON_ID = 8;
-    private static int OUT_TR_NAME = 9;
-    private static int OUT_TR_INFO = 10;
-    private static int OUT_GENE_BIO = 11;
-    private static int OUT_MATCH = 12;
+    private static final int OUT_CHR = 0;
+    private static final int OUT_EXON_START = 1;
+    private static final int OUT_EXON_END = 2;
+    private static final int OUT_POOR_START = 3;
+    private static final int OUT_POOR_END = 4;
+    private static final int OUT_GENE_ID = 5;
+    private static final int OUT_GENE_NAME = 6;
+    private static final int OUT_EXON_NUMBER = 7;
+    private static final int OUT_EXON_ID = 8;
+    private static final int OUT_TR_NAME = 9;
+    private static final int OUT_TR_INFO = 10;
+    private static final int OUT_GENE_BIO = 11;
+    private static final int OUT_MATCH = 12;
 
     final String[] headers = {"chrom", "exon_start", "exon_end", "poor_start", "poor_end",
         "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "transcript_info",
@@ -105,21 +104,12 @@ public class Mist extends SystemTask {
     private static int[] depths;
     static boolean go = false;
 
-    public Mist(PrintStream printStream, File input, File output, File ensembl, int threshold) {
-        super(printStream);
-        this.input = input;
-        this.output = output;
-        this.ensembl = ensembl;
-        this.threshold = threshold;
-    }
-
-    public Mist(File input, File output, File ensembl, int threshold) {
-        super(System.out);
-        this.input = input;
-        this.output = output;
-        this.ensembl = ensembl;
-        this.threshold = threshold;
-    }
+//    public Mist(File input, File output, File ensembl, int threshold) {
+//        this.input = input;
+//        this.output = output;
+//        this.ensembl = ensembl;
+//        this.threshold = threshold;
+//    }
 
     /*
      * IMPORTANT NOTE FOR DEVELOPERS. Genomic positions start at 1, Java array positions start at 0.
@@ -386,7 +376,16 @@ public class Mist extends SystemTask {
     }
 
     @Override
-    public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
+    public boolean configure(Config mainConfig, Config projectConfig) {
+//    private int threshold;
+        // INPUT=path/alignments/name.bam
+        input = new File(projectConfig.getProperty("align_path"),
+                projectConfig.getProperty(Config.NAME) + ".bam");
+        // OUTPUT=path/mist/name.mist
+        output = new File(projectConfig.getProperty("mist_path"),
+                projectConfig.getProperty(Config.NAME) + ".mist");
+        ensembl = new File(mainConfig.getProperty(Config.ENSEMBL_EXONS));
+        threshold = Integer.valueOf(projectConfig.getProperty("threshold"));
         return true;
     }
 

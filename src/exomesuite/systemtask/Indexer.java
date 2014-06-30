@@ -28,10 +28,9 @@ import java.io.PrintStream;
  */
 public class Indexer extends SystemTask {
 
-    private final String genome;
+    private String genome;
 
     public Indexer(PrintStream printStream, String genome) {
-        super(printStream);
         this.genome = genome;
     }
 
@@ -61,7 +60,8 @@ public class Indexer extends SystemTask {
     }
 
     @Override
-    public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
-        return true;
+    public boolean configure(Config mainConfig, Config projectConfig) {
+        genome = mainConfig.getProperty(Config.GENOME);
+        return genome != null && !genome.isEmpty();
     }
 }

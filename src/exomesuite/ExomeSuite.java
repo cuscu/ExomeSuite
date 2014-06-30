@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -19,13 +20,20 @@ public class ExomeSuite extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
+        Parent root = loader.load();
+        MainViewController controller = loader.getController();
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setTitle("Exome Suite");
+        stage.setOnCloseRequest((WindowEvent event) -> {
+            if (!controller.canClose()) {
+                event.consume();
+            }
+        });
         stage.show();
     }
 

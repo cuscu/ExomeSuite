@@ -53,7 +53,7 @@ public final class ToolPane {
      * @param status
      * @param ico
      */
-    public ToolPane(String name, Status status, String ico) {
+    public ToolPane(String name, Status status, ImageView ico) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ToolView.fxml"));
             loader.load();
@@ -63,8 +63,8 @@ public final class ToolPane {
             Logger.getLogger(ToolPane.class.getName()).log(Level.SEVERE, null, ex);
         }
         controller.getName().setText(name);
-        if (ico != null && !ico.equals("")) {
-            controller.getName().setGraphic(new ImageView("exomesuite/img/" + ico));
+        if (ico != null) {
+            controller.getName().setGraphic(ico);
         }
         setStatus(status);
         hidePane();

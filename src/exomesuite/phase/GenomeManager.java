@@ -39,7 +39,7 @@ import javafx.scene.image.ImageView;
  *
  * @author Pascual Lorente Arencibia
  */
-public class GenomeManager extends Phase {
+public class GenomeManager {
 
     private final ToolPane tool;
     private Button index;
@@ -56,7 +56,8 @@ public class GenomeManager extends Phase {
          *        genome not indexed (select:enable, index:enable)
          * GREEN: genome selected and indexed (remove:enabled)
          */
-        tool = new ToolPane("Reference genome", ToolPane.Status.RED, "reference.png");
+        tool = new ToolPane("Reference genome", ToolPane.Status.RED, new ImageView(
+                "exomesuite/img/reference.png"));
         Button delete = new Button(null, new ImageView("exomesuite/img/delete.png"));
         Button add = new Button(null, new ImageView("exomesuite/img/add.png"));
         index = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
@@ -109,7 +110,6 @@ public class GenomeManager extends Phase {
      *
      * @return the root pane.
      */
-    @Override
     public Node getView() {
         return tool.getView();
     }
@@ -180,7 +180,6 @@ public class GenomeManager extends Phase {
 
     }
 
-    @Override
     public boolean isRunning() {
         return tool.getStatus() == ToolPane.Status.RUNNING;
     }

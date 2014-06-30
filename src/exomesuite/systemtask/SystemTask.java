@@ -34,8 +34,8 @@ public abstract class SystemTask extends Task<Integer> {
     private PrintStream printStream;
     private Process process;
 
-    public SystemTask(PrintStream printStream) {
-        this.printStream = printStream;
+    public SystemTask() {
+        this.printStream = System.out;
     }
 
     /**
@@ -63,13 +63,8 @@ public abstract class SystemTask extends Task<Integer> {
             }
             return process.waitFor();
         } catch (InterruptedException | IOException ex) {
-            process.destroy();
-            Logger.getLogger(SystemTask.class.getName()).log(Level.SEVERE, null, ex);
-            return -1;
-
-        } catch (SecurityException ex) {
-            System.out.println("Cannot extract pid");
-            Logger.getLogger(SystemTask.class.getName()).log(Level.SEVERE, null, ex);
+            // If another thread interrupted the execution.
+            return process.exitValue();
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(SystemTask.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -90,10 +85,9 @@ public abstract class SystemTask extends Task<Integer> {
      *
      * @param mainConfig The configuration of the application.
      * @param projectConfig The configuration of the project.
-     * @param stepConfig The configuration of the tool.
      * @return
      */
-    public abstract boolean configure(Config mainConfig, Config projectConfig, Config stepConfig);
+    public abstract boolean configure(Config mainConfig, Config projectConfig);
 
     public void setPrintStream(PrintStream printStream) {
         this.printStream = printStream;

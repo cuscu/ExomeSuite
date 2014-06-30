@@ -33,7 +33,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class Databases extends Phase {
+public class Databases {
 
     private final Config config;
     private final ToolPane toolPane;
@@ -41,7 +41,8 @@ public class Databases extends Phase {
 
     public Databases() {
         this.config = MainViewController.getConfig();
-        toolPane = new ToolPane("Databases", properStatus(), "database.png");
+        toolPane = new ToolPane("Databases", properStatus(), new ImageView(
+                "exomesuite/img/database.png"));
         Button set = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
         Button ok = new Button(null, new ImageView("exomesuite/img/accept.png"));
         toolPane.addButton(ToolPane.Status.RED, set);
@@ -88,7 +89,6 @@ public class Databases extends Phase {
         return new VBox(3, mills, phase1, dbsnp, omni, hapmap, ensembl);
     }
 
-    @Override
     public Node getView() {
         return toolPane.getView();
     }
@@ -165,7 +165,6 @@ public class Databases extends Phase {
         }
     }
 
-    @Override
     public boolean isRunning() {
         return false;
     }

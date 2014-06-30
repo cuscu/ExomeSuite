@@ -6,6 +6,8 @@ import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -16,7 +18,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -30,18 +31,22 @@ public class MainViewController {
     @FXML
     private TabPane projects;
 
+    private final List<Project> projectList = new ArrayList<>();
+
     public void initialize() {
-        initializeManager();
-        initializeNewProjectTab();
-        initializeDatabases();
+        addOpenButton();
+        addNewButton();
+        addDatabaseButton();
     }
 
-    private void initializeManager() {
+    /**
+     * Initialize the tab to open projects.
+     */
+    private void addOpenButton() {
         config = new Config(new File("exomesuite.config"));
         final Tab newTab = new Tab();
         Button openButton = new Button(null, new ImageView("exomesuite/img/open.png"));
-        HBox newOpenProject = new HBox(openButton);
-        newTab.setGraphic(newOpenProject);
+        newTab.setGraphic(openButton);
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeView.fxml"));
             loader.load();
@@ -54,10 +59,12 @@ public class MainViewController {
         openButton.setOnAction((ActionEvent event) -> {
             openProject();
         });
-
     }
 
-    private void initializeDatabases() {
+    /**
+     * Initialize the tab to select databases.
+     */
+    private void addDatabaseButton() {
         final Tab tab = new Tab();
         tab.setGraphic(new ImageView("exomesuite/img/database.png"));
         projects.getTabs().add(tab);
@@ -65,7 +72,10 @@ public class MainViewController {
         tab.setContent(new VBox(new Databases().getView(), new GenomeManager().getView()));
     }
 
-    private void initializeNewProjectTab() {
+    /**
+     * initialize the tab to add new project.
+     */
+    private void addNewButton() {
         final Tab tab = new Tab();
         tab.setGraphic(new ImageView("exomesuite/img/add.png"));
         try {
@@ -115,7 +125,7 @@ public class MainViewController {
                 event.consume();
             }
         });
-//        tabList.add(tab);
+        projectList.add(project);
         projects.getSelectionModel().select(tab);
     }
 
@@ -123,4 +133,12 @@ public class MainViewController {
         return config;
     }
 
+    boolean canClose() {
+        for (Project project : projectList) {
+            if (!project.close()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

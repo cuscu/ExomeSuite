@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.fxml.FXMLLoader;
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 
 /**
  *
@@ -31,42 +31,34 @@ import javafx.scene.Node;
  */
 public class Console {
 
-    private Node view;
+    private final ScrollPane view;
 
-    private PrintStream printStream;
-
-    private ConsoleController controller;
+    private final PrintStream printStream;
 
     public Console() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Console.fxml"));
-            loader.load();
-            view = loader.getRoot();
-            controller = loader.getController();
-            printStream = new PrintStream(new OutputStream() {
+        TextArea area = new TextArea();
+        area.setMaxHeight(Double.MAX_VALUE);
+        area.setWrapText(false);
+        area.setEditable(false);
+        view = new ScrollPane(area);
+        view.setFitToHeight(true);
+        view.setFitToWidth(true);
+        view.setMaxHeight(Double.MAX_VALUE);
+        printStream = new PrintStream(new OutputStream() {
 
-                @Override
-                public void write(int b) throws IOException {
-                    byte[] c = {(byte) b};
-                    final String character = new String(c, Charset.defaultCharset());
-                    controller.addText(character);
-                }
-            });
-        } catch (IOException ex) {
-            Logger.getLogger(Console.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            @Override
+            public void write(int b) throws IOException {
+                byte[] c = {(byte) b};
+                final String character = new String(c, Charset.defaultCharset());
+                Platform.runLater(() -> {
+                    area.appendText(character);
+                });
+            }
+        });
     }
 
     public Node getView() {
         return view;
-    }
-
-    public void addText(String text) {
-        controller.addText(text);
-    }
-
-    public void clear() {
-        controller.clear();
     }
 
     public PrintStream getPrintStream() {

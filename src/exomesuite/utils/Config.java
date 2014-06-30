@@ -16,9 +16,9 @@
  */
 package exomesuite.utils;
 
-import exomesuite.phase.Phase;
 import exomesuite.Project;
 import exomesuite.phase.GenomeManager;
+import exomesuite.phase.Step;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,10 +66,15 @@ public class Config {
      * Hapmap database.
      */
     public static final String HAPMAP = "hapmap";
+    /**
+     * Exons from Ensembl.
+     */
+    public static String ENSEMBL_EXONS = "ensembl_exons";
 
     /* **************************************
      * Settings for a single project.
      ************************************** */
+    public static String NAME = "name";
     /**
      * First file of sequences.
      */
@@ -94,15 +99,16 @@ public class Config {
      * Date of success for recalibration.
      */
     public static String RECAL_DATE = "recal_date";
+
     /**
-     * Exons from Ensembl.
+     * Path to temp folder.
      */
-    public static String ENSEMBL_EXONS = "ensembl_exons";
+    public static final String PATH_TEMP = "temp_path";
 
     /**
      * The map of properties.
      */
-    private Properties properties;
+    private final Properties properties;
     /**
      * The file where the properties are stored.
      */
@@ -110,12 +116,12 @@ public class Config {
     /**
      * A list of phases to call when some settings are changed.
      */
-    private final List<Phase> phases;
+    private final List<Step> steps;
 
     public Config(File file) {
-        this.properties = new Properties();
+//        this.properties = new Properties();
         this.file = file;
-        phases = new ArrayList<>();
+        steps = new ArrayList<>();
         properties = new Properties();
         try {
             if (file.exists()) {
@@ -185,27 +191,29 @@ public class Config {
      * Calls all listeners when something changes.
      */
     private void callListeners() {
-        phases.forEach(Phase::configChanged);
+//        phases.forEach(Phase::configChanged);
+        steps.forEach(Step::configChanged);
     }
 
     /**
      * Adds a phase to listen for changes in config. Phases are called when a property is added or
      * removed.
      *
-     * @param phase
+     * @param step
      */
-    public void addListener(Phase phase) {
-        phases.add(phase);
+    public void addListener(Step step) {
+        //phases.add(phase);
+        steps.add(step);
     }
 
     /**
      * Remove a phase from listeners.
      *
-     * @param phase
+     * @param step
      * @return
      */
-    public boolean removeListener(Phase phase) {
-        return phases.remove(phase);
+    public boolean removeListener(Step step) {
+        return steps.remove(step);
     }
 
 }

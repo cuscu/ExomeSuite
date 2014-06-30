@@ -27,8 +27,8 @@ import java.io.PrintStream;
  */
 public class Aligner extends SystemTask {
 
-    final String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
-    final boolean illumina;
+    String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
+    boolean illumina;
     final int cores;
     final String java7 = OS.scanJava7();
     private final static String gatk = "software" + File.separator + "gatk"
@@ -37,7 +37,6 @@ public class Aligner extends SystemTask {
     public Aligner(PrintStream printStream, String temp, String forward, String reverse,
             String genome, String dbsnp, String mills, String phase1, String output,
             boolean illumina) {
-        super(printStream);
         this.temp = temp;
         this.forward = forward;
         this.reverse = reverse;
@@ -50,6 +49,46 @@ public class Aligner extends SystemTask {
         name = new File(output).getName().replace(".bam", "");
         cores = Runtime.getRuntime().availableProcessors();
 
+    }
+
+    public Aligner() {
+        cores = Runtime.getRuntime().availableProcessors();
+    }
+
+    @Override
+    public boolean configure(Config mainConfig, Config projectConfig) {
+        illumina = projectConfig.getProperty("phred64").equals("true");
+        dbsnp = mainConfig.getProperty(Config.DBSNP);
+        if (dbsnp == null || dbsnp.isEmpty()) {
+            return false;
+        }
+        mills = mainConfig.getProperty(Config.MILLS);
+        if (mills == null || mills.isEmpty()) {
+            return false;
+        }
+        phase1 = mainConfig.getProperty(Config.PHASE1);
+        if (phase1 == null || phase1.isEmpty()) {
+            return false;
+        }
+        genome = mainConfig.getProperty(Config.GENOME);
+        if (genome == null || genome.isEmpty()) {
+            return false;
+        }
+        forward = projectConfig.getProperty(Config.FORWARD);
+        if (forward == null || forward.isEmpty()) {
+            return false;
+        }
+        reverse = projectConfig.getProperty(Config.REVERSE);
+        if (reverse == null || reverse.isEmpty()) {
+            return false;
+        }
+        temp = projectConfig.getProperty(Config.PATH_TEMP);
+        if (temp == null || temp.isEmpty()) {
+            return false;
+        }
+        name = projectConfig.getProperty(Config.NAME);
+        output = new File(projectConfig.getProperty("align_path"), name + ".bam").getAbsolutePath();
+        return true;
     }
 
     @Override
@@ -65,7 +104,7 @@ public class Aligner extends SystemTask {
         System.out.println("output=" + output);
         System.out.println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
-
+//        return 0;
         int ret;
         if ((ret = firstAlignment()) != 0) {
             return ret;
@@ -297,8 +336,4 @@ public class Aligner extends SystemTask {
         return 0;
     }
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig, Config stepConfig) {
-        return true;
-    }
 }
