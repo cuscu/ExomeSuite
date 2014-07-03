@@ -16,6 +16,7 @@
  */
 package exomesuite.tool;
 
+import exomesuite.phase.Step;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,31 +30,71 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 
 /**
+ * Manages the view of a Step. When creating a new Step, override {@link Step}, it will contain a
+ * ToolPane, but it is possible to use it outside a Step.
+ * <p>
+ * This view is made of two parts. A header, which contains the title, the icon, the status bar and
+ * the buttons, and a content pane, which shows the configuration pane or the console.
  *
  * @author Pascual Lorente Arencibia
  */
 public final class ToolPane {
 
+    /**
+     * enum with all the possible status of ToolPane.
+     */
     public enum Status {
 
-        RED, GREEN, RUNNING, DISABLED, OPEN
+        /**
+         * the tool is ready to be executed.
+         */
+        RED,
+        /**
+         * the tool has been completed.
+         */
+        GREEN,
+        /**
+         * The tool has a task running.
+         */
+        RUNNING,
+        /**
+         * the tool cannot be executed, because there are some missing configuration.
+         */
+        DISABLED,
+        /**
+         * The tool is displaying the configuration pane.
+         */
+        OPEN
     }
 
+    /**
+     * The lists of Buttons.
+     */
     private final Map<Status, List<Button>> aButtons = new TreeMap<>();
 
+    /**
+     * Current status of the ToolPane.
+     */
     private Status status;
 
+    /**
+     * The controller of the view.
+     */
     ToolViewController controller;
+
+    /**
+     * The view.
+     */
     private Node view;
 
     /**
-     * Ico is the name of the ico, it must be on the exomesuite/img/ directory.
+     * Creates an empty toolPane which does nothing but being pretty useless.
      *
-     * @param name
-     * @param status
-     * @param ico
+     * @param name name to be displayed
+     * @param status initial status
+     * @param icon a beautiful 16x16 ImageView that represents this Tool
      */
-    public ToolPane(String name, Status status, ImageView ico) {
+    public ToolPane(String name, Status status, ImageView icon) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ToolView.fxml"));
             loader.load();
@@ -63,13 +104,19 @@ public final class ToolPane {
             Logger.getLogger(ToolPane.class.getName()).log(Level.SEVERE, null, ex);
         }
         controller.getName().setText(name);
-        if (ico != null) {
-            controller.getName().setGraphic(ico);
+        if (icon != null) {
+            controller.getName().setGraphic(icon);
         }
         setStatus(status);
         hidePane();
     }
 
+    /**
+     * Adds a button to the desired Status.
+     *
+     * @param status the status
+     * @param button the button
+     */
     public void addButton(Status status, Button button) {
         if (aButtons.containsKey(status)) {
             aButtons.get(status).add(button);
@@ -78,35 +125,69 @@ public final class ToolPane {
             b.add(button);
             aButtons.put(status, b);
         }
+        // Don't forget to update the view.
         updateButtons();
     }
 
-    public void deleteButton(Button button) {
-        aButtons.forEach((Status st, List<Button> bts) -> {
-            bts.remove(button);
-        });
+    /**
+     * Removes a button from the desired status. If the button is not in the status, does nothing.
+     *
+     * @param status the status
+     * @param button the button
+     */
+    public void removeButton(Status status, Button button) {
+        aButtons.get(status).remove(button);
+        updateButtons();
     }
 
+    /**
+     * Displays the node in the content pane.
+     *
+     * @param node a node
+     */
     public void showPane(Node node) {
         controller.show(node);
     }
 
+    /**
+     * Hides the content.
+     */
     public void hidePane() {
         controller.hide();
     }
 
+    /**
+     * Sets the name of the ToolPane.
+     *
+     * @param name the name
+     */
     public void setName(String name) {
         controller.getName().setText(name);
     }
 
+    /**
+     * Gets the name of the ToolPane.
+     *
+     * @return the name
+     */
     public String getName() {
         return controller.getName().getText();
     }
 
+    /**
+     * Gets the current status of the ToolPane.
+     *
+     * @return the status
+     */
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Sets the status of the ToolPane.
+     *
+     * @param status the status
+     */
     public void setStatus(Status status) {
         this.status = status;
         updateButtons();
@@ -133,10 +214,18 @@ public final class ToolPane {
         }
     }
 
+    /**
+     * Returns the view.
+     *
+     * @return the view
+     */
     public Node getView() {
         return view;
     }
 
+    /**
+     * Updates the view of the buttons.
+     */
     private void updateButtons() {
         controller.getButtons().getChildren().clear();
         if (aButtons.get(status) != null) {
@@ -144,7 +233,13 @@ public final class ToolPane {
         }
     }
 
-    public void updateProgress(String message, double d) {
-        controller.setProgress(message, d);
+    /**
+     * If the task is running, updates the progress bar and the message.
+     *
+     * @param message A message to keep the user busy while you do your staff.
+     * @param progress A number between 0 and 1.
+     */
+    public void updateProgress(String message, double progress) {
+        controller.setProgress(message, progress);
     }
 }

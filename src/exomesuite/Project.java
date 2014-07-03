@@ -21,7 +21,8 @@ import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
 import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.Recalibrator;
-import exomesuite.systemtask.SystemTask;
+import exomesuite.tool.ToolPane;
+import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -196,20 +197,9 @@ public class Project {
     }
 
     private Step getSeqs() {
-        Step seqs = null;
-        seqs = new Step(this, "seqs", false, "Sequences", new ImageView(
-                "exomesuite/img/seqs.png"), null, null, getConfigPane(seqs), new SystemTask() {
-
-                    @Override
-                    public boolean configure(Config mainConfig, Config projectConfig) {
-                        return true;
-                    }
-
-                    @Override
-                    protected Integer call() throws Exception {
-                        return 0;
-                    }
-                });
+        Step seqs = new Step(this, "seqs", false, "Sequences",
+                new ImageView("exomesuite/img/seqs.png"), null, null);
+        seqs.setConfigPane(getConfigPane(seqs));
         return seqs;
     }
 
@@ -220,24 +210,28 @@ public class Project {
             File file = OS.openFASTQ(f);
             if (file != null) {
                 getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
+                done(seqs);
             }
         });
         f.setOnMouseClicked((MouseEvent event) -> {
             File file = OS.openFASTQ(f);
             if (file != null) {
                 getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
+                done(seqs);
             }
         });
         r.setOnAction((ActionEvent event) -> {
             File file = OS.openFASTQ(r);
             if (file != null) {
                 getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
+                done(seqs);
             }
         });
         r.setOnMouseClicked((MouseEvent event) -> {
             File file = OS.openFASTQ(r);
             if (file != null) {
                 getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
+                done(seqs);
             }
         });
         return new VBox(3, f, r);
@@ -294,15 +288,22 @@ public class Project {
     private Step getMist() {
         String[] prReqs = {Config.ALIGN_DATE};
         String[] maReqs = {Config.ENSEMBL_EXONS};
-        return new Step(this, "mist", true, "MIST analysis",
+        Step s = new Step(this, "mist", true, "MIST analysis",
                 new ImageView("exomesuite/img/mist.png"),
                 Arrays.asList(prReqs), Arrays.asList(maReqs), getMistConfig(), new Mist());
+        Button view = new Button(null, new ImageView("exomesuite/img/eye.png"));
+        view.setOnAction((ActionEvent event) -> {
+            new TSVReader(new File(getConfig().getProperty("mist_path"), name + ".mist")).show();
+        });
+        s.addButton(ToolPane.Status.GREEN, view);
+        return s;
     }
 
     private Node getMistConfig() {
         Slider threshold = new Slider(0, 100, 10);
         HBox.setHgrow(threshold, Priority.ALWAYS);
         Label value = new Label("Threshold: 10");
+        getConfig().setProperty("threshold", "10");
         threshold.setBlockIncrement(1);
         threshold.setShowTickLabels(true);
         threshold.setShowTickMarks(true);
@@ -311,9 +312,15 @@ public class Project {
         threshold.valueProperty().addListener((ObservableValue<? extends Number> observable,
                 Number oldValue, Number newValue) -> {
             value.setText("Threshold: " + newValue.intValue());
-            getConfig().setProperty("threshold", newValue + "");
+            getConfig().setProperty("threshold", newValue.intValue() + "");
         });
         return new HBox(5, value, threshold);
+    }
+
+    private void done(Step seqs) {
+        if (getConfig().containsKey(Config.FORWARD) && getConfig().containsKey(Config.REVERSE)) {
+            seqs.setCompleted();
+        }
     }
 
 }

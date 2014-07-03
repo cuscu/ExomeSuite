@@ -16,7 +16,7 @@ public class OS {
     private static File lastPath;
 
 //    public static final String FASTQ_DESCRIPTION = resources.getString("file.fastq");
-    private static String FASTQ_EXTENSION = ".fastq .fq .fq.gz .fastq.gz";
+    public static final String FASTQ_EXTENSION = ".fastq .fq .fq.gz .fastq.gz";
     public static final String FASTQ_DESCRIPTION = "FASTQ file";
     public static final String[] FASTQ_FILTERS = new String[]{"*.fq", "*.fastq", "*.fq.gz",
         "*.fastq.gz"};

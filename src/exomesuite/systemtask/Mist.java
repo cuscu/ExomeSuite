@@ -80,7 +80,7 @@ public class Mist extends SystemTask {
     private static int TRANS_NAME;
     private static int TRANS_INFO;
     private static int GENE_BIO;
-    private static int ENSEMBL_N_HEADS = 10;
+    private static final int ENSEMBL_N_HEADS = 10;
 
     private static final int OUT_CHR = 0;
     private static final int OUT_EXON_START = 1;
@@ -104,13 +104,6 @@ public class Mist extends SystemTask {
     private static int[] depths;
     static boolean go = false;
 
-//    public Mist(File input, File output, File ensembl, int threshold) {
-//        this.input = input;
-//        this.output = output;
-//        this.ensembl = ensembl;
-//        this.threshold = threshold;
-//    }
-
     /*
      * IMPORTANT NOTE FOR DEVELOPERS. Genomic positions start at 1, Java array positions start at 0.
      * To avoid confusions, all Java arrays will have length incremented in 1, and I won't use
@@ -130,7 +123,6 @@ public class Mist extends SystemTask {
         String message = String.format("Chromosome %s (%d/%d)", chromosome,
                 iterations.incrementAndGet(), lengths.size());
         updateMessage(message);
-        System.out.println(message);
         updateProgress(iterations.get(), lengths.size());
         // qname | flag | chr | pos | mapq | cigar | rnext | pnext | tlen | seq | qual
         // chr: 2
@@ -151,14 +143,12 @@ public class Mist extends SystemTask {
                     if (chromosome.equals("*")) {
                         final String msg = "Finishing...";
                         updateMessage(msg);
-                        System.out.println(msg);
                         return;
                     }
                     depths = new int[lengths.get(row[2]) + 1];
                     final String msg = String.format("Chromosome %s (%d/%d)", chromosome,
                             iterations.incrementAndGet(), lengths.size());
                     updateMessage(msg);
-                    System.out.println(msg);
                     updateProgress(iterations.get(), lengths.size() + 1);
                 }
                 final int start = Integer.valueOf(row[3]);
@@ -169,14 +159,14 @@ public class Mist extends SystemTask {
                         depths[i]++;
                     }
                 } catch (ArrayIndexOutOfBoundsException ex) {
-                    System.err.println("Some sequences fall out of chromosome."
+                    println("Some sequences fall out of chromosome."
                             + chromosome + ":" + start + "(chr length:" + lengths.get(row[2]) + ")");
                 } catch (Exception ex) {
                     Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             });
-            System.out.println("Done");
+            println("Done");
             // If there are mot misaligned lines, the algorithm reaches the end of the file with a
             // pending chromosome.
             if (chromosome != null && !chromosome.equals("*")) {
@@ -223,7 +213,7 @@ public class Mist extends SystemTask {
                 }
             });
         } catch (IOException ex) {
-            System.err.println("Error reading " + input + " lengths.");
+            println("Error reading " + input + " lengths.");
             Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -268,8 +258,9 @@ public class Mist extends SystemTask {
                                     i++;
                                 }
                             } catch (ArrayIndexOutOfBoundsException ex) {
-                                System.err.println("Some exons fall out of the chromosome " + chr
-                                        + "(length " + depths.length + ")" + line);
+                                println(String.format(
+                                        "Some exons fall out of the chromosome %s (length=%d) %s",
+                                        chr, depths.length, line));
                             }
                             poor_end = i - 1;
                             String[] outLine = new String[headers.length];
@@ -303,7 +294,8 @@ public class Mist extends SystemTask {
                     }
                 }
             }
-            System.out.println(c.get() + " matches in " + e.get() + "/" + et.get() + " exons.");
+            println(String.format("%d matches in %d/%d exons.", c.get(), e.get(), et.get()));
+//            println(c.get() + " matches in " + e.get() + "/" + et.get() + " exons.");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {

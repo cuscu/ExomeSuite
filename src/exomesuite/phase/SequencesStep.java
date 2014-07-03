@@ -16,64 +16,54 @@
  */
 package exomesuite.phase;
 
-import exomesuite.Project;
-import exomesuite.utils.Config;
-import exomesuite.utils.OS;
-import java.io.File;
-import javafx.event.ActionEvent;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-
 /**
  *
  * @author Pascual Lorente Arencibia
  */
-public class SequencesStep extends Step {
+public class SequencesStep {
 
-    public SequencesStep(Project project) {
-        super(project, "seqs", false, "Sequences", new ImageView("exomesuite/img/seqs.png"), null,
-                null, null, null);
-    }
-
-    private VBox getConfigPane() {
-        TextField f = new TextField(getConfig().getProperty(Config.FORWARD));
-        TextField r = new TextField(getConfig().getProperty(Config.REVERSE));
-        f.setOnAction((ActionEvent event) -> {
-            File file = OS.openFASTQ(f);
-            if (file != null) {
-                getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
-                setDone();
-            }
-        });
-        f.setOnMouseClicked((MouseEvent event) -> {
-            File file = OS.openFASTQ(f);
-            if (file != null) {
-                getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
-                setDone();
-            }
-        });
-        r.setOnAction((ActionEvent event) -> {
-            File file = OS.openFASTQ(r);
-            if (file != null) {
-                getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
-                setDone();
-            }
-        });
-        r.setOnMouseClicked((MouseEvent event) -> {
-            File file = OS.openFASTQ(r);
-            if (file != null) {
-                getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
-                setDone();
-            }
-        });
-        return new VBox(3, f, r);
-    }
-
-    private void setDone() {
-        if (getConfig().containsKey(Config.FORWARD) && getConfig().containsKey(Config.REVERSE)) {
-            setCompleted();
-        }
-    }
+//    public SequencesStep(Project project) {
+////        super(project, "seqs", false, "Sequences", new ImageView("exomesuite/img/seqs.png"), null,
+////                null, null, null);
+//    }
+//
+//    private VBox getConfigPane() {
+//        TextField f = new TextField(getConfig().getProperty(Config.FORWARD));
+//        TextField r = new TextField(getConfig().getProperty(Config.REVERSE));
+//        f.setOnAction((ActionEvent event) -> {
+//            File file = OS.openFASTQ(f);
+//            if (file != null) {
+//                getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
+//                setDone();
+//            }
+//        });
+//        f.setOnMouseClicked((MouseEvent event) -> {
+//            File file = OS.openFASTQ(f);
+//            if (file != null) {
+//                getConfig().setProperty(Config.FORWARD, file.getAbsolutePath());
+//                setDone();
+//            }
+//        });
+//        r.setOnAction((ActionEvent event) -> {
+//            File file = OS.openFASTQ(r);
+//            if (file != null) {
+//                getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
+//                setDone();
+//            }
+//        });
+//        r.setOnMouseClicked((MouseEvent event) -> {
+//            File file = OS.openFASTQ(r);
+//            if (file != null) {
+//                getConfig().setProperty(Config.REVERSE, file.getAbsolutePath());
+//                setDone();
+//            }
+//        });
+//        return new VBox(3, f, r);
+//    }
+//
+//    private void setDone() {
+//        if (getConfig().containsKey(Config.FORWARD) && getConfig().containsKey(Config.REVERSE)) {
+//            setCompleted();
+//        }
+//    }
 }

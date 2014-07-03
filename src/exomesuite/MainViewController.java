@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 UICHUIMI
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package exomesuite;
 
 import exomesuite.phase.Databases;
@@ -21,18 +37,32 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 /**
+ * Controller class for the main window. Manages projects, adds tabs to the
  *
  * @author Pascual Lorente Arencibia
  */
 public class MainViewController {
 
+    /**
+     * The config of the project.
+     */
     private static Config config;
 
+    /**
+     * The TabPane where all the projects views are put. Into the tabPane there are only Nodes. The
+     * {@link Project} are stored into projectList.
+     */
     @FXML
     private TabPane projects;
 
+    /**
+     * An ArrayList to store all the opened projects.
+     */
     private final List<Project> projectList = new ArrayList<>();
 
+    /**
+     * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
+     */
     public void initialize() {
         addOpenButton();
         addNewButton();
@@ -98,6 +128,10 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Opens a FileChooser and lets the user open a .config file. If returned file is not null, it
+     * will call {@code addProjectTab}.
+     */
     private void openProject() {
         String[] filters = {"*.config"};
         File f = OS.openFile("Config file", ".config", filters);
@@ -111,9 +145,11 @@ public class MainViewController {
     }
 
     /**
+     * Creates a project. Adds the project view to a new tab in the tabPane and the project to
+     * projectList.
      *
-     * @param name
-     * @param path
+     * @param name The name of the project.
+     * @param path The path where the project must be stored.
      */
     private void addProjectTab(String name, File path) {
         final Tab tab = new Tab(name);
@@ -129,10 +165,21 @@ public class MainViewController {
         projects.getSelectionModel().select(tab);
     }
 
+    /**
+     * Gets the Config of this project.
+     *
+     * @return the Config value of this project.
+     */
     public static Config getConfig() {
         return config;
     }
 
+    /**
+     * Checks if all projects can be close. Iterates over projectList, if any of the projects
+     * couldn't be closed, returns false.
+     *
+     * @return false if all projects can be closed, true otherwise.
+     */
     boolean canClose() {
         for (Project project : projectList) {
             if (!project.close()) {

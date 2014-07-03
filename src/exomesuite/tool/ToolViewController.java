@@ -87,12 +87,10 @@ public class ToolViewController {
     }
 
     public void setProgress(String message, double d) {
-        if (d < 0.01 || d > 0.99) {
-            progress = 0.0;
-            this.message = "";
-            region.setBackground(Background.EMPTY);
-            progressText.setText("");
-            return;
+        if (d < 0.01) {
+            d = 0.0;
+        } else if (d > 0.99) {
+            d = 1;
         }
         progress = d;
         this.message = message;

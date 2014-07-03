@@ -30,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Manages a configuration file. When created, it tries to load content from its file.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -118,8 +119,17 @@ public class Config {
      */
     private final List<Step> steps;
 
+    /**
+     * Creates a Config instance related to a file. If file exists, loads properties from it, else
+     * it will create the an empty file.
+     *
+     * @param file a file not null.
+     * @throws NullPointerException if file is null.
+     */
     public Config(File file) {
-//        this.properties = new Properties();
+        if (file == null) {
+            throw new NullPointerException();
+        }
         this.file = file;
         steps = new ArrayList<>();
         properties = new Properties();
@@ -137,7 +147,7 @@ public class Config {
     /**
      * Removes the key and the value from the config, if they exist. Otherwise, do nothing.
      *
-     * @param key
+     * @param key the key
      */
     public void removeProperty(String key) {
         try {
@@ -154,8 +164,8 @@ public class Config {
     /**
      * Returns the value for this key in the config, or null if the key is not present.
      *
-     * @param key
-     * @return
+     * @param key the key
+     * @return the property or null if the key is not in the key list.
      */
     public String getProperty(String key) {
         return properties.getProperty(key);
@@ -164,8 +174,8 @@ public class Config {
     /**
      * Puts or updates an entry in the config, using the pair key=value.
      *
-     * @param key
-     * @param value
+     * @param key the key
+     * @param value the value
      */
     public void setProperty(String key, String value) {
         try {
@@ -191,26 +201,24 @@ public class Config {
      * Calls all listeners when something changes.
      */
     private void callListeners() {
-//        phases.forEach(Phase::configChanged);
         steps.forEach(Step::configChanged);
     }
 
     /**
-     * Adds a phase to listen for changes in config. Phases are called when a property is added or
+     * Adds a step to listen for changes in config. Steps are called when a property is added or
      * removed.
      *
-     * @param step
+     * @param step the step.
      */
     public void addListener(Step step) {
-        //phases.add(phase);
         steps.add(step);
     }
 
     /**
      * Remove a phase from listeners.
      *
-     * @param step
-     * @return
+     * @param step the step
+     * @return true if it could be removed
      */
     public boolean removeListener(Step step) {
         return steps.remove(step);
