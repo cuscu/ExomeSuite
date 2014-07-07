@@ -14,14 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase;
+package exomesuite.tool;
 
 import exomesuite.MainViewController;
 import exomesuite.Project;
 import exomesuite.systemtask.SystemTask;
-import exomesuite.tool.Console;
-import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
+import exomesuite.utils.FlatButton;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -146,6 +145,8 @@ public final class Step {
         }
         // Default toolPane do nothing spectacular.
         toolPane = new ToolPane(title, getProperStatus(), ico);
+        toolPane.addButton(ToolPane.Status.GREEN, new Button(null, new ImageView(
+                "exomesuite/img/blank.png")));
     }
 
     /**
@@ -206,7 +207,6 @@ public final class Step {
             });
             return ok.get() ? ToolPane.Status.RED : ToolPane.Status.DISABLED;
         }
-
     }
 
     /**
@@ -220,9 +220,9 @@ public final class Step {
             throw new NullPointerException();
         }
         // The config button is shown when the tool is red or green.
-        Button button = new Button(null, new ImageView("exomesuite/img/gear.png"));
-        Button cancel = new Button(null, new ImageView("exomesuite/img/accept.png"));
-        button.setOnAction((ActionEvent event) -> {
+        Button settings = new FlatButton("settings.png", "Settings");
+        Button cancel = new FlatButton("cancel.png", "Cancel");
+        settings.setOnAction((ActionEvent event) -> {
             toolPane.setStatus(ToolPane.Status.OPEN);
             toolPane.showPane(node);
         });
@@ -230,8 +230,8 @@ public final class Step {
             toolPane.setStatus(getProperStatus());
             toolPane.hidePane();
         });
-        toolPane.addButton(ToolPane.Status.RED, button);
-        toolPane.addButton(ToolPane.Status.GREEN, button);
+        toolPane.addButton(ToolPane.Status.RED, settings);
+        toolPane.addButton(ToolPane.Status.GREEN, settings);
         toolPane.addButton(ToolPane.Status.OPEN, cancel);
     }
 
@@ -248,21 +248,21 @@ public final class Step {
             throw new NullPointerException();
         }
         this.task = task;
-        Button go = new Button(null, new ImageView("exomesuite/img/r_arrow.png"));
-        Button cancel = new Button(null, new ImageView("exomesuite/img/cancel.png"));
-        Button ok = new Button(null, new ImageView("exomesuite/img/accept.png"));
+        Button go = new FlatButton("start.png", "Start task");
+        Button stop = new FlatButton("stop.png", "Stop task");
+        Button ok = new FlatButton("accept.png", "Accept");
         ok.setOnAction((ActionEvent event) -> {
             toolPane.hidePane();
         });
         go.setOnAction((ActionEvent event) -> {
             go();
         });
-        cancel.setOnAction((ActionEvent event) -> {
+        stop.setOnAction((ActionEvent event) -> {
             this.task.cancel(true);
         });
         toolPane.addButton(ToolPane.Status.RED, go);
         toolPane.addButton(ToolPane.Status.OPEN, go);
-        toolPane.addButton(ToolPane.Status.RUNNING, cancel);
+        toolPane.addButton(ToolPane.Status.RUNNING, stop);
 
     }
 
@@ -364,7 +364,7 @@ public final class Step {
     public void setCompleted() {
         projectConfig.setProperty(code + "_date", df.format(System.currentTimeMillis()));
         toolPane.setStatus(ToolPane.Status.GREEN);
-        Button accept = new Button(null, new ImageView("exomesuite/img/accept.png"));
+        Button accept = new FlatButton("accept.png", "Accept");
         toolPane.addButton(ToolPane.Status.GREEN, accept);
         accept.setOnAction((ActionEvent event) -> {
             toolPane.hidePane();

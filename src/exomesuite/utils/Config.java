@@ -17,8 +17,8 @@
 package exomesuite.utils;
 
 import exomesuite.Project;
-import exomesuite.phase.GenomeManager;
-import exomesuite.phase.Step;
+import exomesuite.tool.GenomeManager;
+import exomesuite.tool.Step;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

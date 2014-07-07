@@ -42,13 +42,19 @@ public class NewProjectViewController {
     @FXML
     private Label finalPath;
 
-    private File pathDir;
+    private File pathDir, forwardFile, reverseFile;
+    @FXML
+    private TextField forward;
+    @FXML
+    private TextField reverse;
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
         path.setEditable(false);
+        forward.setEditable(false);
+        reverse.setEditable(false);
         path.setOnAction((ActionEvent event) -> {
             selectPath();
         });
@@ -58,8 +64,23 @@ public class NewProjectViewController {
         name.setOnKeyTyped((KeyEvent event) -> {
             updateFolder();
         });
+        forward.setOnAction((ActionEvent event) -> {
+            forwardFile = OS.openFASTQ(forward);
+        });
+        forward.setOnMouseClicked((MouseEvent event) -> {
+            forwardFile = OS.openFASTQ(forward);
+        });
+        reverse.setOnAction((ActionEvent event) -> {
+            reverseFile = OS.openFASTQ(reverse);
+        });
+        reverse.setOnMouseClicked((MouseEvent event) -> {
+            reverseFile = OS.openFASTQ(reverse);
+        });
     }
 
+    /**
+     * Opens a dialog to select a folder.
+     */
     private void selectPath() {
         File f = OS.selectFolder("Select project path");
         if (f != null) {
@@ -71,29 +92,72 @@ public class NewProjectViewController {
         }
     }
 
+    /**
+     * Returns the selected path.
+     *
+     * @return the path
+     */
     public File getPath() {
         return pathDir;
     }
 
+    /**
+     * Gets the name of the project.
+     *
+     * @return the name
+     */
     public String getName() {
         return name.getText();
     }
 
+    /**
+     * Updates the text of the whole path label.
+     */
     private void updateFolder() {
         if (pathDir != null) {
             finalPath.setText(pathDir + File.separator + name.getText() + " will be created.");
         }
     }
 
+    /**
+     * Gets the accept button.
+     *
+     * @return the accept button.
+     */
     public Button getAcceptButton() {
         return acceptButton;
     }
 
+    /**
+     * Gets the forward file.
+     *
+     * @return the forward file
+     */
+    public File getForward() {
+        return forwardFile;
+    }
+
+    /**
+     * Gets the reverse file.
+     *
+     * @return the reverse file
+     */
+    public File getReverse() {
+        return reverseFile;
+    }
+
+    /**
+     * Empties everything.
+     */
     public void clear() {
         name.setText("");
         path.setText("");
         finalPath.setText("");
         pathDir = null;
+        forward.setText("");
+        reverse.setText("");
+        forwardFile = null;
+        reverseFile = null;
 
     }
 

@@ -41,26 +41,29 @@ public class ToolViewController {
     @FXML
     private HBox buttons;
     @FXML
-    private VBox main;
-    @FXML
-    private Region region;
-    @FXML
     private Label title;
     @FXML
     private Label progressText;
+    @FXML
+    private Region progress;
 
+    private double progressValue;
     private Node node;
 
-    private double progress = 0.0;
     private String message = "";
+    @FXML
+    private VBox tool;
 
     public void initialize() {
+        tool.getStyleClass().add("tool");
+        header.getStyleClass().add("header");
+        progress.getStyleClass().add("progress");
         title.setMaxWidth(Double.MAX_VALUE);
         progressText.setMaxWidth(Double.MAX_VALUE);
-        region.setMaxWidth(Double.MAX_VALUE);
-        region.widthProperty().addListener((ObservableValue<? extends Number> observable,
+        progress.setMaxWidth(Double.MAX_VALUE);
+        progress.widthProperty().addListener((ObservableValue<? extends Number> observable,
                 Number oldValue, Number newValue) -> {
-            setProgress(message, progress);
+            setProgress(message, progressValue);
         });
     }
 
@@ -77,27 +80,30 @@ public class ToolViewController {
     }
 
     public void show(Node node) {
-        main.getChildren().remove(this.node);
-        main.getChildren().add(node);
+        tool.getChildren().remove(this.node);
+        tool.getChildren().add(node);
         this.node = node;
     }
 
     public void hide() {
-        main.getChildren().remove(node);
+        tool.getChildren().remove(node);
     }
 
     public void setProgress(String message, double d) {
-        if (d < 0.01) {
-            d = 0.0;
-        } else if (d > 0.99) {
-            d = 1;
+        if (d < 0.01 || d > 0.99) {
+            progressValue = 0.0;
+            this.message = "";
+            progress.setBackground(Background.EMPTY);
+            progressText.setText("");
+            return;
         }
-        progress = d;
+        progressValue = d;
         this.message = message;
-        double i = region.getWidth() * (1.0 - d);
-        region.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY,
+        double i = progress.getWidth() * (1.0 - d);
+        progress.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY,
                 new Insets(0, i, 0, 0))));
         int p = (int) (d * 100);
-        progressText.setText(message + " (" + p + "%) ");
+//        progressText.setText(message + " (" + p + "%) ");
+        progressText.setText(String.format("%s (%d%%)", message, p));
     }
 }

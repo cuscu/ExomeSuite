@@ -24,6 +24,8 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
  *
@@ -44,6 +46,7 @@ public class Console {
         view.setFitToHeight(true);
         view.setFitToWidth(true);
         view.setMaxHeight(Double.MAX_VALUE);
+        VBox.setVgrow(view, Priority.ALWAYS);
         printStream = new PrintStream(new OutputStream() {
 
             @Override

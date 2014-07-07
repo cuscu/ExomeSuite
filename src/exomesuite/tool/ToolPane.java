@@ -16,7 +16,6 @@
  */
 package exomesuite.tool;
 
-import exomesuite.phase.Step;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +99,7 @@ public final class ToolPane {
             loader.load();
             controller = loader.getController();
             view = loader.getRoot();
+            view.getStyleClass().add("tool");
         } catch (IOException ex) {
             Logger.getLogger(ToolPane.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -194,19 +194,20 @@ public final class ToolPane {
         controller.getHeader().getStyleClass().clear();
         switch (status) {
             case DISABLED:
-                controller.getHeader().getStyleClass().add("disabled");
+                view.getStyleClass().clear();
+                view.getStyleClass().add("tool");
+                view.getStyleClass().add("disabled");
                 break;
             case GREEN:
-                controller.getHeader().getStyleClass().add("green");
+                view.getStyleClass().clear();
+                view.getStyleClass().add("tool");
+                view.getStyleClass().add("green");
                 break;
             case RED:
-                controller.getHeader().getStyleClass().add("red");
-                break;
-            case OPEN:
-                controller.getHeader().getStyleClass().add("open");
-                break;
             case RUNNING:
-                controller.getHeader().getStyleClass().add("progress");
+                view.getStyleClass().clear();
+                view.getStyleClass().add("tool");
+                view.getStyleClass().add("red");
                 break;
         }
         if (status != Status.RUNNING) {

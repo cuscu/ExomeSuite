@@ -16,8 +16,8 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.phase.Step;
 import exomesuite.tool.Console;
+import exomesuite.tool.Step;
 import exomesuite.utils.Config;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -111,6 +111,15 @@ public abstract class SystemTask extends Task<Integer> {
             process.destroy();
             println("Canceled...");
         }
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        if (process != null) {
+            process.destroy();
+            println("Canceled...");
+        }
+        return super.cancel(mayInterruptIfRunning);
     }
 
     /**

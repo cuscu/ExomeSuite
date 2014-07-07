@@ -5,22 +5,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="main" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ToolViewController">
+<VBox fx:id="tool" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ToolViewController">
     <children>
-        <HBox fx:id="header" alignment="CENTER_LEFT" spacing="3.0" VBox.vgrow="SOMETIMES">
+        <StackPane HBox.hgrow="ALWAYS">
             <children>
-                <StackPane HBox.hgrow="ALWAYS">
+                <Region fx:id="progress" />
+                <HBox fx:id="header" alignment="CENTER_LEFT" >
                     <children>
-                        <Region fx:id="region" />
                         <Label fx:id="title" alignment="CENTER_LEFT" />
+                        <Separator HBox.hgrow="ALWAYS" visible="false"/>   
                         <Label fx:id="progressText" alignment="CENTER_RIGHT" /> 
+                        <HBox fx:id="buttons" alignment="CENTER_LEFT" HBox.hgrow="SOMETIMES" />
                     </children>
-                </StackPane> 
-                <HBox fx:id="buttons" alignment="CENTER_LEFT" HBox.hgrow="SOMETIMES" />
+                </HBox>
             </children>
-<VBox.margin>
-<Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-</VBox.margin>
-        </HBox>
+        </StackPane> 
     </children>
+    <VBox.margin>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+    </VBox.margin>
 </VBox>

@@ -35,41 +35,29 @@
     -fx-background-color: black;
 }*/
 
-.tab-pane, .button, .vbox, .hbox{
+.tab-pane, .vbox, .hbox, .button{
     -fx-background-color: transparent;
 }
-.red{
-    -fx-background-color: lightsalmon;
+
+.tool {
+    -fx-border-color: lightgray;
+    -fx-border-width: 2;
+    -fx-padding: 2;
 }
 
+.button:hover {
+    -fx-opacity: 50%; 
+}
+
+.button:pressed{
+    -fx-opacity: 25%;
+}
 .green {
-    -fx-background-color: lightgreen;
+    -fx-border-color: green;
+    -fx-background-color: #99ff99;
 }
 
-.open {
-    -fx-background-color: lightgoldenrodyellow;
-}
-
-.progress {
-    -fx-background-color: transparent;
-}
-
-.tab {
-    -fx-background-color: lightblue;
-}
-
-.tab-pane .tab-header-background {
-    -fx-background-color: lightgrey;
-}
-.tab-close-button 
-{
--fx-background-color: -fx-mark-color;
--fx-shape: "M 0,0 H1 L 4,3 7,0 H8 V1 L 5,4 8,7 V8 H7 L 4,5 1,8 H0 V7 L 3,4 0,1 Z";
--fx-scale-shape: false;
--fx-effect: dropshadow(two-pass-box , rgba(255, 255, 255, 0.4), 1, 0.0 , 0, 1);
-}
-
-.tab-close-button:hover 
-{
--fx-background-color: derive(-fx-mark-color, -30%);
+.red {
+    -fx-border-color: red;
+    -fx-background-color: lightsalmon;
 }

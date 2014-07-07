@@ -4,8 +4,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.MainViewController">
-    <children>
-        <TabPane fx:id="projects" HBox.hgrow="SOMETIMES" /> 
-    </children>
-</HBox>
+<BorderPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.MainViewController">
+    <center>
+        <TabPane fx:id="projects" HBox.hgrow="SOMETIMES" />
+    </center>
+<top><VBox>
+<children>
+        <MenuBar xmlns:fx="http://javafx.com/fxml">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem fx:id="openMenu" text="Open project" />
+                        <MenuItem fx:id="newMenu" text="New project" />
+                        <MenuItem fx:id="databaseMenu" text="Select databases" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar><FlowPane fx:id="toolBar" />
+</children></VBox>
+</top>
+</BorderPane>

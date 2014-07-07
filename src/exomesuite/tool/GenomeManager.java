@@ -14,12 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.phase;
+package exomesuite.tool;
 
 import exomesuite.MainViewController;
 import exomesuite.systemtask.Indexer;
-import exomesuite.tool.Console;
-import exomesuite.tool.ToolPane;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -74,7 +72,7 @@ public class GenomeManager {
         add.setOnAction((ActionEvent event) -> {
             File f = OS.openFASTA();
             if (f != null) {
-                setProject(f);
+                setGenome(f);
             }
         });
         index.setOnAction((ActionEvent event) -> {
@@ -83,7 +81,7 @@ public class GenomeManager {
         // Checks if there is a genome in config file.
         if (MainViewController.getConfig().containsKey("genome")) {
             File f = new File(MainViewController.getConfig().getProperty("genome"));
-            setProject(f);
+            setGenome(f);
         }
     }
 
@@ -93,7 +91,7 @@ public class GenomeManager {
      *
      * @param f A file containing the reference genome path.
      */
-    private void setProject(File f) {
+    private void setGenome(File f) {
         name = f.getName().replace(".fasta", "").replace(".fa", "");
         tool.setName(name);
         MainViewController.getConfig().setProperty("genome", f.getAbsolutePath());
@@ -157,9 +155,8 @@ public class GenomeManager {
                     tool.setName(name);
                 }
             });
-            indexer.messageProperty().addListener((
-                    ObservableValue<? extends String> observable, String oldValue, String newValue)
-                    -> {
+            indexer.messageProperty().addListener((ObservableValue<? extends String> observable,
+                    String oldValue, String newValue) -> {
                 tool.updateProgress(newValue, indexer.getProgress());
             });
             // Go go go, fire in the hole!!
