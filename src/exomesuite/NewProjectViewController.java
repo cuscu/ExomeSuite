@@ -23,6 +23,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
@@ -47,6 +49,8 @@ public class NewProjectViewController {
     private TextField forward;
     @FXML
     private TextField reverse;
+    @FXML
+    private ToggleButton type;
 
     /**
      * Initializes the controller class.
@@ -76,6 +80,19 @@ public class NewProjectViewController {
         reverse.setOnMouseClicked((MouseEvent event) -> {
             reverseFile = OS.openFASTQ(reverse);
         });
+        type.setStyle("-fx-background-color:transparent");
+        type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
+        type.setText("Single");
+        type.setOnAction((ActionEvent event) -> {
+            if (type.isSelected()) {
+                type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
+                type.setText("Single");
+            } else {
+                type.setGraphic(new ImageView("exomesuite/img/select_family.png"));
+                type.setText("Family");
+            }
+        });
+        type.setSelected(true);
     }
 
     /**
@@ -161,4 +178,7 @@ public class NewProjectViewController {
 
     }
 
+    public boolean isSingle() {
+        return type.isSelected();
+    }
 }

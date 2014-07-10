@@ -48,8 +48,8 @@ public class Mist extends SystemTask {
     /*
      DISCUSSION:
      This could be seen a little bit weird. But, when running, there are some problems when
-     accessing tsv lines.
-     First solution is to use int values (chr = row[0]; pos = row[1]). But what if the files column
+     accessing tsv columns.
+     First solution is to use int values (chr = row[0]; pos = row[1]). But what if the files columns
      order changes? We have to programatically change them. But, what if two different files have
      different columns order?. We want to determine the position of the columns on the run.
      Second try was to create a List<String> with the column headers. When we want to access to
@@ -68,7 +68,7 @@ public class Mist extends SystemTask {
      columns the EnumSet.
      */
     /*
-     LAST_UPDATE: forget everything, int static are the best non-headache solution.
+     LAST UPDATE: forget everything, int static are the best non-headache solution.
      */
     private static int EXON_CHR;
     private static int EXON_START;
@@ -80,7 +80,6 @@ public class Mist extends SystemTask {
     private static int TRANS_NAME;
     private static int TRANS_INFO;
     private static int GENE_BIO;
-    private static final int ENSEMBL_N_HEADS = 10;
 
     private static final int OUT_CHR = 0;
     private static final int OUT_EXON_START = 1;

@@ -39,6 +39,10 @@
     -fx-background-color: transparent;
 }
 
+#newToggle {
+    -fx-background-color: transparent;
+}
+
 .tool {
     -fx-border-color: lightgray;
     -fx-border-width: 2;
@@ -46,7 +50,7 @@
 }
 
 .button:hover {
-    -fx-opacity: 50%; 
+    -fx-opacity: 50%;
 }
 
 .button:pressed{

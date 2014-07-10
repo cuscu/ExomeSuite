@@ -18,8 +18,8 @@ package exomesuite;
 
 import exomesuite.tool.GenomeManager;
 import exomesuite.utils.Config;
-import exomesuite.utils.FlatButton;
 import exomesuite.utils.OS;
+import exomesuite.utils.ToolBarButton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -263,15 +263,15 @@ public class MainViewController {
     }
 
     private void setToolBar() {
-        Button open = new FlatButton("open.png", "Open project... Ctrl+O");
+        Button open = new ToolBarButton("open.png", "Open project... Ctrl+O", "Open");
         open.setOnAction((ActionEvent event) -> {
             openProject();
         });
-        Button newProject = new FlatButton("add.png", "New project... Ctrl+N");
+        Button newProject = new ToolBarButton("add.png", "New project... Ctrl+N", "New");
         newProject.setOnAction((ActionEvent event) -> {
             showNewPane();
         });
-        Button db = new FlatButton("database.png", "Select databases... Ctrl+D");
+        Button db = new ToolBarButton("database.png", "Select databases... Ctrl+D", "Databases");
         db.setOnAction((ActionEvent event) -> {
             showDatabasesPane();
         });
