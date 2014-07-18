@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox prefWidth="600" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.vcfreader.CombineController" alignment="CENTER" >
+    <children>
+        <GridPane xmlns:fx="http://javafx.com/fxml">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" />
+                <ColumnConstraints hgrow="SOMETIMES"/> 
+            </columnConstraints>
+            <children>
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="0" text="VCF 1" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="MIST 1" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="VCF 2" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="MSIT 2" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="vcf1" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="mist1" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="vcf2" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="mist2" />
+            </children>
+        </GridPane>
+        <Button fx:id="combineButton" text="Combine"/>
+    </children>
+</VBox>

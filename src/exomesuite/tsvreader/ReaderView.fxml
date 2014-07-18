@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="TOP_CENTER" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.tsvreader.ReaderViewController">
+<VBox alignment="TOP_LEFT" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tsvreader.ReaderViewController">
     <children>
-        <GridPane xmlns:fx="http://javafx.com/fxml" hgap="5" >
+        <GridPane hgap="5" xmlns:fx="http://javafx.com/fxml">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" halignment="RIGHT" />
+                <ColumnConstraints hgrow="NEVER" />
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints  vgrow="SOMETIMES"/>
+                <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
             </rowConstraints>
             <children>
-                <Label GridPane.rowIndex="0"  GridPane.columnIndex="0" text="File:" />
-                <Label GridPane.rowIndex="1"  GridPane.columnIndex="0" text="Size:" />
-                <Label GridPane.rowIndex="2"  GridPane.columnIndex="0" text="Lines:" />                
-                <Label GridPane.rowIndex="3"  GridPane.columnIndex="0" text="Current lines:" />
-                <Label GridPane.rowIndex="0"  GridPane.columnIndex="1" fx:id="file" />
-                <Label GridPane.rowIndex="1"  GridPane.columnIndex="1" fx:id="size" />
-                <Label GridPane.rowIndex="2"  GridPane.columnIndex="1" fx:id="lines" />
-                <Label GridPane.rowIndex="3"  GridPane.columnIndex="1" fx:id="currentLines" />
+                <Label text="File:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Size:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Lines:" GridPane.columnIndex="0" GridPane.rowIndex="2" />                
+                <Label text="Current lines:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <Label fx:id="file" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <Label fx:id="size" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label fx:id="lines" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Label fx:id="currentLines" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </children>
+            <VBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </VBox.margin>
         </GridPane>
         <Button fx:id="export" text="Export data" />
         <TableView fx:id="table" VBox.vgrow="ALWAYS" />

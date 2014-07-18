@@ -20,6 +20,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 
 /**
  * FXML Controller class
@@ -40,6 +42,12 @@ public class ReaderViewController {
     private Label currentLines;
     @FXML
     private Button export;
+
+    @FXML
+    public void initialize() {
+        export.setGraphic(new ImageView("exomesuite/img/save.png"));
+        export.setTooltip(new Tooltip("Export results"));
+    }
 
     public Label getFile() {
         return file;

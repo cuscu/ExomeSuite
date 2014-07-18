@@ -16,6 +16,7 @@
  */
 package exomesuite.tsvreader;
 
+import exomesuite.ExomeSuite;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -40,7 +42,11 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -62,7 +68,7 @@ public class TSVReader {
 
     private TextField[] filters;
 
-    private int length;
+    private int NUMBER_OF_COLUMNS;
 
     private ReaderViewController viewController;
 
@@ -71,6 +77,8 @@ public class TSVReader {
     private TableView<String[]> table;
 
     private Stage stage;
+
+    private int totalLines;
 
     public TSVReader(File file) {
         this.file = file;
@@ -84,24 +92,23 @@ public class TSVReader {
         table.setSortPolicy((TableView<String[]> param) -> false);
         viewController.getFile().setText(file.getAbsolutePath());
         viewController.getSize().setText(humanReadableByteCount(file.length(), false));
-        viewController.getExport().setOnAction((ActionEvent event) -> {
-            exportResults();
-        });
+        viewController.getExport().setOnAction((ActionEvent event) -> exportResults());
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             // Store headers in a list.
             headers = Arrays.asList(in.readLine().split("\t"));
-            statsValues = new Label[headers.size()];
-            filters = new TextField[headers.size()];
+            NUMBER_OF_COLUMNS = headers.size();
+            statsValues = new Label[NUMBER_OF_COLUMNS];
+            filters = new TextField[NUMBER_OF_COLUMNS];
             // Create columns.
-            for (int i = 0; i < headers.size(); i++) {
+            for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
                 final int index = i;
                 Label title = new Label(headers.get(index));
                 Label st = new Label();
                 TextField filter = new TextField();
+                filter.setBackground(new Background(new BackgroundFill(Color.WHITE,
+                        CornerRadii.EMPTY, new Insets(2))));
                 filter.setPromptText("Filter me");
-                filter.setOnAction((ActionEvent event) -> {
-                    updateTable();
-                });
+                filter.setOnAction((ActionEvent event) -> updateTable());
                 statsValues[index] = st;
                 filters[index] = filter;
                 VBox head = new VBox(2, title, st, filter);
@@ -114,16 +121,15 @@ public class TSVReader {
                 table.getColumns().add(tc);
             }
             // Prepare stats maps.
-            stats = new Map[headers.size()];
-            for (int i = 0; i < stats.length; i++) {
+            stats = new Map[NUMBER_OF_COLUMNS];
+            for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
                 stats[i] = new TreeMap<>();
             }
             // Calculate the length of the file. This will consume the rest of the lines in the file.
             AtomicInteger total = new AtomicInteger(0);
-            in.lines().forEach((String t) -> {
-                total.incrementAndGet();
-            });
+            in.lines().forEach((String t) -> total.incrementAndGet());
             viewController.getLines().setText(total.toString());
+            totalLines = total.get();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TSVReader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -132,7 +138,7 @@ public class TSVReader {
         updateTable();
         stage = new Stage();
         Scene scene = new Scene(view);
-        scene.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
+        scene.getStylesheets().add(ExomeSuite.class.getResource("main.css").toExternalForm());
         stage.setScene(scene);
         stage.showAndWait();
     }
@@ -160,7 +166,9 @@ public class TSVReader {
             for (int i = 0; i < statsValues.length; i++) {
                 statsValues[i].setText(stats[i].size() + "");
             }
-            viewController.getCurrentLines().setText(valid.toString());
+            final double percentage = (double) valid.get() * 100 / totalLines;
+            viewController.getCurrentLines().setText(String.format("%d (%.2f%%)", valid.get(),
+                    percentage));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(TSVReader.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -215,7 +223,7 @@ public class TSVReader {
      * @param row
      */
     private void updateStats(String[] row) {
-        for (int i = 0; i < stats.length; i++) {
+        for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
             Integer val = stats[i].get(row[i]);
             stats[i].put(row[i], (val != null) ? val + 1 : 1);
         }
@@ -227,7 +235,7 @@ public class TSVReader {
      * @return true if passed all the filters, false if any filter do not match.
      */
     private boolean filter(String[] row) {
-        for (int i = 0; i < filters.length; i++) {
+        for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
             if (!filters[i].getText().isEmpty() && !row[i].matches(filters[i].getText())) {
                 return false;
             }
@@ -298,7 +306,8 @@ public class TSVReader {
         public MyCell() {
             textField = new TextField();
             textField.setEditable(false);
-            textField.getStyleClass().add("cell");
+            textField.setBackground(Background.EMPTY);
+            textField.setPadding(new Insets(1));
         }
 
         @Override

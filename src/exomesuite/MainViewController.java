@@ -17,13 +17,16 @@
 package exomesuite;
 
 import exomesuite.tool.GenomeManager;
+import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import exomesuite.utils.ToolBarButton;
+import exomesuite.vcfreader.CombineVariants;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -48,6 +51,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -82,6 +86,12 @@ public class MainViewController {
     private MenuItem databaseMenu;
     @FXML
     private FlowPane toolBar;
+    @FXML
+    private MenuItem openTSV;
+    @FXML
+    private MenuItem openVCFMenu;
+    @FXML
+    private MenuItem combineVCFMenu;
 
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
@@ -97,8 +107,7 @@ public class MainViewController {
      * will call {@code addProjectTab}.
      */
     private void openProject() {
-        String[] filters = {"*.config"};
-        File f = OS.openFile("Config file", ".config", filters);
+        File f = OS.openFile("Config file", OS.CONFIG_FILTER);
         if (f == null) {
             return;
         }
@@ -141,11 +150,12 @@ public class MainViewController {
      * @return false if all projects can be closed, true otherwise.
      */
     boolean canClose() {
-        for (Project project : projectList) {
+        AtomicBoolean exit = new AtomicBoolean(true);
+        projectList.forEach((Project project) -> {
             if (!project.close()) {
-                return false;
+                exit.set(false);
             }
-        }
+        });
         return true;
     }
 
@@ -161,77 +171,37 @@ public class MainViewController {
         GridPane grid = new GridPane();
         int i;
         for (i = 0; i < configs.length; i++) {
-            TextField tf = getVcfParam(configs[i], labels[i]);
+            TextField textField = getDatabaseTextField(configs[i], labels[i], OS.VCF_FILTER);
+//            TextField tf = getVcfParam(configs[i], labels[i]);
             Label lab = new Label(labels[i]);
-            grid.addRow(i, lab, tf);
+            grid.addRow(i, lab, textField);
         }
         ColumnConstraints c1 = new ColumnConstraints();
         ColumnConstraints c2 = new ColumnConstraints();
         c2.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().addAll(c1, c2);
-        TextField ensembl = getTsvTf(Config.ENSEMBL_EXONS, "Ensembl exons database (TSV)");
+        TextField ensembl = getDatabaseTextField(Config.ENSEMBL_EXONS,
+                "Ensembl exons database (TSV)", OS.TSV_FILTER, OS.ALL_FILTER);
+//        TextField ensembl = getTsvTf(Config.ENSEMBL_EXONS, "Ensembl exons database (TSV)");
         grid.addRow(i, new Label("Ensembl exons"), ensembl);
         grid.setPadding(new Insets(4));
         return new VBox(grid, new GenomeManager().getView());
     }
 
-    /**
-     * Creates a TextField with desc as prompt text. The textField will respond to actionEvent and
-     * mouseClicked event. This events will fire setParam, with name as key for the config file.
-     *
-     * @param name A key for config.
-     * @param desc A prompt text.
-     * @return
-     */
-    private TextField getVcfParam(String name, String desc) {
+    private TextField getDatabaseTextField(String key, String promptText, ExtensionFilter... filters) {
         TextField textField = new TextField();
-        if (config.containsKey(name)) {
-            textField.setText(config.getProperty(name));
+        if (config.containsKey(key)) {
+            textField.setText(config.getProperty(key));
         }
-        textField.setPromptText(desc);
+        textField.setPromptText(promptText);
         textField.setEditable(false);
-        textField.setOnAction((ActionEvent event) -> {
-            setVCF(name, textField);
-        });
-        textField.setOnMouseClicked((MouseEvent event) -> {
-            setVCF(name, textField);
-        });
+        textField.setOnAction((ActionEvent event) -> selectDatabase(key, textField, filters));
+        textField.setOnMouseClicked((MouseEvent event) -> selectDatabase(key, textField, filters));
         return textField;
     }
 
-    private TextField getTsvTf(String name, String prompt) {
-        TextField textField = new TextField();
-        if (config.containsKey(name)) {
-            textField.setText(config.getProperty(name));
-        }
-        textField.setPromptText(prompt);
-        textField.setEditable(false);
-        textField.setOnAction((ActionEvent event) -> {
-            setTSV(name, textField);
-        });
-        textField.setOnMouseClicked((MouseEvent event) -> {
-            setTSV(name, textField);
-        });
-        return textField;
-    }
-
-    private void setTSV(String name, TextField textField) {
-        File f = OS.openTSV(textField);
-        if (f != null) {
-            config.setProperty(name, f.getAbsolutePath());
-        }
-    }
-
-    /**
-     * Opens a dialog to select a VCF and, if success, sets the textFields text with the absolute
-     * path of the selected file. It will also create a property in config file with the key and the
-     * file.
-     *
-     * @param key A key for the config file.
-     * @param textField A textField.
-     */
-    private void setVCF(String key, TextField textField) {
-        File f = OS.openVCF(textField);
+    private void selectDatabase(String key, TextField textField, ExtensionFilter... filters) {
+        File f = OS.openFile(textField, key, filters);
         if (f != null) {
             config.setProperty(key, f.getAbsolutePath());
         }
@@ -242,39 +212,31 @@ public class MainViewController {
      */
     private void setMenus() {
         // Open menu
-        openMenu.setOnAction((ActionEvent event) -> {
-            openProject();
-        });
+        openMenu.setOnAction((ActionEvent event) -> openProject());
         openMenu.setGraphic(new ImageView("exomesuite/img/open.png"));
         openMenu.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         // New menu
-        newMenu.setOnAction((ActionEvent event) -> {
-            showNewPane();
-        });
+        newMenu.setOnAction((ActionEvent event) -> showNewPane());
         newMenu.setGraphic(new ImageView("exomesuite/img/add.png"));
         newMenu.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         // Databases menu
-        databaseMenu.setOnAction((ActionEvent event) -> {
-            showDatabasesPane();
-        });
+        databaseMenu.setOnAction((ActionEvent event) -> showDatabasesPane());
         databaseMenu.setGraphic(new ImageView("exomesuite/img/database.png"));
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
+        // Open TSV
+        openTSV.setOnAction((ActionEvent event) -> openTSV());
+        combineVCFMenu.setOnAction((ActionEvent event) -> combineVCF());
 
     }
 
     private void setToolBar() {
         Button open = new ToolBarButton("open.png", "Open project... Ctrl+O", "Open");
-        open.setOnAction((ActionEvent event) -> {
-            openProject();
-        });
+        open.setOnAction((ActionEvent event) -> openProject());
         Button newProject = new ToolBarButton("add.png", "New project... Ctrl+N", "New");
-        newProject.setOnAction((ActionEvent event) -> {
-            showNewPane();
-        });
+        newProject.setOnAction((ActionEvent event) -> showNewPane());
         Button db = new ToolBarButton("database.png", "Select databases... Ctrl+D", "Databases");
-        db.setOnAction((ActionEvent event) -> {
-            showDatabasesPane();
-        });
+        db.setOnAction((ActionEvent event) -> showDatabasesPane());
+
         toolBar.getChildren().addAll(open, newProject, db);
     }
 
@@ -318,4 +280,15 @@ public class MainViewController {
         stage.showAndWait();
     }
 
+    public void combineVCF() {
+        new CombineVariants().show();
+
+    }
+
+    private void openTSV() {
+        File f = OS.openFile("Choose any file", OS.MIST_FILTER, OS.TSV_FILTER, OS.ALL_FILTER);
+        if (f != null) {
+            new TSVReader(f).show();
+        }
+    }
 }

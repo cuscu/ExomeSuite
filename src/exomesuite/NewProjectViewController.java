@@ -23,8 +23,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
@@ -49,8 +47,6 @@ public class NewProjectViewController {
     private TextField forward;
     @FXML
     private TextField reverse;
-    @FXML
-    private ToggleButton type;
 
     /**
      * Initializes the controller class.
@@ -59,40 +55,30 @@ public class NewProjectViewController {
         path.setEditable(false);
         forward.setEditable(false);
         reverse.setEditable(false);
-        path.setOnAction((ActionEvent event) -> {
-            selectPath();
-        });
-        path.setOnMouseClicked((MouseEvent event) -> {
-            selectPath();
-        });
-        name.setOnKeyTyped((KeyEvent event) -> {
-            updateFolder();
-        });
-        forward.setOnAction((ActionEvent event) -> {
-            forwardFile = OS.openFASTQ(forward);
-        });
-        forward.setOnMouseClicked((MouseEvent event) -> {
-            forwardFile = OS.openFASTQ(forward);
-        });
-        reverse.setOnAction((ActionEvent event) -> {
-            reverseFile = OS.openFASTQ(reverse);
-        });
-        reverse.setOnMouseClicked((MouseEvent event) -> {
-            reverseFile = OS.openFASTQ(reverse);
-        });
-        type.setStyle("-fx-background-color:transparent");
-        type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
-        type.setText("Single");
-        type.setOnAction((ActionEvent event) -> {
-            if (type.isSelected()) {
-                type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
-                type.setText("Single");
-            } else {
-                type.setGraphic(new ImageView("exomesuite/img/select_family.png"));
-                type.setText("Family");
-            }
-        });
-        type.setSelected(true);
+        path.setOnAction((ActionEvent event) -> selectPath());
+        path.setOnMouseClicked((MouseEvent event) -> selectPath());
+        name.setOnKeyTyped((KeyEvent event) -> updateFolder());
+        forward.setOnAction((ActionEvent event) -> forwardFile = OS.openFile(forward,
+                "Select forward sequences file", OS.FASTQ_FILTER));
+        forward.setOnMouseClicked((MouseEvent event) -> forwardFile = OS.openFile(forward,
+                "Select forward sequences file", OS.FASTQ_FILTER));
+        reverse.setOnAction((ActionEvent event) -> reverseFile = OS.openFile(reverse,
+                "Select reverse sequences file", OS.FASTQ_FILTER));
+        reverse.setOnMouseClicked((MouseEvent event) -> reverseFile = OS.openFile(reverse,
+                "Select reverse sequences file", OS.FASTQ_FILTER));
+//        type.setStyle("-fx-background-color:transparent");
+//        type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
+//        type.setText("Single");
+//        type.setOnAction((ActionEvent event) -> {
+//            if (type.isSelected()) {
+//                type.setGraphic(new ImageView("exomesuite/img/select_single.png"));
+//                type.setText("Single");
+//            } else {
+//                type.setGraphic(new ImageView("exomesuite/img/select_family.png"));
+//                type.setText("Family");
+//            }
+//        });
+//        type.setSelected(true);
     }
 
     /**
@@ -176,9 +162,5 @@ public class NewProjectViewController {
         forwardFile = null;
         reverseFile = null;
 
-    }
-
-    public boolean isSingle() {
-        return type.isSelected();
     }
 }

@@ -70,14 +70,12 @@ public class GenomeManager {
             index.setDisable(true);
         });
         add.setOnAction((ActionEvent event) -> {
-            File f = OS.openFASTA();
+            File f = OS.openFile("Select reference genome", OS.FASTA_FILTER);
             if (f != null) {
                 setGenome(f);
             }
         });
-        index.setOnAction((ActionEvent event) -> {
-            startIndex();
-        });
+        index.setOnAction((ActionEvent event) -> startIndex());
         // Checks if there is a genome in config file.
         if (MainViewController.getConfig().containsKey("genome")) {
             File f = new File(MainViewController.getConfig().getProperty("genome"));
@@ -139,12 +137,8 @@ public class GenomeManager {
             Console console = new Console();
             tool.showPane(console.getView());
             indexer = new Indexer(console.getPrintStream(), genome);
-            indexer.setOnSucceeded((WorkerStateEvent event) -> {
-                endIndex(true);
-            });
-            indexer.setOnCancelled((WorkerStateEvent event) -> {
-                endIndex(false);
-            });
+            indexer.setOnSucceeded((WorkerStateEvent event) -> endIndex(true));
+            indexer.setOnCancelled((WorkerStateEvent event) -> endIndex(false));
             // Listen to progress and messages.
             indexer.progressProperty().addListener((
                     ObservableValue<? extends Number> observable, Number oldValue, Number newValue)

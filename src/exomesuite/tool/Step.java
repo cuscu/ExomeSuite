@@ -113,8 +113,7 @@ public final class Step {
         }
         // Default toolPane do nothing spectacular.
         toolPane = new ToolPane(title, getProperStatus(), ico);
-        toolPane.addButton(ToolPane.Status.GREEN, new Button(null, new ImageView(
-                "exomesuite/img/blank.png")));
+        toolPane.addButton(ToolPane.Status.GREEN, new FlatButton("blank.png", null));
         setConfigPane(configPane);
         setTask(task);
     }
@@ -222,14 +221,8 @@ public final class Step {
         // The config button is shown when the tool is red or green.
         Button settings = new FlatButton("settings.png", "Settings");
         Button cancel = new FlatButton("cancel.png", "Cancel");
-        settings.setOnAction((ActionEvent event) -> {
-            toolPane.setStatus(ToolPane.Status.OPEN);
-            toolPane.showPane(node);
-        });
-        cancel.setOnAction((ActionEvent event) -> {
-            toolPane.setStatus(getProperStatus());
-            toolPane.hidePane();
-        });
+        settings.setOnAction((ActionEvent event) -> showConfig(node));
+        cancel.setOnAction((ActionEvent event) -> hideConfig());
         toolPane.addButton(ToolPane.Status.RED, settings);
         toolPane.addButton(ToolPane.Status.GREEN, settings);
         toolPane.addButton(ToolPane.Status.OPEN, cancel);
@@ -251,15 +244,9 @@ public final class Step {
         Button go = new FlatButton("start.png", "Start task");
         Button stop = new FlatButton("stop.png", "Stop task");
         Button ok = new FlatButton("accept.png", "Accept");
-        ok.setOnAction((ActionEvent event) -> {
-            toolPane.hidePane();
-        });
-        go.setOnAction((ActionEvent event) -> {
-            go();
-        });
-        stop.setOnAction((ActionEvent event) -> {
-            this.task.cancel(true);
-        });
+        ok.setOnAction((ActionEvent event) -> toolPane.hidePane());
+        go.setOnAction((ActionEvent event) -> go());
+        stop.setOnAction((ActionEvent event) -> this.task.cancel(true));
         toolPane.addButton(ToolPane.Status.RED, go);
         toolPane.addButton(ToolPane.Status.OPEN, go);
         toolPane.addButton(ToolPane.Status.RUNNING, stop);
@@ -291,12 +278,8 @@ public final class Step {
                 toolPane.showPane(console.getView()); // Show console.
                 task.setPrintStream(console.getPrintStream()); // Bind to task.
                 // What to do when the task finishes.
-                task.setOnSucceeded((WorkerStateEvent event) -> {
-                    taskSucceeded();
-                });
-                task.setOnCancelled((WorkerStateEvent event) -> {
-                    taskCancelled();
-                });
+                task.setOnSucceeded((WorkerStateEvent event) -> taskSucceeded());
+                task.setOnCancelled((WorkerStateEvent event) -> taskCancelled());
                 // Bind progress.
                 task.progressProperty().addListener(
                         (ObservableValue<? extends Number> obs, Number o,
@@ -366,10 +349,7 @@ public final class Step {
         toolPane.setStatus(ToolPane.Status.GREEN);
         Button accept = new FlatButton("accept.png", "Accept");
         toolPane.addButton(ToolPane.Status.GREEN, accept);
-        accept.setOnAction((ActionEvent event) -> {
-            toolPane.hidePane();
-            toolPane.removeButton(ToolPane.Status.GREEN, accept);
-        });
+        accept.setOnAction((ActionEvent event) -> closeConsole(accept));
     }
 
     /**
@@ -395,6 +375,21 @@ public final class Step {
      */
     public ToolPane getToolPane() {
         return toolPane;
+    }
+
+    private void showConfig(Node node) {
+        toolPane.setStatus(ToolPane.Status.OPEN);
+        toolPane.showPane(node);
+    }
+
+    private void hideConfig() {
+        toolPane.setStatus(getProperStatus());
+        toolPane.hidePane();
+    }
+
+    private void closeConsole(Button button) {
+        toolPane.hidePane();
+        toolPane.removeButton(ToolPane.Status.GREEN, button);
     }
 
 }

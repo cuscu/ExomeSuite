@@ -4,6 +4,7 @@ import java.io.File;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 /**
  * Contains methods to control files in DNAnalytics and fields containing file filters. Open and
@@ -13,34 +14,50 @@ import javafx.stage.FileChooser;
  */
 public class OS {
 
+    /**
+     * The last successful path. Id est, the last path where the user did not canceled the file
+     * selection.
+     */
     private static File lastPath;
-
-//    public static final String FASTQ_DESCRIPTION = resources.getString("file.fastq");
-    public static final String FASTQ_EXTENSION = ".fastq .fq .fq.gz .fastq.gz";
-    public static final String FASTQ_DESCRIPTION = "FASTQ file";
-    public static final String[] FASTQ_FILTERS = new String[]{"*.fq", "*.fastq", "*.fq.gz",
-        "*.fastq.gz"};
-
-    public static final String FASTA_EXTENSION = ".fasta";
-//    public static final String FASTA_DESCRIPTION = resources.getString("file.fasta");
-    public static final String FASTA_DESCRIPTION = "FASTA file";
-    public static final String[] FASTA_FILTERS = new String[]{"*.fasta", "*.fa"};
-
-    public static final String VCF_EXTENSION = ".vcf";
-    public static final String VCF_DESCRIPTION = "VCF file";
-//    public static final String VCF_DESCRIPTION = resources.getString("file.vcf");
-    public static final String[] VCF_FILTERS = new String[]{"*.vcf"};
-
-    public static final String SAM_EXTENSION = ".sam";
-    public static final String BAM_EXTENSION = ".bam";
-    public static final String SAM_BAM_DESCRIPTION = "SAM/BAM file";
-//    public static final String SAM_BAM_DESCRIPTION = resources.getString("file.sambam");
-    public static final String[] SAM_BAM_FILTERS = new String[]{"*.bam", "*.sam"};
-
-    public static final String TSV_DESCRIPTION = "Text/Tab separated values file";
-//    public static final String TSV_DESCRIPTION = resources.getString("file.tsv");
-    public static final String TSV_EXTENSION = ".tsv";
-    public static final String[] TSV_FILTERS = new String[]{"*.tsv"};
+    /**
+     * Filters FASTA files (.fasta .fa)
+     */
+    public static final ExtensionFilter FASTA_FILTER = new ExtensionFilter("FASTA (.fasta .fa)",
+            "*.fasta", "*.fa");
+    /**
+     * Filters FASTQ files (.fq .fastq .fq.gz .fasq.gz)
+     */
+    public static final ExtensionFilter FASTQ_FILTER = new ExtensionFilter(
+            "FASTQ (.fastq .fq .fq.gz .fastq.gz)", "*.fastq", "*.fq", "*.fq.gz", "*.fastq.gz");
+    /**
+     * Filters MIST files (.mist)
+     */
+    public static final ExtensionFilter MIST_FILTER = new ExtensionFilter(
+            "Missing sequences tool format (.mist)", "*.mist");
+    /**
+     * Filters TSV files (.tsv)
+     */
+    public static final ExtensionFilter TSV_FILTER
+            = new ExtensionFilter("Tab Separated Values (.tsv)", "*.tsv");
+    /**
+     * Filters SAM or BAM files (.bam and .sam)
+     */
+    public static final ExtensionFilter SAM_FILTER = new ExtensionFilter(
+            "Sequence Alignment/Map Format (.bam .sam)", "*.bam", "*.sam");
+    /**
+     * Filters VCF files (.vcf)
+     */
+    public static final ExtensionFilter VCF_FILTER = new ExtensionFilter(
+            "Variant Call Format (.vcf)", "*.vcf");
+    /**
+     * Admits all files
+     */
+    public static final ExtensionFilter ALL_FILTER = new ExtensionFilter("All files", "*");
+    /**
+     * Filters config files (.config)
+     */
+    public static final ExtensionFilter CONFIG_FILTER = new ExtensionFilter("Config file (.config)",
+            "*.config");
 
     public OS() {
         switch (System.getProperty("os.name")) {
@@ -54,186 +71,49 @@ public class OS {
     }
 
     /**
-     * Opens a dialog for the users to select a File from local directory.
+     * Opens a dialog for the user to create a file. File system file is not created in this method.
+     * If the user do not write the file extension, the default will be the first of the selected
+     * ExtensionFilter.
      *
-     * @param title Dialog title.
-     * @param description Description of file type.
-     * @param filters Regular expressions to filter file types (*.extension).
-     * @return A File with user selected file, or null if user canceled.
+     * @param title dialog title
+     * @param filters any number of ExtensionFilters
+     * @return the selected file or null
      */
-    public static File openFile(String title, String description, String[] filters) {
-        FileChooser fileChooser = new FileChooser();
-        if (title != null) {
-            fileChooser.setTitle(title);
-        }
-        fileChooser.setInitialDirectory(lastPath);
-        if (description != null && filters != null) {
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter(description, filters));
-        }
-        File file = fileChooser.showOpenDialog(null);
+    public static File saveFile(String title, ExtensionFilter... filters) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(title);
+        chooser.setInitialDirectory(lastPath);
+        chooser.getExtensionFilters().addAll(filters);
+        File file = chooser.showSaveDialog(null);
         if (file != null) {
             lastPath = file.getParentFile();
-            return file;
-        }
-        return null;
-    }
-
-    /**
-     * Opens a dialog for the user to select a file and sets textField text to selected file name.
-     * If FileChooser is canceled, textField is not modified.
-     *
-     * @param title FileChooser Title.
-     * @param filterDesc Short description of the file filter.
-     * @param filters List of regular expressions to filter.
-     * @param textField The textField to modify.
-     * @return The chosen file or null if the operation was canceled.
-     */
-    public static File openFile(String title, String filterDesc, String[] filters,
-            TextField textField) {
-        File file = openFile(title, filterDesc, filters);
-        if (file != null) {
-            textField.setText(file.getAbsolutePath());
-        }
-        return file;
-    }
-
-    /**
-     * Shows a dialog to the user to select a Variant Call File (.vcf). Sets the text of the
-     * TextField to the name of the file.
-     *
-     * @param textField A TextField to contain the file name.
-     * @return The file selected or null if user canceled.
-     */
-    public static File openVCF(TextField textField) {
-        return openFile(VCF_DESCRIPTION, VCF_DESCRIPTION, VCF_FILTERS, textField);
-    }
-
-    /**
-     * Shows a dialog to the user to select a Binary SAM file (.bam). Sets the text of the TextField
-     * to the name of the file.
-     *
-     * @param textField A TextField to contain the file name.
-     * @return The file selected or null if user canceled.
-     */
-    public static File openBAM(TextField textField) {
-        return openFile(SAM_BAM_DESCRIPTION, SAM_BAM_DESCRIPTION, SAM_BAM_FILTERS, textField);
-    }
-
-    /**
-     * Shows a dialog to the user to select a FASTA file (.fa or .fasta). Sets the text of the
-     * TextField to the name of the file.
-     *
-     * @param textField A TextField to contain the file name.
-     * @return The file selected or null if user canceled.
-     */
-    public static File openFASTA(TextField textField) {
-        return openFile(FASTA_DESCRIPTION, FASTA_EXTENSION, FASTA_FILTERS, textField);
-    }
-
-    /**
-     * Shows a dialog to the user to select a FASTA file (.fa or .fasta). Sets the text of the
-     * TextField to the name of the file.
-     *
-     * @return The file selected or null if user canceled.
-     */
-    public static File openFASTA() {
-        return openFile(FASTA_DESCRIPTION, FASTA_EXTENSION, FASTA_FILTERS);
-    }
-
-    /**
-     * Shows a dialog to the user to select a FASTA file (.fa or .fasta). Sets the text of the
-     * TextField to the name of the file.
-     *
-     * @param textField A TextField to contain the file name.
-     * @return The file selected or null if user canceled.
-     */
-    public static File openTSV(TextField textField) {
-        return openFile(TSV_DESCRIPTION, TSV_EXTENSION, TSV_FILTERS, textField);
-    }
-
-    public static File openFASTQ(TextField textField) {
-        return openFile(FASTQ_DESCRIPTION, FASTQ_EXTENSION, FASTQ_FILTERS, textField);
-    }
-
-    /**
-     * Opens a dialog for the user to create a File. File system file is not created immediately.
-     * The File is just passed to one of the Workers. If the Worker ends successfully, then the file
-     * will have been created.
-     *
-     * @param title Dialog title
-     * @param filterDesc Description of file type
-     * @param filters Regular expressions to filter file types (*.extension)
-     * @param extension default extension
-     * @return A File with the user selected file, or null if not file selected
-     */
-    public static File saveFile(String title, String filterDesc, String[] filters, String extension) {
-        FileChooser fileChooser = new FileChooser();
-        if (title != null) {
-            fileChooser.setTitle(title);
-        }
-        fileChooser.setInitialDirectory(lastPath);
-        if (filters != null && filterDesc != null) {
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter(filterDesc, filters));
-        }
-        File file = fileChooser.showSaveDialog(null);
-        if (file != null) {
-            lastPath = file.getParentFile();
+            String ext = chooser.getSelectedExtensionFilter().getExtensions().get(0);
             // Add extension to bad named files
-            return file.getAbsolutePath().endsWith(extension) ? file : new File(
-                    file.getAbsolutePath() + extension);
+            if (file.getName().endsWith(ext)) {
+                return file;
+            } else {
+                return new File(file.getAbsolutePath() + ext);
+            }
         }
         return null;
     }
 
     /**
      * Opens a dialog for the user to create a file and sets the text of the TextField to the file
-     * name. File system file is not created immediately. The File is just passed to one of the
-     * Workers. If the Worker ends successfully, then the file will have been created.
+     * name. If the user do not write the file extension, the default will be the first of the
+     * selected ExtensionFilter.
      *
-     * @param title Dialog title
-     * @param filterDesc Description of file type
-     * @param filters Regular expressions to filter file types (*.extension)
-     * @param extension Default extension
-     * @param textField textField associated to the file
+     * @param textField
+     * @param title dialog title
+     * @param filters any number of ExtensionFilters
+     * @return the selected file or null
      */
-    public static void saveFile(String title, String filterDesc, String[] filters, String extension,
-            TextField textField) {
-        File file = saveFile(title, filterDesc, filters, extension);
-        if (file != null) {
-            textField.setText(file.getAbsolutePath());
+    public static File saveFile(TextField textField, String title, ExtensionFilter... filters) {
+        File f = saveFile(title, filters);
+        if (f != null) {
+            textField.setText(f.getAbsolutePath());
         }
-    }
-
-    /**
-     * Opens a dialog for the user to create a Variant Call File (.vcf). The file is not created
-     * immediately, just stored as text.
-     *
-     * @param textField textField containig VCF file name.
-     */
-    public static void saveVCF(TextField textField) {
-        saveFile(VCF_DESCRIPTION, VCF_DESCRIPTION, VCF_FILTERS, VCF_EXTENSION, textField);
-    }
-
-    /**
-     * Opens a dialog for the user to create a Tabular Separated Vaules file (.tsv). The file is not
-     * created immediately, just stored as text.
-     *
-     * @param textField textField containig TSV file name.
-     */
-    public static void saveTSV(TextField textField) {
-        saveFile(TSV_DESCRIPTION, TSV_DESCRIPTION, TSV_FILTERS, TSV_EXTENSION, textField);
-    }
-
-    /**
-     * Opens a dialog for the user to create a Binary SAM file (.bam). The file is not created
-     * immediately, just stored as text.
-     *
-     * @param textField textField containig BAM file name.
-     */
-    public static void saveBAM(TextField textField) {
-        saveFile(SAM_BAM_DESCRIPTION, SAM_BAM_DESCRIPTION, SAM_BAM_FILTERS, BAM_EXTENSION, textField);
+        return f;
     }
 
     /**
@@ -261,4 +141,39 @@ public class OS {
         return "/usr/java/jre1.7.0_51/bin/java";
     }
 
+    /**
+     * Opens a dialog window (FileChooser) and lets the user select a single File. Additionally, if
+     * the selected file is not null, the textField text will be set to the file.getAbsolutePath().
+     *
+     * @param textField the textField to set if a file is selected
+     * @param title the title of the FileChooser
+     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @return the selected file or null
+     */
+    public static File openFile(TextField textField, String title, ExtensionFilter... filters) {
+        File f = openFile(title, filters);
+        if (f != null) {
+            textField.setText(f.getAbsolutePath());
+        }
+        return f;
+    }
+
+    /**
+     * Opens a dialog window (FileChooser) and lets the user select a single File.
+     *
+     * @param title the title of the FileChooser
+     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @return the selected file or null
+     */
+    public static File openFile(String title, ExtensionFilter... filters) {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(lastPath);
+        chooser.getExtensionFilters().addAll(filters);
+        chooser.setTitle(title);
+        File f = chooser.showOpenDialog(null);
+        if (f != null) {
+            lastPath = f.getParentFile();
+        }
+        return f;
+    }
 }

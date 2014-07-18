@@ -1,42 +1,13 @@
-/* Black style, it sucks. */
-
-/** {
-     -fx-background-color: transparent;
-     -fx-text-fill: white;
+.background{
+    -fx-background-color: #1d1d1d;
 }
 
-.red {
-    -fx-border-color: red;
-    -fx-border-insets: 2;
-}
-
-.green {
-    -fx-border-color: green;
-    -fx-border-insets: 2;
-}
-
-.disabled {
-}
-
-.progress {
-
-}
-
-.open {
-    -fx-border-color: yellow;
-    -fx-border-insets: 2;
-}
-
-.label {
-    -fx-text-fill: white;
-}
-
-.root, .button{
-    -fx-background-color: black;
-}*/
-
-.tab-pane, .vbox, .hbox, .button{
+.tab-pane, .vbox, .hbox, .button {
     -fx-background-color: transparent;
+}
+
+ .flow-pane {
+    -fx-background-color: white;
 }
 
 #newToggle {
