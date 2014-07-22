@@ -30,12 +30,14 @@ import java.util.TreeMap;
 public class Variant {
 
     private final VariantCallFormat vcf;
-    private final String chrom, id, ref, alt, filter, info;
+    private final String chrom, format;
+    private String id, ref, alt, filter, info;
     private final int pos;
     private final double qual;
     private final List<String> sampleGenotypes;
     private Map<String, List<String>> infoValues;
-    private final List<String> format;
+    private List<String> ids;
+//    private final List<String> format;
 
     Variant(VariantCallFormat vcf, String line) {
         this.vcf = vcf;
@@ -48,10 +50,10 @@ public class Variant {
 //                String qual = row[5]; r u gonna use the double value?
         qual = Double.valueOf(row[5]);
         filter = row[6];
-        this.info = row[7];
+        info = row[7];
         if (vcf.getSampleNames().size() > 0) {
             sampleGenotypes = new ArrayList<>();
-            format = new ArrayList<>(Arrays.asList(row[8].split(";")));
+            format = row[8];
             for (int i = 0; i < vcf.getSampleNames().size(); i++) {
                 sampleGenotypes.add(row[9 + i]);
             }
@@ -87,6 +89,30 @@ public class Variant {
 
     public String getFilter() {
         return filter;
+    }
+
+    public void addFilter(String s) {
+        if (!s.equals(".")) {
+            if (filter.equals(".")) {
+                filter = s;
+            } else {
+                if (!filter.contains(s)) {
+                    filter += "," + s;
+                }
+            }
+        }
+    }
+
+    public void addID(String id) {
+        if (!id.equals(".")) {
+            if (this.id.equals(".")) {
+                this.id = id;
+            } else {
+                if (!this.id.contains(id)) {
+                    this.id += "," + id;
+                }
+            }
+        }
     }
 
     /**
@@ -130,7 +156,7 @@ public class Variant {
         return infoValues;
     }
 
-    public List<String> getFormat() {
+    public String getFormat() {
         return format;
     }
 
@@ -140,27 +166,31 @@ public class Variant {
 
     @Override
     public String toString() {
-        // INFO field
-        getInfoValues();
-        List<String> infosValues = new ArrayList<>();
-        infoValues.entrySet().forEach((Map.Entry<String, List<String>> t) -> {
-            String key = t.getKey();
-            List<String> list = t.getValue();
-            if (!list.isEmpty()) {
-                key += "=" + asString(",", list);
-            }
-            infosValues.add(key);
-        });
-        String i = asString(";", infosValues);
-        String ret = String.
-                format("CHROM=%s;POS=%d;ID=%s;REF=%s;ALT=%s;QUAL=%.2f;FILTER=%s;INFO=%s",
-                        chrom, pos, id, ref, alt, qual, filter, i);
-        // FORMAT
-        if (format != null) {
-            ret += "FORMAT=" + asString(";", format) + ";";
-            ret += asString(";", sampleGenotypes);
+//        // INFO field
+//        getInfoValues();
+//        List<String> infosValues = new ArrayList<>();
+//        infoValues.entrySet().forEach((Map.Entry<String, List<String>> t) -> {
+//            String key = t.getKey();
+//            List<String> list = t.getValue();
+//            if (!list.isEmpty()) {
+//                key += "=" + asString(",", list);
+//            }
+//            infosValues.add(key);
+//        });
+//        String i = asString(";", infosValues);
+//        String ret = String.
+//                format("CHROM=%s;POS=%d;ID=%s;REF=%s;ALT=%s;QUAL=%.2f;FILTER=%s;INFO=%s",
+//                        chrom, pos, id, ref, alt, qual, filter, i);
+//        // FORMAT
+//        if (format != null) {
+//            ret += "FORMAT=" + asString(";", format) + ";";
+//            ret += asString(";", sampleGenotypes);
+//        }
+        String ret = chrom + "\t" + pos + "\t" + id + "\t" + ref + "\t" + alt + "\t" + qual + "\t"
+                + filter + "\t" + info;
+        if (!sampleGenotypes.isEmpty()) {
+            ret += "\t" + format + "\t" + asString("\t", sampleGenotypes);
         }
-
         return ret;
     }
 
@@ -241,12 +271,8 @@ public class Variant {
         return -1;
     }
 
-//    private String computeIds(Variant... variants) {
-//        List<String> ids = new ArrayList<>();
-//        for (Variant v : variants) {
-//            if (!v.getId().equals(".")) {
-//                ids.addAll(Arrays.asList(v.getId().split(",")));
-//            }
-//        }
-//    }
+    public VariantCallFormat getVcf() {
+        return vcf;
+    }
+
 }

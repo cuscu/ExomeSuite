@@ -36,7 +36,7 @@ public class MISTReader {
 
     private final Queue<Mist> exons;
     private BufferedReader input;
-    private final static int MAX_BUFFER = 10;
+    private final static int MAX_BUFFER = 25;
     private final File file;
 
     private final MyQueue<Mist> list;
@@ -84,27 +84,19 @@ public class MISTReader {
      * @return
      */
     public Mist getRegion(Variant variant) {
-        int pos = variant.getPos();
         for (Mist mist : list.elements) {
             if (mist.contains(variant)) {
                 return mist;
             }
         }
-
-        if (list.see().getChrom().equals(variant.getChrom())) {
-            if (list.see().getPoorEnd() < variant.getPos()) {
-                while (readRegion()) {
-                    if (list.see().contains(variant)) {
-                        return list.see();
-                    } else if (list.see().getPoorStart() > variant.getPos()) {
-                        return null;
-                    }
-
-                }
+        int r = list.top().compare(variant);
+        while (r > 0 && readRegion()) {
+            r = list.top().compare(variant);
+            if (r == 0) {
+                return list.top();
             }
-        } else {
-
         }
+        return null;
 //        for (Mist mist : exons) {
 //            if (mist.contains(variant)) {
 //                return mist;
@@ -118,31 +110,30 @@ public class MISTReader {
 //        }
         // Let's check if the exons are too low in position.
         // ¿Is the last exon lower than the variant coordinate? Then, I need to fetch more exons.
-        if (exons.peek().getPoorEnd() < pos) {
-            // Will add mist lines until it falls into a mis region (true) or an entry exon overheads the variant (false)
-            while (true) {
-                if (!readRegion()) {
-                    return null;
-                }
-                if (exons.peek().contains(variant)) {
-                    return exons.peek();
-                } else if (exons.peek().getPoorStart() > pos) {
-                    return null;
-                }
-            }
-        }
-        return null;
+//        if (exons.peek().getPoorEnd() < pos) {
+//            // Will add mist lines until it falls into a mis region (true) or an entry exon overheads the variant (false)
+//            while (true) {
+//                if (!readRegion()) {
+//                    return null;
+//                }
+//                if (exons.peek().contains(variant)) {
+//                    return exons.peek();
+//                } else if (exons.peek().getPoorStart() > pos) {
+//                    return null;
+//                }
+//            }
+//        }
+//        return null;
     }
 
-    public boolean crossContains(Variant v) {
-        for (Mist mist : exons) {
-            if (mist.contains(v)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+//    public boolean crossContains(Variant v) {
+//        for (Mist mist : exons) {
+//            if (mist.contains(v)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
     /**
      * Reads a line from mist file, creates a MIST with it and adds it to the queue. If the queue is
      * full, removes the first element.
@@ -184,10 +175,6 @@ public class MISTReader {
             this.capacity = capacity;
         }
 
-        public int getCapacity() {
-            return capacity;
-        }
-
         /**
          * Adds an element on first position (0). If queue reaches capacity, the last element is
          * dropped.
@@ -198,10 +185,10 @@ public class MISTReader {
             if (elements.size() == capacity) {
                 elements.remove(capacity - 1);
             }
-            elements.add(element);
+            elements.add(0, element);
         }
 
-        public T see() {
+        public T top() {
             return elements.get(0);
         }
     }

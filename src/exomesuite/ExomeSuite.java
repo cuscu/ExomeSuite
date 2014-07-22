@@ -20,6 +20,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -47,6 +48,7 @@ public class ExomeSuite extends Application {
                 event.consume();
             }
         });
+        stage.getIcons().add(new Image(ExomeSuite.class.getResourceAsStream("img/exomesuite.png")));
         stage.show();
     }
 

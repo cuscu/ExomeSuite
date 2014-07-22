@@ -17,7 +17,9 @@
 package exomesuite.vcfreader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -37,6 +39,8 @@ public class CombineVariants {
 
     private VBox view;
     private CombineController controller;
+    private final static String MIST = "Mist";
+    private final static String UNKNOWN = "Unknown";
 
     public CombineVariants() {
         try {
@@ -75,18 +79,22 @@ public class CombineVariants {
         if (e2 == null) {
             return;
         }
+        File o = controller.getOutput();
+        if (o == null) {
+            return;
+        }
         Task<Void> task = new Task() {
 
             @Override
             protected Void call() throws Exception {
-                intersect(v1, v2, e1, e2);
+                intersect(v1, v2, e1, e2, o);
                 return null;
             }
         };
         Platform.runLater(task);
     }
 
-    private void intersect(File variants1, File variants2, File mist1, File mist2) {
+    private void intersect(File variants1, File variants2, File mist1, File mist2, File output) {
         int cv1 = 1;
         int cv2 = 1;
         int normal = 0;
@@ -98,58 +106,98 @@ public class CombineVariants {
         MISTReader mistr2 = new MISTReader(mist2);
         Variant v1 = vcf1.nextVariant();
         Variant v2 = vcf2.nextVariant();
-        while (v1 != null && v2 != null) {
-            int r = v1.compare(v2);
-            if (r == 0) {
-                // M1 M2
-                // -  - normal++; No print
-                // -  x normal++; Print
-                // x  - normal++; Print
-                // x  x No print
-                if (mistr1.contains(v1)) {
-                    if (!mistr2.contains(v2)) {
-                        System.out.println("Match");
-                        System.out.println("[MIST] " + v1);
-                        System.out.println(v2);
-                        normal++;
-                    }
-                } else {
-                    if (mistr2.contains(v2)) {
-                        System.out.println("Match");
-                        System.out.println(v1);
-                        System.out.println("[MIST] " + v2);
-                    }
-                    normal++;
+        try (PrintStream out = new PrintStream(output)) {
+
+            vcf1.getHeaders().forEach(out::println);
+            while (v1 != null && v2 != null) {
+                switch (v1.compare(v2)) {
+                    case 0:
+                        // M1: v1 in mist
+                        // M2: v2 in mist.
+                        //    M1 M2
+                        // 0  -  - normal++; No print
+                        // 1  -  x normal++; Print
+                        // 2  x  - normal++; Print
+                        // 3  x  x No print
+                        if (mistr1.contains(v1)) {
+                            if (!mistr2.contains(v2)) {
+                                // 2: v1 in MIST and v2 good.
+                                v2.addFilter(MIST);
+                                v2.addFilter(v1.getFilter());
+                                v2.addID(v1.getId());
+                                out.println(v2);
+                                normal++;
+                            } // 3: Both in MIST region, discarded.
+                        } else {
+                            if (mistr2.contains(v2)) {
+                                // 1: v2 in MIST and v1 good
+                                v1.addFilter(MIST);
+                                v1.addFilter(v2.getFilter());
+                                v1.addID(v2.getId());
+                                out.println(v1);
+                            } else {
+                                // 0: Both variants good.
+                                if (v1.getQual() > v2.getQual()) {
+                                    v1.addID(v2.getId());
+                                    v1.addFilter(v2.getFilter());
+                                    out.println(v1);
+                                } else {
+                                    v2.addID(v1.getId());
+                                    v2.addFilter(v1.getFilter());
+                                    out.println(v2);
+                                }
+                            }
+                            normal++;
+                        }
+                        v1 = vcf1.nextVariant();
+                        v2 = vcf2.nextVariant();
+                        cv1++;
+                        cv2++;
+                        break;
+                    // v2 > v1
+                    // Check if at coordinates of v1 there is a MIST region in v2.
+                    //                               v
+                    // v2: - - - - - - - - - - m m m m m m - - - - - -
+                    // v1: - - - - - - - - - - - - - x - - - - - - - -
+                    //                               ^
+                    // In this case if, and only if, v1 is not at a MIST region,
+                    // the variant is accepted.
+                    // The same is applied when v2 < v1
+                    case 1:
+                        if (mistr2.contains(v1) && !mistr1.contains(v1)) {
+                            Variant v = v1;
+                            v.addFilter(UNKNOWN);
+                            out.println(v);
+                            m1++;
+                        }
+                        v1 = vcf1.nextVariant();
+                        cv1++;
+                        break;
+                    // v2 < v1
+                    case -1:
+                        if (mistr1.contains(v2) && !mistr2.contains(v2)) {
+                            Variant v = v2;
+                            v.addFilter(UNKNOWN);
+                            out.println(v);
+                            m2++;
+                        }
+                        v2 = vcf2.nextVariant();
+                        cv2++;
+                        break;
                 }
-                v1 = vcf1.nextVariant();
-                v2 = vcf2.nextVariant();
-                cv1++;
-                cv2++;
-                // v2 > v1
-            } else if (r > 0) {
-//                if (mistr2.crossContains(v1) && !mistr1.contains(v1)) {
-//                    System.out.println("Unknown");
-//                    System.out.println(v1);
-//                    System.out.println("[MIST] " + mistr2.getRegion(v1));
-//                    m1++;
-//                }
-                v1 = vcf1.nextVariant();
-                cv1++;
-            } else {
-//                if (mistr1.crossContains(v2) && !mistr2.contains(v2)) {
-//                    System.out.println("Unknown");
-//                    System.out.println("[MIST] " + mistr1.getRegion(v2));
-//                    System.out.println(v2);
-//                    m2++;
-//                }
-                v2 = vcf2.nextVariant();
-                cv2++;
             }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CombineVariants.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Variants in first:" + cv1);
-        System.out.println("Variants in second:" + cv2);
-        System.out.println("Normal intersections:" + normal);
-        System.out.println("First but not second:" + m1);
-        System.out.println("Second but not first:" + m2);
+        System.out.println(
+                "Variants in first:" + cv1);
+        System.out.println(
+                "Variants in second:" + cv2);
+        System.out.println(
+                "Normal intersections:" + normal);
+        System.out.println(
+                "First but not second:" + m1);
+        System.out.println(
+                "Second but not first:" + m2);
     }
 }

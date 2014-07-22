@@ -154,4 +154,29 @@ public class Mist {
     public boolean contains(Variant v) {
         return chrom.equals(v.getChrom()) && poorStart <= v.getPos() && v.getPos() <= poorEnd;
     }
+
+    /**
+     *
+     * @param v
+     * @return -1 if variant is before this, +1 if after, 0 if inside (the same than contains(v))
+     */
+    public int compare(Variant v) {
+        if (chrom.equals(v.getChrom())) {
+            if (poorStart > v.getPos()) {
+                return -1;
+            } else if (poorEnd < v.getPos()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            int iv = v.getVcf().getContigs().indexOf(v.getChrom());
+            int im = v.getVcf().getContigs().indexOf(chrom);
+            if (iv > im) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
 }

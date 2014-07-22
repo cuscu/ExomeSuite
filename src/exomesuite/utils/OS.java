@@ -59,6 +59,23 @@ public class OS {
     public static final ExtensionFilter CONFIG_FILTER = new ExtensionFilter("Config file (.config)",
             "*.config");
 
+    /**
+     * Takes a byte value and convert it to the corresponding human readable unit.
+     *
+     * @param bytes
+     * @param si
+     * @return
+     */
+    public static String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) {
+            return bytes + " B";
+        }
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
     public OS() {
         switch (System.getProperty("os.name")) {
             case "Windows 7":
@@ -87,8 +104,10 @@ public class OS {
         File file = chooser.showSaveDialog(null);
         if (file != null) {
             lastPath = file.getParentFile();
-            String ext = chooser.getSelectedExtensionFilter().getExtensions().get(0);
+            String ext = chooser.getSelectedExtensionFilter().getExtensions().get(0).
+                    replace("*", "");
             // Add extension to bad named files
+
             if (file.getName().endsWith(ext)) {
                 return file;
             } else {

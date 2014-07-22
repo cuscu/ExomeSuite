@@ -18,6 +18,7 @@ package exomesuite;
 
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
+import exomesuite.systemtask.DindelTask;
 import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.Recalibrator;
 import exomesuite.tool.Step;
@@ -118,19 +119,18 @@ public class Project {
         this.name = name;
     }
 
-    /**
-     * Add the tools for each project. I tried to create and interface or abstract class. but didn't
-     * succeed. The tree is too long: ??->ToolPane->ToolViewController.
-     */
-    private void loadTools() {
-        Step[] st = {getAlign(), getCall(), getRecal(), getMist()};
-        for (Step step : st) {
-            toolsPane.getChildren().add(step.getToolPane().getView());
-            config.addListener(step);
-        }
-        steps = Arrays.asList(st);
-    }
-
+//    /**
+//     * Add the tools for each project. I tried to create and interface or abstract class. but didn't
+//     * succeed. The tree is too long: ??->ToolPane->ToolViewController.
+//     */
+//    private void loadTools() {
+//        Step[] st = {getAlign(), getCall(), getRecal(), getMist(), getDindel()};
+//        for (Step step : st) {
+//            toolsPane.getChildren().add(step.getToolPane().getView());
+//            config.addListener(step);
+//        }
+//        steps = Arrays.asList(st);
+//    }
     /**
      * Returns the directory where all the files are stored.
      *
@@ -336,6 +336,15 @@ public class Project {
         return new HBox(5, value, threshold);
     }
 
+    private Step getDindel() {
+        String[] prReqs = {Config.ALIGN_DATE};
+        String[] maReqs = {Config.GENOME};
+        Step step = new Step(this, "dindel", true, "Dindel", new ImageView(
+                "exomesuite/img/dindel.png"), Arrays.asList(prReqs), Arrays.asList(maReqs));
+        step.setTask(new DindelTask());
+        return step;
+    }
+
     /**
      * Gets the view of the project.
      *
@@ -345,7 +354,7 @@ public class Project {
         if (toolsPane == null) {
             toolsPane = new VBox();
             toolsPane.setPadding(new Insets(5));
-            final Step[] st = {getAlign(), getCall(), getRecal(), getMist()};
+            final Step[] st = {getAlign(), getCall(), getRecal(), getMist(), getDindel()};
             for (Step step : st) {
                 toolsPane.getChildren().add(step.getToolPane().getView());
                 config.addListener(step);

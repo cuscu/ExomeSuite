@@ -5,7 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox fx:id="tool" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ToolViewController">
+<VBox fx:id="tool" spacing="3"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.tool.ToolViewController">
     <children>
         <StackPane HBox.hgrow="ALWAYS">
             <children>

@@ -22,6 +22,7 @@ import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import exomesuite.utils.ToolBarButton;
 import exomesuite.vcfreader.CombineVariants;
+import exomesuite.vcfreader.VCFReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -225,6 +226,8 @@ public class MainViewController {
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         // Open TSV
         openTSV.setOnAction((ActionEvent event) -> openTSV());
+        // VCF menu
+        openVCFMenu.setOnAction((ActionEvent event) -> openVCF());
         combineVCFMenu.setOnAction((ActionEvent event) -> combineVCF());
 
     }
@@ -289,6 +292,13 @@ public class MainViewController {
         File f = OS.openFile("Choose any file", OS.MIST_FILTER, OS.TSV_FILTER, OS.ALL_FILTER);
         if (f != null) {
             new TSVReader(f).show();
+        }
+    }
+
+    private void openVCF() {
+        File f = OS.openFile("Select a VCF file", OS.VCF_FILTER);
+        if (f != null) {
+            new VCFReader(f).show();
         }
     }
 }

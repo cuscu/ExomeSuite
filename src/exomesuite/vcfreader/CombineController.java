@@ -39,8 +39,9 @@ public class CombineController {
     private TextField vcf2;
     @FXML
     private TextField mist2;
-
-    private File variants1, variants2, exons1, exons2;
+    @FXML
+    private TextField output;
+    private File variants1, variants2, exons1, exons2, outputFile;
     @FXML
     private Button combineButton;
 
@@ -56,10 +57,13 @@ public class CombineController {
         vcf2.setOnMouseClicked((MouseEvent event) -> openVCF(vcf2));
         mist1.setOnMouseClicked((MouseEvent event) -> openMIST(mist1));
         mist2.setOnMouseClicked((MouseEvent event) -> openMIST(mist2));
+        output.setOnAction((ActionEvent event) -> openOutput());
+        output.setOnMouseClicked((MouseEvent event) -> openOutput());
         vcf1.setMaxWidth(Double.MAX_VALUE);
         vcf2.setMaxWidth(Double.MAX_VALUE);
         mist1.setMaxWidth(Double.MAX_VALUE);
         mist2.setMaxWidth(Double.MAX_VALUE);
+        output.setMaxWidth(Double.MAX_VALUE);
     }
 
     private void openVCF(TextField vcf) {
@@ -93,6 +97,10 @@ public class CombineController {
         }
     }
 
+    private void openOutput() {
+        outputFile = OS.saveFile(output, "Select an output file", OS.VCF_FILTER);
+    }
+
     /**
      * @return the variants1
      */
@@ -123,6 +131,10 @@ public class CombineController {
 
     public Button getCombineButton() {
         return combineButton;
+    }
+
+    public File getOutput() {
+        return outputFile;
     }
 
 }
