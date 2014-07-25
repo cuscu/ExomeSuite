@@ -18,6 +18,7 @@ package exomesuite.tsvreader;
 
 import exomesuite.ExomeSuite;
 import exomesuite.utils.OS;
+import exomesuite.utils.TabCell;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +41,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -104,7 +106,9 @@ public class TSVReader {
             for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
                 final int index = i;
                 Label title = new Label(headers.get(index));
+//                title.setTooltip(new Tooltip());
                 Label st = new Label();
+                st.setTooltip(new Tooltip());
                 TextField filter = new TextField();
                 filter.setBackground(new Background(new BackgroundFill(Color.WHITE,
                         CornerRadii.EMPTY, new Insets(2))));
@@ -118,7 +122,7 @@ public class TSVReader {
                 tc.setGraphic(head);
                 tc.setCellValueFactory((TableColumn.CellDataFeatures<String[], String> param)
                         -> new SimpleStringProperty(param.getValue()[index]));
-                tc.setCellFactory((TableColumn<String[], String> param) -> new MyCell());
+                tc.setCellFactory((TableColumn<String[], String> param) -> new TabCell());
                 table.getColumns().add(tc);
             }
             // Prepare stats maps.
@@ -166,6 +170,15 @@ public class TSVReader {
             });
             for (int i = 0; i < statsValues.length; i++) {
                 statsValues[i].setText(stats[i].size() + "");
+                List<String> values = new ArrayList<>();
+                int j = 0;
+                for (String s : stats[i].keySet()) {
+                    values.add(s);
+                    if (++j == 30) {
+                        break;
+                    }
+                }
+                statsValues[i].getTooltip().setText(OS.asString(",", values));
             }
             final double percentage = (double) valid.get() * 100 / totalLines;
             viewController.getCurrentLines().setText(String.format("%d (%.2f%%)", valid.get(),
@@ -283,23 +296,4 @@ public class TSVReader {
         out.newLine();
     }
 
-    private static class MyCell extends TableCell<String[], String> {
-
-        TextField textField;
-
-        public MyCell() {
-            textField = new TextField();
-            textField.setEditable(false);
-            textField.setBackground(Background.EMPTY);
-            textField.setPadding(new Insets(1));
-        }
-
-        @Override
-        protected void updateItem(String t, boolean bln) {
-            super.updateItem(t, bln);
-            textField.setText(getItem());
-            setGraphic(textField);
-        }
-
-    }
 }

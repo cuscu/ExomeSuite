@@ -31,8 +31,9 @@ public class Aligner extends SystemTask {
     boolean illumina;
     final int cores;
     final String java7 = OS.scanJava7();
-    private final static String gatk = "software" + File.separator + "gatk"
-            + File.separator + "GenomeAnalysisTK.jar";
+    private File gatk = new File("software/gatk/GenomeAnalysisTK.jar");
+//    private final static String gatk = "software" + File.separator + "gatk"
+//            + File.separator + "GenomeAnalysisTK.jar";
 
     public Aligner(PrintStream printStream, String temp, String forward, String reverse,
             String genome, String dbsnp, String mills, String phase1, String output,
@@ -265,7 +266,7 @@ public class Aligner extends SystemTask {
         updateMessage("Prealigning...");
         updateProgress(60, 100);
         int ret;
-        if ((ret = execute(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk.getAbsolutePath(),
                 "-T", "RealignerTargetCreator",
                 "-R", genome, "-I", picard4,
                 "-known", mills, "-known", phase1,
@@ -274,7 +275,7 @@ public class Aligner extends SystemTask {
         }
         updateMessage("Aligning...");
         updateProgress(70, 100);
-        if ((ret = execute(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk.getAbsolutePath(),
                 "-T", "IndelRealigner",
                 "-R", genome, "-I", picard4,
                 "-known", mills, "-known", phase1,
@@ -308,7 +309,7 @@ public class Aligner extends SystemTask {
         updateProgress(80, 100);
         updateMessage("Pre-recalibrating...");
         int ret;
-        if ((ret = execute(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk.getAbsolutePath(),
                 "-T", "BaseRecalibrator",
                 "-I", gatk1,
                 "-R", genome,
@@ -321,7 +322,7 @@ public class Aligner extends SystemTask {
 
         updateProgress(90, 100);
         updateMessage("Recalibrating...");
-        if ((ret = execute(java7, "-jar", gatk,
+        if ((ret = execute(java7, "-jar", gatk.getAbsolutePath(),
                 "-T", "PrintReads",
                 "-R", genome,
                 "-I", gatk1,

@@ -17,6 +17,7 @@
 package exomesuite.vcfreader;
 
 import exomesuite.tsvreader.TSVReader;
+import exomesuite.utils.TabCell;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,11 +38,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -122,7 +121,7 @@ public class VCFReader {
                 tc.setGraphic(head);
                 tc.setCellValueFactory((TableColumn.CellDataFeatures<String[], String> param)
                         -> new SimpleStringProperty(param.getValue()[index]));
-                tc.setCellFactory((TableColumn<String[], String> param) -> new MyCell());
+                tc.setCellFactory((TableColumn<String[], String> param) -> new TabCell());
                 table.getColumns().add(tc);
             }
             AtomicInteger counter = new AtomicInteger();
@@ -190,26 +189,4 @@ public class VCFReader {
         }
     }
 
-    private static class MyCell extends TableCell<String[], String> {
-
-        TextField textField;
-
-        public MyCell() {
-            textField = new TextField();
-            textField.setEditable(false);
-            textField.setBackground(Background.EMPTY);
-            textField.setPadding(new Insets(1));
-            textField.setOnMouseClicked((MouseEvent event) -> {
-                textField.selectAll();
-            });
-        }
-
-        @Override
-        protected void updateItem(String t, boolean bln) {
-            super.updateItem(t, bln);
-            textField.setText(getItem());
-            setGraphic(textField);
-        }
-
-    }
 }

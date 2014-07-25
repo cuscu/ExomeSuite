@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -94,6 +96,20 @@ public class CombineVariants {
         Platform.runLater(task);
     }
 
+    /*
+     Cases    :              1          2           3        4         5
+     Sample 1 : ······----mmmmmm-----mmmmmmm-----mmmvmmm-----v-----····v····
+     Sample 2 : ······-------v-------mmmvmmm-----mmmvmmm-----v-----····v····
+     · : intron
+     - : exon
+     v : variant
+     m : mist region
+     1 : Variant from Sample 2 added, unknown tag.
+     2 : Variant from Sample 2 added, mist tag.
+     3 : Variant from best quality added, mist tag.
+     4 : Variant from best quality added.
+     5 : Variant from best quality added.
+     */
     private void intersect(File variants1, File variants2, File mist1, File mist2, File output) {
         int cv1 = 1;
         int cv2 = 1;
@@ -107,7 +123,6 @@ public class CombineVariants {
         Variant v1 = vcf1.nextVariant();
         Variant v2 = vcf2.nextVariant();
         try (PrintStream out = new PrintStream(output)) {
-
             vcf1.getHeaders().forEach(out::println);
             while (v1 != null && v2 != null) {
                 switch (v1.compare(v2)) {
@@ -155,14 +170,6 @@ public class CombineVariants {
                         cv2++;
                         break;
                     // v2 > v1
-                    // Check if at coordinates of v1 there is a MIST region in v2.
-                    //                               v
-                    // v2: - - - - - - - - - - m m m m m m - - - - - -
-                    // v1: - - - - - - - - - - - - - x - - - - - - - -
-                    //                               ^
-                    // In this case if, and only if, v1 is not at a MIST region,
-                    // the variant is accepted.
-                    // The same is applied when v2 < v1
                     case 1:
                         if (mistr2.contains(v1) && !mistr1.contains(v1)) {
                             Variant v = v1;
@@ -199,5 +206,20 @@ public class CombineVariants {
                 "First but not second:" + m1);
         System.out.println(
                 "Second but not first:" + m2);
+    }
+
+    /**
+     * Returns a new Variant combining data form this two variants. Both must be at the same
+     * coordinate.
+     *
+     * @param v1
+     * @param v2
+     * @return
+     */
+    private Variant merge(Variant v1, Variant v2) {
+        String chrom = v1.getChrom();
+        int pos = v1.getPos();
+        List<String> refs = new ArrayList<>();
+        return v1.getQual() > v2.getQual() ? v1 : v2;
     }
 }

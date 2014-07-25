@@ -1,6 +1,13 @@
 package exomesuite.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -157,7 +164,28 @@ public class OS {
      * @return a String with java7 path.
      */
     public static String scanJava7() {
-        return "/usr/java/jre1.7.0_51/bin/java";
+        ProcessBuilder pb = new ProcessBuilder("locate", "--regex", ".*1\\.7.*java$");
+        String java7 = null;
+        try {
+            Process p = pb.start();
+            List<String> javas = new ArrayList<>();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                while ((java7 = in.readLine()) != null) {
+                    ProcessBuilder pbj = new ProcessBuilder(java7);
+                    Process pj = pbj.start();
+                    if (pj.waitFor() != 127) {
+                        p.destroy();
+                        return java7;
+                    }
+                }
+            } catch (InterruptedException ex) {
+                Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.err.println("Java 1.7 not found in System");
+        return java7;
     }
 
     /**
@@ -194,5 +222,42 @@ public class OS {
             lastPath = f.getParentFile();
         }
         return f;
+    }
+
+    /**
+     * Converts an Array to String using the separator. Omits the last separator. [value1 value2
+     * value3] -> value1,value2,value3
+     *
+     * @param separator
+     * @param values
+     * @return
+     */
+    public static String asString(String separator, String[] values) {
+        if (values.length == 0) {
+            return "";
+        }
+        String s = values[0];
+        int i = 1;
+        while (i < values.length) {
+            s += separator + values[i++];
+        }
+        return s;
+    }
+
+    /**
+     * Converts an Array to String using the separator. Omits the last separator. [value1 value2
+     * value3] -> value1,value2,value3
+     *
+     * @param separator
+     * @param values
+     * @return
+     */
+    public static String asString(String separator, List<String> values) {
+        String s = "";
+        int i = 0;
+        while (i < values.size() - 1) {
+            s += values.get(i++) + separator;
+        }
+        return s + values.get(i);
     }
 }

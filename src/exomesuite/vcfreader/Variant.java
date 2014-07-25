@@ -16,6 +16,7 @@
  */
 package exomesuite.vcfreader;
 
+import exomesuite.utils.OS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -189,46 +190,9 @@ public class Variant {
         String ret = chrom + "\t" + pos + "\t" + id + "\t" + ref + "\t" + alt + "\t" + qual + "\t"
                 + filter + "\t" + info;
         if (!sampleGenotypes.isEmpty()) {
-            ret += "\t" + format + "\t" + asString("\t", sampleGenotypes);
+            ret += "\t" + format + "\t" + OS.asString("\t", sampleGenotypes);
         }
         return ret;
-    }
-
-    /**
-     * Converts an Array to String using the separator. Omits the last separator. [value1 value2
-     * value3] -> value1,value2,value3
-     *
-     * @param separator
-     * @param values
-     * @return
-     */
-    private String asString(String separator, String[] values) {
-        if (values.length == 0) {
-            return "";
-        }
-        String s = values[0];
-        int i = 1;
-        while (i < values.length) {
-            s += separator + values[i++];
-        }
-        return s;
-    }
-
-    /**
-     * Converts an Array to String using the separator. Omits the last separator. [value1 value2
-     * value3] -> value1,value2,value3
-     *
-     * @param separator
-     * @param values
-     * @return
-     */
-    private String asString(String separator, List<String> values) {
-        String s = "";
-        int i = 0;
-        while (i < values.size() - 1) {
-            s += values.get(i++) + separator;
-        }
-        return s + values.get(i);
     }
 
 //    /**

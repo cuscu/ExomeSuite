@@ -19,6 +19,7 @@ package exomesuite.systemtask;
 import exomesuite.tool.Console;
 import exomesuite.tool.Step;
 import exomesuite.utils.Config;
+import exomesuite.utils.OS;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -75,6 +76,7 @@ public abstract class SystemTask extends Task<Integer> {
      * @see ProcessBuilder
      */
     protected int execute(String... args) {
+        System.out.println(OS.asString(" ", args));
         ProcessBuilder pb;
         pb = new ProcessBuilder(args);
         pb.redirectErrorStream(true);
