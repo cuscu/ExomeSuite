@@ -20,8 +20,7 @@
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="0" text="Project name" />
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Root path" />
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Forward sequences"/>   
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Reverse sequences"/>   
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Project type"/>   
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Reverse sequences"/>
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="name" prefWidth="400" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="path" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="forward" />

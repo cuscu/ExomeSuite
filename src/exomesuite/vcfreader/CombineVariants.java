@@ -97,18 +97,17 @@ public class CombineVariants {
     }
 
     /*
-     Cases    :              1          2           3        4         5
-     Sample 1 : ······----mmmmmm-----mmmmmmm-----mmmvmmm-----v-----····v····
-     Sample 2 : ······-------v-------mmmvmmm-----mmmvmmm-----v-----····v····
-     · : intron
+     Cases    :     1        2           3           4           5
+     Sample 1 : ----v-----mmmvmmm-----mmmmmmm-----mmmvmmm-----mmmmmmm-----
+     Sample 2 : ----v--------v-----------v--------mmmvmmm-----mmmvmmm-----
      - : exon
      v : variant
      m : mist region
-     1 : Variant from Sample 2 added, unknown tag.
+     1 : Variant with best quality.
      2 : Variant from Sample 2 added, mist tag.
-     3 : Variant from best quality added, mist tag.
-     4 : Variant from best quality added.
-     5 : Variant from best quality added.
+     3 : Variant from Sample 2 added, unknown tag.
+     4 : No variant added.
+     5 : No variant added.
      */
     private void intersect(File variants1, File variants2, File mist1, File mist2, File output) {
         int cv1 = 1;
@@ -130,10 +129,10 @@ public class CombineVariants {
                         // M1: v1 in mist
                         // M2: v2 in mist.
                         //    M1 M2
-                        // 0  -  - normal++; No print
-                        // 1  -  x normal++; Print
-                        // 2  x  - normal++; Print
-                        // 3  x  x No print
+                        // 0  -  - normal++; Case 1
+                        // 1  -  x normal++; Case 2
+                        // 2  x  - normal++; Case 2
+                        // 3  x  x           Case 4
                         if (mistr1.contains(v1)) {
                             if (!mistr2.contains(v2)) {
                                 // 2: v1 in MIST and v2 good.
@@ -172,6 +171,7 @@ public class CombineVariants {
                     // v2 > v1
                     case 1:
                         if (mistr2.contains(v1) && !mistr1.contains(v1)) {
+                            // Case 3
                             Variant v = v1;
                             v.addFilter(UNKNOWN);
                             out.println(v);
@@ -183,6 +183,7 @@ public class CombineVariants {
                     // v2 < v1
                     case -1:
                         if (mistr1.contains(v2) && !mistr2.contains(v2)) {
+                            // Case 3
                             Variant v = v2;
                             v.addFilter(UNKNOWN);
                             out.println(v);

@@ -19,7 +19,6 @@ package exomesuite.systemtask;
 import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
-import java.io.PrintStream;
 
 /**
  *
@@ -31,26 +30,9 @@ public class Aligner extends SystemTask {
     boolean illumina;
     final int cores;
     final String java7 = OS.scanJava7();
-    private File gatk = new File("software/gatk/GenomeAnalysisTK.jar");
-//    private final static String gatk = "software" + File.separator + "gatk"
-//            + File.separator + "GenomeAnalysisTK.jar";
-
-    public Aligner(PrintStream printStream, String temp, String forward, String reverse,
-            String genome, String dbsnp, String mills, String phase1, String output,
-            boolean illumina) {
-        this.temp = temp;
-        this.forward = forward;
-        this.reverse = reverse;
-        this.genome = genome;
-        this.dbsnp = dbsnp;
-        this.mills = mills;
-        this.phase1 = phase1;
-        this.output = output;
-        this.illumina = illumina;
-        name = new File(output).getName().replace(".bam", "");
-        cores = Runtime.getRuntime().availableProcessors();
-
-    }
+    private final File gatk = new File("software"
+            + File.separator + "gatk"
+            + File.separator + "GenomeAnalysisTK.jar");
 
     public Aligner() {
         cores = Runtime.getRuntime().availableProcessors();

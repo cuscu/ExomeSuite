@@ -21,7 +21,7 @@
                                 <MenuItem fx:id="databaseMenu" text="Select databases" />
                             </items>
                         </Menu>
-                        <Menu text="TSVReader">
+                        <Menu text="TSV">
                             <items>
                                 <MenuItem fx:id="openTSV" text="Open file" /> 
                             </items>
