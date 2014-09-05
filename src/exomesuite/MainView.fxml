@@ -5,9 +5,25 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.MainViewController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <center>
-        <TabPane fx:id="projects" HBox.hgrow="SOMETIMES" />
+        <SplitPane orientation="HORIZONTAL">
+            <items>
+                <VBox alignment="TOP_CENTER">
+                    <children>
+                        <Label text="Projects"/>
+                        <exomesuite.graphic.ProjectTable fx:id="projectTable"/>
+                    </children>
+                </VBox>
+                <VBox alignment="TOP_CENTER" >
+                    <children>
+                        <Label text="Project properties"/>
+                        <exomesuite.graphic.ProjectProperties fx:id="projectProperties" VBox.vgrow="ALWAYS" />
+                        <exomesuite.graphic.ProjectActions fx:id="projectActions" alignment="CENTER_RIGHT" />
+                    </children>
+                </VBox>
+            </items>
+        </SplitPane>
     </center>
     <top>
         <VBox>
@@ -23,13 +39,13 @@
                         </Menu>
                         <Menu text="TSV">
                             <items>
-                                <MenuItem fx:id="openTSV" text="Open file" /> 
+                                <MenuItem fx:id="openTSV" text="Open file" />
                             </items>
                         </Menu>
                         <Menu text="VCF">
                             <items>
                                 <MenuItem fx:id="openVCFMenu" text="Open VCF"/>
-                                <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>  
+                                <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>
                             </items>
                         </Menu>
                     </menus>
@@ -38,4 +54,12 @@
             </children>
         </VBox>
     </top>
+    <bottom>
+        <HBox >
+            <children>
+                <Label fx:id="info"/>
+                <ProgressBar fx:id="progress"/>
+            </children>
+        </HBox>
+    </bottom>
 </BorderPane>

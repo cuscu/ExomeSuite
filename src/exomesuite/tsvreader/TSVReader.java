@@ -17,8 +17,9 @@
 package exomesuite.tsvreader;
 
 import exomesuite.ExomeSuite;
+import exomesuite.graphic.FlatButton;
 import exomesuite.utils.OS;
-import exomesuite.utils.TabCell;
+import exomesuite.graphic.TabCell;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,6 +49,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -67,9 +69,11 @@ public class TSVReader {
 
     private Map<String, Integer>[] stats;
 
-    private Label[] statsValues;
+    private TextField[] statsValues;
 
     private TextField[] filters;
+
+    private VBox[] values;
 
     private int NUMBER_OF_COLUMNS;
 
@@ -82,6 +86,8 @@ public class TSVReader {
     private Stage stage;
 
     private int totalLines;
+
+    private String[] lowerCasedFilters;
 
     public TSVReader(File file) {
         this.file = file;
@@ -100,23 +106,34 @@ public class TSVReader {
             // Store headers in a list.
             headers = Arrays.asList(in.readLine().split("\t"));
             NUMBER_OF_COLUMNS = headers.size();
-            statsValues = new Label[NUMBER_OF_COLUMNS];
+            statsValues = new TextField[NUMBER_OF_COLUMNS];
             filters = new TextField[NUMBER_OF_COLUMNS];
+            values = new VBox[NUMBER_OF_COLUMNS];
             // Create columns.
             for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
                 final int index = i;
                 Label title = new Label(headers.get(index));
 //                title.setTooltip(new Tooltip());
-                Label st = new Label();
+                TextField st = new TextField();
+                st.setBackground(Background.EMPTY);
+                st.setEditable(false);
+                st.setAlignment(Pos.CENTER);
                 st.setTooltip(new Tooltip());
                 TextField filter = new TextField();
                 filter.setBackground(new Background(new BackgroundFill(Color.WHITE,
                         CornerRadii.EMPTY, new Insets(2))));
                 filter.setPromptText("Filter me");
                 filter.setOnAction((ActionEvent event) -> updateTable());
+                FlatButton fb = new FlatButton("zoom.png", "Search");
+                FlatButton eye = new FlatButton("eye.png", "View");
+                eye.setOnAction((ActionEvent event) -> showColumn(index));
+                fb.setOnAction((ActionEvent event) -> updateTable());
+                StackPane sp = new StackPane(filter, fb);
+//                HBox hBox = new HBox(filter, fb);
+                sp.setAlignment(Pos.CENTER_RIGHT);
                 statsValues[index] = st;
                 filters[index] = filter;
-                VBox head = new VBox(2, title, st, filter);
+                VBox head = new VBox(2, title, st, sp);
                 head.setAlignment(Pos.TOP_CENTER);
                 TableColumn<String[], String> tc = new TableColumn<>();
                 tc.setGraphic(head);
@@ -144,6 +161,7 @@ public class TSVReader {
         stage = new Stage();
         Scene scene = new Scene(view);
         scene.getStylesheets().add(ExomeSuite.class.getResource("main.css").toExternalForm());
+        stage.setTitle(file.getName());
         stage.setScene(scene);
         stage.showAndWait();
     }
@@ -153,32 +171,43 @@ public class TSVReader {
      */
     public void updateTable() {
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
+            // Clear stats
             table.getItems().clear();
             for (Map map : stats) {
                 map.clear();
             }
+            // Lower case filters
+            lowerCasedFilters = new String[filters.length];
+            for (int i = 0; i < filters.length; i++) {
+                lowerCasedFilters[i] = filters[i].getText().toLowerCase();
+            }
             in.readLine(); // Skip header.
             AtomicInteger valid = new AtomicInteger(0);
+            // Process all the lines
             in.lines().forEachOrdered((String t) -> {
                 String[] row = t.split("\t");
                 if (filter(row)) {
                     updateStats(row);
+                    // There is a maximum number of lines to bw displayed
                     if (valid.getAndIncrement() < MAX_ROWS) {
                         table.getItems().add(row);
                     }
                 }
             });
+            // Print stats valuse
             for (int i = 0; i < statsValues.length; i++) {
+                values[i] = new VBox();
                 statsValues[i].setText(stats[i].size() + "");
-                List<String> values = new ArrayList<>();
+                List<String> val = new ArrayList<>();
                 int j = 0;
                 for (String s : stats[i].keySet()) {
-                    values.add(s);
+                    values[i].getChildren().add(new Label(s));
+                    val.add(s);
                     if (++j == 30) {
                         break;
                     }
                 }
-                statsValues[i].getTooltip().setText(OS.asString(",", values));
+                statsValues[i].getTooltip().setText(OS.asString(",", val));
             }
             final double percentage = (double) valid.get() * 100 / totalLines;
             viewController.getCurrentLines().setText(String.format("%d (%.2f%%)", valid.get(),
@@ -233,7 +262,8 @@ public class TSVReader {
      */
     private boolean filter(String[] row) {
         for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
-            if (!filters[i].getText().isEmpty() && !row[i].matches(filters[i].getText())) {
+            if (!lowerCasedFilters[i].isEmpty()
+                    && !row[i].toLowerCase().matches(lowerCasedFilters[i])) {
                 return false;
             }
         }
@@ -267,12 +297,14 @@ public class TSVReader {
         try (BufferedWriter out = new BufferedWriter(new FileWriter(f));
                 BufferedReader in = new BufferedReader(new FileReader(file))) {
             // Store header
-            writeArray(out, in.readLine().split("\t"));
+            out.write(in.readLine());
+            out.newLine();
             String line;
             while ((line = in.readLine()) != null) {
                 String[] row = line.split("\t");
                 if (filter(row)) {
-                    writeArray(out, row);
+                    out.write(line);
+                    out.newLine();
                 }
             }
         } catch (IOException ex) {
@@ -280,20 +312,12 @@ public class TSVReader {
         }
     }
 
-    /**
-     * Writes an array as a tab separated line in a output BufferedWriter.
-     *
-     * @param out
-     * @param array
-     * @throws IOException
-     */
-    private void writeArray(BufferedWriter out, String[] array) throws IOException {
-        int i = 0;
-        while (i < array.length - 1) {
-            out.write(array[i++] + "\t");
-        }
-        out.write(array[i]);
-        out.newLine();
+    private void showColumn(int i) {
+        Stage st = new Stage();
+        Scene scene = new Scene(values[i]);
+        st.setScene(scene);
+        st.setX(filters[i].getLayoutX());
+        st.setY(filters[i].getLayoutY());
+        st.showAndWait();
     }
-
 }

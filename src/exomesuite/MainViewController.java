@@ -16,11 +16,18 @@
  */
 package exomesuite;
 
+import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.ProjectProperties;
+import exomesuite.graphic.ProjectTable;
+import exomesuite.graphic.ToolBarButton;
+import exomesuite.project.Project;
+import exomesuite.project.ProjectData;
+import exomesuite.graphic.ProjectActions;
 import exomesuite.tool.GenomeManager;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
+import exomesuite.utils.Download;
 import exomesuite.utils.OS;
-import exomesuite.utils.ToolBarButton;
 import exomesuite.vcfreader.CombineVariants;
 import exomesuite.vcfreader.VCFReader;
 import java.io.File;
@@ -30,8 +37,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -39,6 +49,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -72,7 +83,6 @@ public class MainViewController {
      * The TabPane where all the projects views are put. Into the tabPane there are only Nodes. The
      * {@link Project} are stored into projectList.
      */
-    @FXML
     private TabPane projects;
 
     /**
@@ -93,6 +103,24 @@ public class MainViewController {
     private MenuItem openVCFMenu;
     @FXML
     private MenuItem combineVCFMenu;
+    /**
+     * The table where all the opened projects are listed.
+     */
+    @FXML
+    private ProjectTable projectTable;
+    /**
+     * Current project properties.
+     */
+    @FXML
+    private ProjectProperties projectProperties;
+    @FXML
+    private FlowPane actionButtons;
+    @FXML
+    private Label info;
+    @FXML
+    private ProgressBar progress;
+    @FXML
+    private ProjectActions projectActions;
 
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
@@ -101,6 +129,47 @@ public class MainViewController {
         config = new Config(new File("exomesuite.config"));
         setMenus();
         setToolBar();
+        projectTable.getSelectionModel().selectedItemProperty().addListener((
+                ObservableValue<? extends ProjectData> observable,
+                ProjectData oldValue, ProjectData newValue) -> {
+            if (newValue != null) {
+                projectProperties.setProject(newValue);
+                projectActions.setProject(newValue);
+            }
+        });
+        FlatButton download = new FlatButton("download.png", "Download something");
+//        actionButtons.getChildren().add(download);
+        download.setOnAction((ActionEvent event) -> {
+            downloadSomething();
+        });
+    }
+
+    private void downloadSomething() {
+        Task genome = new Task() {
+
+            @Override
+            protected Object call() throws Exception {
+                String[] genomeFiles = {
+                    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+                    "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
+                String ftpserver = "ftp://ftp.ncbi.nlm.nih.gov/genbank/genomes";
+                String ftpGenome = "/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38";
+                String ftpFASTA = "/Primary_Assembly/assembled_chromosomes/FASTA/";
+                final String ftpLink = ftpserver + ftpGenome + ftpFASTA;
+                for (int i = 0; i < 3; i++) {
+                    String chr = "chr" + genomeFiles[i] + ".fa.gz";
+                    File f = new File(chr);
+                    final String ftp = ftpLink + chr;
+                    Download download = new Download(ftp, f);
+                    info.textProperty().bind(download.messageProperty());
+                    progress.progressProperty().bind(download.progressProperty());
+                    Thread th = new Thread(download);
+                    th.start();
+                }
+                return null;
+            }
+        };
+        new Thread(genome).start();
     }
 
     /**
@@ -112,9 +181,13 @@ public class MainViewController {
         if (f == null) {
             return;
         }
-        File path = f.getParentFile().getParentFile();
-        String name = f.getParentFile().getName();
-        addProjectToTabPane(new Project(name, path, Project.Type.SINGLE));
+        ProjectData project = new ProjectData(f);
+        if (!projectTable.getItems().contains(project)) {
+            projectTable.getItems().add(project);
+            projectTable.getSelectionModel().select(project);
+            projectProperties.setProject(project);
+            projectActions.setProject(project);
+        }
     }
 
     /**
@@ -253,17 +326,26 @@ public class MainViewController {
             stage.setScene(scen);
             stage.setTitle("Create new project");
             stage.initModality(Modality.APPLICATION_MODAL);
-            controller.getAcceptButton().setOnAction((ActionEvent event) -> {
+            controller.setHandler((EventHandler) (Event event) -> {
+                System.out.println("Hi");
                 String name = controller.getName();
+                String code = controller.getCode();
                 File path = controller.getPath();
-                File forward = controller.getForward();
-                File reverse = controller.getReverse();
-                if (!name.isEmpty() && !(path == null) && !(forward == null) && !(reverse == null)) {
-                    Project project = new Project(name, path, Project.Type.SINGLE);
-                    project.getConfig().setProperty(Config.FORWARD, forward.getAbsolutePath());
-                    project.getConfig().setProperty(Config.REVERSE, reverse.getAbsolutePath());
-                    addProjectToTabPane(project);
-                    controller.clear();
+                if (!name.isEmpty() && !code.isEmpty() && path != null) {
+                    ProjectData project = new ProjectData(name, code, path.getAbsolutePath());
+                    File forward = controller.getForward();
+                    File reverse = controller.getReverse();
+                    if (forward != null && reverse != null) {
+                        project.setProperty(ProjectData.PropertyName.FORWARD_FASTQ, forward.
+                                getAbsolutePath());
+                        project.setProperty(ProjectData.PropertyName.REVERSE_FASTQ, reverse.
+                                getAbsolutePath());
+                    }
+                    String reference = controller.getReference();
+                    if (reference != null) {
+                        project.setProperty(ProjectData.PropertyName.REFERENCE_GENOME, reference);
+                    }
+                    projectTable.getItems().add(project);
                     stage.close();
                 }
             });

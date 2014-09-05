@@ -17,7 +17,7 @@
             <children>
                 <Label text="File:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <Label text="Size:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <Label text="Lines:" GridPane.columnIndex="0" GridPane.rowIndex="2" />                
+                <Label text="Lines:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <Label text="Current lines:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                 <Label fx:id="file" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                 <Label fx:id="size" GridPane.columnIndex="1" GridPane.rowIndex="1" />

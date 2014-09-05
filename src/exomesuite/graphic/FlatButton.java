@@ -14,20 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.utils;
+package exomesuite.graphic;
 
-import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 
 /**
  *
  * @author Pascual Lorente Arencibia
  */
-public class ToolBarButton extends FlatButton {
+public class FlatButton extends Button {
 
-    public ToolBarButton(String iconName, String tooltip, String name) {
-        super(iconName, tooltip);
-        setText(name);
-        setContentDisplay(ContentDisplay.TOP);
+    public FlatButton(String iconName, String tooltip) {
+        super(null, new ImageView("exomesuite/img/" + iconName));
+        if (tooltip != null && !tooltip.isEmpty()) {
+            setTooltip(new Tooltip(tooltip));
+        }
     }
 
 }

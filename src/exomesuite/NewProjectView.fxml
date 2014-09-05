@@ -4,33 +4,59 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
 
-<VBox alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.NewProjectViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
     <children> 
+        <HBox alignment="CENTER" >
+            <children>
+                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />
+                <Label text="Required"/> 
+                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />                
+            </children>
+        </HBox>
         <GridPane hgap="5.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml">
             <columnConstraints>
                 <ColumnConstraints />
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
-            <rowConstraints>
-                <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
-            </rowConstraints>
             <children>
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="0" text="Project name" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Root path" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Forward sequences"/>   
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Reverse sequences"/>
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="name" prefWidth="400" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="path" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="forward" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="reverse" />
+                <Label text="Project name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <Label text="Code" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Root path" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="name" prefWidth="400" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Name"  />
+                <TextField fx:id="code" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Code" />
+                <FileInputTextField fx:id="path" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             </children>
             <VBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </VBox.margin>
         </GridPane>
         <Label fx:id="finalPath" />
+        <HBox alignment="CENTER" >
+            <children>
+                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />
+                <Label text="Optional"/> 
+                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />                
+            </children>
+        </HBox>
+        <GridPane hgap="5.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml">
+            <columnConstraints>
+                <ColumnConstraints />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <children>
+                <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="3" />   
+                <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <Label text="Reference genome" GridPane.columnIndex="0" GridPane.rowIndex="5"/>    
+                <FileInputTextField fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <FileInputTextField fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="5"  />
+            </children>
+            <VBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </VBox.margin>
+        </GridPane>
         <Button fx:id="acceptButton" text="Create" />
     </children>
 </VBox>

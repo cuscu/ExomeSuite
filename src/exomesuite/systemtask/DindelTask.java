@@ -21,6 +21,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,9 +34,6 @@ public class DindelTask extends SystemTask {
 
     private File input, output, temp, dindel, windows, windows2;
     private String genome, name, dindel_exe;
-
-    public DindelTask() {
-    }
 
     @Override
     public boolean configure(Config mainConfig, Config projectConfig) {
@@ -154,24 +153,29 @@ public class DindelTask extends SystemTask {
         //   --outputFile temp/name/windows2/name_windows001.txt \
         //   &>/dev/null
         File[] files = windows.listFiles();
-        int total = files.length;
-        int count = 1;
+        final int total = files.length;
+//        int count = 1;
         String libraries = new File(temp, name + ".libraries.txt").getAbsolutePath();
-        for (File f : files) {
-            String out = new File(windows2, f.getName()).getAbsolutePath();
-            int p = count * 70 / total;
-            updateMessage(String.format("Realigning window %d/%d", count++, total));
-            updateProgress(20 + p, 100);
-            int r = execute(dindel_exe, "--analysis", "indels", "--doDiploid", "--quiet",
-                    "--bamFile", input.getAbsolutePath(),
-                    "--ref", genome,
-                    "--varFile", f.getAbsolutePath(),
-                    "--libFile", libraries,
-                    "--outputFile", out);
-            if (r != 0) {
-                return r;
+        AtomicInteger progress = new AtomicInteger();
+        AtomicInteger returnValue = new AtomicInteger();
+        Arrays.asList(files).parallelStream().forEach((File f) -> {
+            if (returnValue.get() == 0) {
+                String out = new File(windows2, f.getName()).getAbsolutePath();
+                int p = progress.get() * 70 / total;
+                updateMessage(String.format("Realigning window %d/%d", progress.incrementAndGet(),
+                        total));
+                updateProgress(20 + p, 100);
+                int r = execute(dindel_exe, "--analysis", "indels", "--doDiploid", "--quiet",
+                        "--bamFile", input.getAbsolutePath(),
+                        "--ref", genome,
+                        "--varFile", f.getAbsolutePath(),
+                        "--libFile", libraries,
+                        "--outputFile", out);
+                if (r != 0) {
+                    returnValue.set(r);
+                }
             }
-        }
+        });
         return 0;
     }
 

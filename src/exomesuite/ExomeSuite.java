@@ -34,6 +34,7 @@ public class ExomeSuite extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+//        new TestMySQL().start();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
         Parent root = loader.load();
         MainViewController controller = loader.getController();

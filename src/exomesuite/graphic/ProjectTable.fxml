@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="javafx.scene.control.TableView" xmlns:fx="http://javafx.com/fxml/1">
+    <columns>
+        <TableColumn fx:id="name" editable="false" text="Name" />
+        <TableColumn fx:id="code" editable="false" text="Code" />
+    </columns>
+</fx:root>

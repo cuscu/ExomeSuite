@@ -17,10 +17,10 @@
 package exomesuite.tool;
 
 import exomesuite.MainViewController;
-import exomesuite.Project;
+import exomesuite.project.Project;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.Config;
-import exomesuite.utils.FlatButton;
+import exomesuite.graphic.FlatButton;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

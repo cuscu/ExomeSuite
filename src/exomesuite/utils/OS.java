@@ -253,11 +253,18 @@ public class OS {
      * @return
      */
     public static String asString(String separator, List<String> values) {
+        if (values.isEmpty()) {
+            return "";
+        }
         String s = "";
         int i = 0;
         while (i < values.size() - 1) {
             s += values.get(i++) + separator;
         }
         return s + values.get(i);
+    }
+
+    public static boolean downloadFromWeb(String url, String user, String pass) {
+        return false;
     }
 }

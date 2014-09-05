@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite;
+package exomesuite.project;
 
+import exomesuite.graphic.FlatButton;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
 import exomesuite.systemtask.DindelTask;
@@ -25,7 +26,6 @@ import exomesuite.tool.Step;
 import exomesuite.tool.ToolPane;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
-import exomesuite.utils.FlatButton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,20 +54,6 @@ import javafx.stage.Stage;
 public class Project {
 
     /**
-     * The type of project.
-     */
-    enum Type {
-
-        /**
-         * A single project, only one sample.
-         */
-        SINGLE,
-        /**
-         * A commom project, two or more samples.
-         */
-        COMMOM
-    }
-    /**
      * Project name. Will be used for tab title and file naming.
      */
     private String name;
@@ -89,8 +75,6 @@ public class Project {
      */
     private List<Step> steps;
 
-    private Type type;
-
     /**
      * New projects will create a folder name under parent an an empty config file.
      * <p>
@@ -101,9 +85,8 @@ public class Project {
      * @param name name of the project
      * @param parent root folder
      */
-    Project(String name, File parent, Type type) {
+    public Project(String name, File parent) {
         steps = new ArrayList<>();
-        this.type = type;
         path = new File(parent, name);
         path.mkdirs();
         config = new Config(new File(path, name + ".config"));
@@ -350,7 +333,7 @@ public class Project {
      *
      * @return the view
      */
-    Node getView() {
+    public Node getView() {
         if (toolsPane == null) {
             toolsPane = new VBox();
             toolsPane.setPadding(new Insets(5));

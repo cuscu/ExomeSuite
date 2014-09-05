@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.utils;
+package exomesuite.graphic;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
@@ -29,7 +29,7 @@ import javafx.scene.layout.Background;
  */
 public class TabCell extends TableCell<String[], String> {
 
-    TextField textField;
+    private TextField textField;
 
     public TabCell() {
         textField = new TextField();

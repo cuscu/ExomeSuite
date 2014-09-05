@@ -17,7 +17,7 @@
 package exomesuite.vcfreader;
 
 import exomesuite.tsvreader.TSVReader;
-import exomesuite.utils.TabCell;
+import exomesuite.graphic.TabCell;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.File;
