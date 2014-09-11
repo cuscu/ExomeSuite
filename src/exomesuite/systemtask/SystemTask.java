@@ -54,7 +54,6 @@ public abstract class SystemTask extends Task<Integer> {
     /**
      * The Process used by {@code execute{String...&nbsp;args)}. If there is no System command
      * running, it will be null.
-     *
      */
     private Process process;
 

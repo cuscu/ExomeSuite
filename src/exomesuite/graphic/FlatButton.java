@@ -16,9 +16,16 @@
  */
 package exomesuite.graphic;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 
 /**
  *
@@ -26,11 +33,42 @@ import javafx.scene.image.ImageView;
  */
 public class FlatButton extends Button {
 
+    private StringProperty icon = new SimpleStringProperty();
+
+    public FlatButton() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("FlatButton.fxml"));
+        loader.setController(this);
+        loader.setRoot(this);
+        try {
+            loader.load();
+        } catch (IOException ex) {
+            Logger.getLogger(FlatButton.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        setBackground(Background.EMPTY);
+    }
+
     public FlatButton(String iconName, String tooltip) {
         super(null, new ImageView("exomesuite/img/" + iconName));
         if (tooltip != null && !tooltip.isEmpty()) {
             setTooltip(new Tooltip(tooltip));
         }
+        setBackground(Background.EMPTY);
+    }
+
+//    public String getIcon() {
+//        return this.getGraphic().toString();
+//    }
+    public void setIcon(String iconName) {
+        setGraphic(new ImageView("exomesuite/img/" + iconName));
+        icon.set(iconName);
+    }
+
+    public StringProperty getIconProperty() {
+        return icon;
+    }
+
+    public String getIcon() {
+        return icon.get();
     }
 
 }

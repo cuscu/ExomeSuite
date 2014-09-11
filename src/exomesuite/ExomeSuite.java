@@ -34,6 +34,25 @@ public class ExomeSuite extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        final String[] ps = new String[]{
+            //            "file.separator",
+            "java.class.path",
+            "java.home",
+            "java.vendor",
+            "java.vendor.url",
+            "java.version",
+            //            "line.separator",
+            "os.arch",
+            "os.name",
+            "os.version",
+            //            "path.separator",
+            "user.dir",
+            "user.home",
+            "user.name"
+        };
+        for (String p : ps) {
+            System.out.println(p + " = " + System.getProperty(p));
+        }
 //        new TestMySQL().start();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
         Parent root = loader.load();

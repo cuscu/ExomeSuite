@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+
+<fx:root type="javafx.scene.layout.VBox" spacing="3"  xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <FileSelector text="Forward sequences" fx:id="forward" />
+        <FileSelector text="Reverse sequences" fx:id="reverse" />
+    </children>
+
+</fx:root>

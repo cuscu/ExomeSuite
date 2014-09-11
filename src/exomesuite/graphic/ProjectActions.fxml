@@ -5,6 +5,17 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
 
-<fx:root type="javafx.scene.layout.HBox" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" >
+    <children>
+        <HBox fx:id="buttons" />
+        <HBox alignment="CENTER"  >
+            <children>
+                <ProgressBar fx:id="progressBar" maxWidth="999999" HBox.hgrow="ALWAYS" />
+                <FlatButton icon="cancel4.png" fx:id="cancel"/>
+            </children>
+        </HBox>
+        <Label fx:id="message" />
+    </children>
 </fx:root>

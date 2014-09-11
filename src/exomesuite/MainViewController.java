@@ -16,14 +16,15 @@
  */
 package exomesuite;
 
+import exomesuite.graphic.Databases;
 import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.ProjectActions;
+import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectProperties;
 import exomesuite.graphic.ProjectTable;
 import exomesuite.graphic.ToolBarButton;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectData;
-import exomesuite.graphic.ProjectActions;
-import exomesuite.tool.GenomeManager;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
 import exomesuite.utils.Download;
@@ -50,20 +51,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -103,6 +99,10 @@ public class MainViewController {
     private MenuItem openVCFMenu;
     @FXML
     private MenuItem combineVCFMenu;
+    @FXML
+    private ProgressBar progressBar;
+
+    private static ProgressBar staticBar;
     /**
      * The table where all the opened projects are listed.
      */
@@ -114,13 +114,17 @@ public class MainViewController {
     @FXML
     private ProjectProperties projectProperties;
     @FXML
-    private FlowPane actionButtons;
-    @FXML
     private Label info;
     @FXML
     private ProgressBar progress;
     @FXML
     private ProjectActions projectActions;
+    @FXML
+    private ProjectInfo projectInfo;
+
+    public MainViewController() {
+        staticBar = progressBar;
+    }
 
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
@@ -135,6 +139,7 @@ public class MainViewController {
             if (newValue != null) {
                 projectProperties.setProject(newValue);
                 projectActions.setProject(newValue);
+                projectInfo.setProject(newValue);
             }
         });
         FlatButton download = new FlatButton("download.png", "Download something");
@@ -187,6 +192,7 @@ public class MainViewController {
             projectTable.getSelectionModel().select(project);
             projectProperties.setProject(project);
             projectActions.setProject(project);
+            projectInfo.setProject(project);
         }
     }
 
@@ -239,46 +245,8 @@ public class MainViewController {
      * @return the vbox
      */
     private VBox getDatabasesView() {
-        String[] configs = {Config.MILLS, Config.PHASE1, Config.DBSNP, Config.OMNI, Config.HAPMAP};
-        String[] labels = {"Mills and 1000G indels", "1000G phase1 indels", "dbSNP", "1000G OMNI",
-            "Hapmap"};
-        GridPane grid = new GridPane();
-        int i;
-        for (i = 0; i < configs.length; i++) {
-            TextField textField = getDatabaseTextField(configs[i], labels[i], OS.VCF_FILTER);
-//            TextField tf = getVcfParam(configs[i], labels[i]);
-            Label lab = new Label(labels[i]);
-            grid.addRow(i, lab, textField);
-        }
-        ColumnConstraints c1 = new ColumnConstraints();
-        ColumnConstraints c2 = new ColumnConstraints();
-        c2.setHgrow(Priority.ALWAYS);
-        grid.getColumnConstraints().addAll(c1, c2);
-        TextField ensembl = getDatabaseTextField(Config.ENSEMBL_EXONS,
-                "Ensembl exons database (TSV)", OS.TSV_FILTER, OS.ALL_FILTER);
-//        TextField ensembl = getTsvTf(Config.ENSEMBL_EXONS, "Ensembl exons database (TSV)");
-        grid.addRow(i, new Label("Ensembl exons"), ensembl);
-        grid.setPadding(new Insets(4));
-        return new VBox(grid, new GenomeManager().getView());
-    }
-
-    private TextField getDatabaseTextField(String key, String promptText, ExtensionFilter... filters) {
-        TextField textField = new TextField();
-        if (config.containsKey(key)) {
-            textField.setText(config.getProperty(key));
-        }
-        textField.setPromptText(promptText);
-        textField.setEditable(false);
-        textField.setOnAction((ActionEvent event) -> selectDatabase(key, textField, filters));
-        textField.setOnMouseClicked((MouseEvent event) -> selectDatabase(key, textField, filters));
-        return textField;
-    }
-
-    private void selectDatabase(String key, TextField textField, ExtensionFilter... filters) {
-        File f = OS.openFile(textField, key, filters);
-        if (f != null) {
-            config.setProperty(key, f.getAbsolutePath());
-        }
+//        return new VBox(new Databases(), new GenomeManager().getView());
+        return new Databases();
     }
 
     /**
@@ -356,9 +324,16 @@ public class MainViewController {
     }
 
     private void showDatabasesPane() {
-        Scene scene = new Scene(getDatabasesView());
+        Databases db = new Databases();
+        ScrollPane pane = new ScrollPane(db);
+        db.setPadding(new Insets(5));
+        pane.setFitToHeight(true);
+        pane.setFitToWidth(true);
+//        Scene scene = new Scene(new ScrollPane(getDatabasesView()));
+        Scene scene = new Scene(pane);
         Stage stage = new Stage();
         stage.setWidth(800);
+        stage.setHeight(400);
         stage.setScene(scene);
         stage.setTitle("Databases manager");
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -383,4 +358,9 @@ public class MainViewController {
             new VCFReader(f).show();
         }
     }
+
+    public static ProgressBar getProgressBar() {
+        return staticBar;
+    }
+
 }

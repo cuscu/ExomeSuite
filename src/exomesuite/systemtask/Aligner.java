@@ -38,6 +38,22 @@ public class Aligner extends SystemTask {
         cores = Runtime.getRuntime().availableProcessors();
     }
 
+    public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
+            String mills, String phase1, String output, String name, boolean illumina) {
+        this.temp = temp;
+        this.forward = forward;
+        this.reverse = reverse;
+        this.genome = genome;
+        this.dbsnp = dbsnp;
+        this.mills = mills;
+        this.phase1 = phase1;
+        this.output = output;
+        this.name = name;
+        this.illumina = illumina;
+        this.cores = Runtime.getRuntime().availableProcessors();
+
+    }
+
     @Override
     public boolean configure(Config mainConfig, Config projectConfig) {
         illumina = projectConfig.getProperty("phred64").equals("true");
@@ -87,23 +103,30 @@ public class Aligner extends SystemTask {
         System.out.println("output=" + output);
         System.out.println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
-//        return 0;
-        int ret;
-        if ((ret = firstAlignment()) != 0) {
-            return ret;
+        for (int i = 0; i < 10; i++) {
+            updateProgress(i, 10);
+            updateMessage(i + "/" + 10);
+            Thread.sleep(1000);
         }
-        if ((ret = refineBAM()) != 0) {
-            return ret;
-        }
-        if ((ret = realignBAM()) != 0) {
-            return ret;
-        }
-        if ((ret = recalibrateBAM()) != 0) {
-            return ret;
-        }
-        updateMessage("Done");
         updateProgress(1, 1);
-        return ret;
+        Thread.sleep(1000);
+        return 0;
+//        int ret;
+//        if ((ret = firstAlignment()) != 0) {
+//            return ret;
+//        }
+//        if ((ret = refineBAM()) != 0) {
+//            return ret;
+//        }
+//        if ((ret = realignBAM()) != 0) {
+//            return ret;
+//        }
+//        if ((ret = recalibrateBAM()) != 0) {
+//            return ret;
+//        }
+//        updateMessage("Done");
+//        updateProgress(1, 1);
+//        return ret;
 
     }
 

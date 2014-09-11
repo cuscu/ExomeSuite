@@ -2,10 +2,14 @@ package exomesuite.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.TextField;
@@ -21,11 +25,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
  */
 public class OS {
 
-    /**
-     * The last successful path. Id est, the last path where the user did not canceled the file
-     * selection.
-     */
-    private static File lastPath;
     /**
      * Filters FASTA files (.fasta .fa)
      */
@@ -67,11 +66,22 @@ public class OS {
             "*.config");
 
     /**
+     * The last successful path. Id est, the last path where the user did not canceled the file
+     * selection.
+     */
+    private static File lastPath;
+
+    private static Properties properties;
+    private static File propertiesFile;
+    private static File usrPath;
+    private static File usrHomePath;
+
+    /**
      * Takes a byte value and convert it to the corresponding human readable unit.
      *
-     * @param bytes
-     * @param si
-     * @return
+     * @param bytes value in bytes
+     * @param si if true, divides by 1000; else by 1024
+     * @return a human readable size
      */
     public static String humanReadableByteCount(long bytes, boolean si) {
         int unit = si ? 1000 : 1024;
@@ -83,15 +93,13 @@ public class OS {
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
+    public static boolean containsKey(String key) {
+        return getProperties().containsKey(key);
+    }
+
     public OS() {
-        switch (System.getProperty("os.name")) {
-            case "Windows 7":
-                lastPath = new File(System.getenv("user.dir"));
-                break;
-            case "Linux":
-            default:
-                lastPath = new File(System.getenv("PWD"));
-        }
+        lastPath = getUserPath();
+
     }
 
     /**
@@ -106,7 +114,7 @@ public class OS {
     public static File saveFile(String title, ExtensionFilter... filters) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(title);
-        chooser.setInitialDirectory(lastPath);
+        chooser.setInitialDirectory(getLastPath());
         chooser.getExtensionFilters().addAll(filters);
         File file = chooser.showSaveDialog(null);
         if (file != null) {
@@ -153,7 +161,7 @@ public class OS {
         if (title != null) {
             chooser.setTitle(title);
         }
-        chooser.setInitialDirectory(lastPath);
+        chooser.setInitialDirectory(getLastPath());
         File file = chooser.showDialog(null);
         return (file != null) ? (lastPath = file) : null;
     }
@@ -214,7 +222,7 @@ public class OS {
      */
     public static File openFile(String title, ExtensionFilter... filters) {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(lastPath);
+        chooser.setInitialDirectory(getLastPath());
         chooser.getExtensionFilters().addAll(filters);
         chooser.setTitle(title);
         File f = chooser.showOpenDialog(null);
@@ -266,5 +274,66 @@ public class OS {
 
     public static boolean downloadFromWeb(String url, String user, String pass) {
         return false;
+    }
+
+    public static String getTempDir() {
+        return new File(getUserPath(), "temp").getAbsolutePath();
+    }
+
+    public static String getGenome(String property) {
+        return getProperties().getProperty(property);
+    }
+
+    public static File getUserPath() {
+        if (usrPath == null) {
+            usrPath = new File(System.getProperty("user.dir"));
+        }
+        return usrPath;
+    }
+
+    public static File getUserHomePath() {
+        if (usrHomePath == null) {
+            usrHomePath = new File(System.getProperty("user.home"));
+        }
+        return usrHomePath;
+    }
+
+    private static Properties getProperties() {
+        if (properties == null) {
+            properties = new Properties();
+            propertiesFile = new File(getUserPath(), "properties.txt");
+            if (propertiesFile.exists()) {
+                try {
+                    properties.load(new FileInputStream(propertiesFile));
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(OS.class.getName()).log(Level.SEVERE, "Check permissions", ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return properties;
+    }
+
+    public static File getLastPath() {
+        if (lastPath == null) {
+            lastPath = getUserPath();
+        }
+        return lastPath;
+    }
+
+    public static String getProperty(String key) {
+        return getProperties().getProperty(key);
+    }
+
+    public static void setProperty(String key, String value) {
+        getProperties().setProperty(key, value);
+        try {
+            properties.store(new FileOutputStream(propertiesFile), null);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
