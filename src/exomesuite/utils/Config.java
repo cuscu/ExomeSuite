@@ -16,7 +16,7 @@
  */
 package exomesuite.utils;
 
-import exomesuite.project.Project;
+import exomesuite.deprecated.Project;
 import exomesuite.tool.GenomeManager;
 import exomesuite.tool.Step;
 import java.io.File;

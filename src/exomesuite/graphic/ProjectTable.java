@@ -16,7 +16,7 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.project.ProjectData;
+import exomesuite.project.Project;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,12 +32,12 @@ import javafx.scene.control.TableView;
  *
  * @author Pascual Lorente Arencibia
  */
-public class ProjectTable extends TableView<ProjectData> {
+public class ProjectTable extends TableView<Project> {
 
     @FXML
-    private TableColumn<ProjectData, String> name;
+    private TableColumn<Project, String> name;
     @FXML
-    private TableColumn<ProjectData, String> code;
+    private TableColumn<Project, String> code;
 
     /**
      * Initializes the controller class.
@@ -45,13 +45,11 @@ public class ProjectTable extends TableView<ProjectData> {
     @FXML
     public void initialize() {
         // Name column
-        name.setCellValueFactory((TableColumn.CellDataFeatures<ProjectData, String> param)
-                -> new SimpleStringProperty(param.getValue().getProperty(
-                                ProjectData.PropertyName.NAME)));
+        name.setCellValueFactory((TableColumn.CellDataFeatures<Project, String> param)
+                -> new SimpleStringProperty(param.getValue().getProperty(Project.PropertyName.NAME)));
         // Code column
-        code.setCellValueFactory((TableColumn.CellDataFeatures<ProjectData, String> param)
-                -> new SimpleStringProperty(param.getValue().getProperty(
-                                ProjectData.PropertyName.CODE)));
+        code.setCellValueFactory((TableColumn.CellDataFeatures<Project, String> param)
+                -> new SimpleStringProperty(param.getValue().getProperty(Project.PropertyName.CODE)));
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
         setPlaceholder(new Label("Open or create a project."));
     }

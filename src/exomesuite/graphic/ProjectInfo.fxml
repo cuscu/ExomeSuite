@@ -9,6 +9,20 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="3"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
+        <HBox >
+            <children>
+                <Label text="Code: "/>
+                <Label fx:id="code" />
+            </children>
+        </HBox>
+        <HBox alignment="CENTER" >
+            <children>
+                <Label text="Name: "/>
+                <TextField fx:id="name" HBox.hgrow="ALWAYS" />
+            </children>
+        </HBox>
+        <Label text="Description"/>
+        <TextArea prefRowCount="5" fx:id="description" VBox.vgrow="ALWAYS"  />
         <FileSelector text="Forward sequences" fx:id="forward" />
         <FileSelector text="Reverse sequences" fx:id="reverse" />
     </children>

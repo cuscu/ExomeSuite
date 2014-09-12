@@ -16,8 +16,8 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.project.ProjectData;
-import exomesuite.project.ProjectData.PropertyName;
+import exomesuite.project.Project;
+import exomesuite.project.Project.PropertyName;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class ProjectProperties extends TableView<Map.Entry<PropertyName, String>
     @FXML
     private TableColumn<Map.Entry<PropertyName, String>, String> name;
 
-    private ProjectData project;
+    private Project project;
 
     public ProjectProperties() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectProperties.fxml"));
@@ -79,7 +79,7 @@ public class ProjectProperties extends TableView<Map.Entry<PropertyName, String>
         setPlaceholder(new Label("Select any project to see its properties."));
     }
 
-    public void setProject(ProjectData project) {
+    public void setProject(Project project) {
         this.project = project;
         getItems().clear();
         for (PropertyName pname : PropertyName.values()) {

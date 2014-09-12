@@ -16,7 +16,7 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.project.ProjectData;
+import exomesuite.project.Project;
 import exomesuite.utils.OS;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -25,9 +25,14 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
 /**
+ * Shows information about a project. This class may substitute ProjectProperties.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -37,8 +42,14 @@ public class ProjectInfo extends VBox {
     private FileSelector forward;
     @FXML
     private FileSelector reverse;
+    @FXML
+    private TextField name;
+    @FXML
+    private Label code;
+    @FXML
+    private TextArea description;
 
-    private ProjectData project;
+    private Project project;
 
     public ProjectInfo() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectInfo.fxml"));
@@ -57,23 +68,27 @@ public class ProjectInfo extends VBox {
         forward.addExtensionFilter(OS.FASTQ_FILTER);
         reverse.addExtensionFilter(OS.FASTQ_FILTER);
         forward.setOnFileChange((EventHandler) (Event event) -> {
-            project.setProperty(ProjectData.PropertyName.FORWARD_FASTQ, forward.getFile());
+            project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getFile());
         });
         reverse.setOnFileChange((EventHandler) (Event event) -> {
-            project.setProperty(ProjectData.PropertyName.REVERSE_FASTQ, reverse.getFile());
-
+            project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getFile());
+        });
+        name.setOnKeyTyped((KeyEvent event) -> {
+            project.setProperty(Project.PropertyName.NAME, name.getText());
+        });
+        description.setOnKeyTyped((KeyEvent event) -> {
+            project.setProperty(Project.PropertyName.DESCRIPTION, description.getText());
         });
     }
 
-    public void setProject(ProjectData project) {
+    public void setProject(Project project) {
         setVisible(true);
         this.project = project;
-        if (project.contains(ProjectData.PropertyName.FORWARD_FASTQ)) {
-            forward.setFile(project.getProperty(ProjectData.PropertyName.FORWARD_FASTQ));
-        }
-        if (project.contains(ProjectData.PropertyName.REVERSE_FASTQ)) {
-            reverse.setFile(project.getProperty(ProjectData.PropertyName.REVERSE_FASTQ));
-        }
+        forward.setFile(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
+        reverse.setFile(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
+        name.setText(project.getProperty(Project.PropertyName.NAME, ""));
+        code.setText(project.getProperty(Project.PropertyName.CODE, ""));
+        description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
     }
 
 }

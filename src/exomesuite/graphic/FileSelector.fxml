@@ -5,12 +5,21 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
 
 <fx:root  type="javafx.scene.layout.HBox" spacing="5" alignment="CENTER"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label fx:id="label" HBox.hgrow="ALWAYS" />
-        <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
-        <exomesuite.graphic.FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
+        <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT"  >
+            <children>
+                <Label fx:id="label" />
+                <HBox >
+                    <children>
+                        <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
+                        <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </children>
 
 </fx:root>

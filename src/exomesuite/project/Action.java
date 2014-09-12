@@ -34,7 +34,7 @@ public abstract class Action {
         this.running = false;
     }
 
-    public abstract boolean isDisabled(ProjectData project);
+    public abstract boolean isDisabled(Project project);
 
     public String getDescription() {
         return description;
@@ -51,9 +51,9 @@ public abstract class Action {
     /**
      * Returns a ready-to-start task, taking parameters from project.
      *
-     * @param project the ProjectData to which task is performed
+     * @param project the Project to which task is performed
      * @return a SystemTask ready to launch
      */
-    public abstract SystemTask getTask(ProjectData project);
+    public abstract SystemTask getTask(Project project);
 
 }

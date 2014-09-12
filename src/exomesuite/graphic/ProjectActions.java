@@ -17,7 +17,7 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Action;
-import exomesuite.project.ProjectData;
+import exomesuite.project.Project;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.OS;
@@ -44,7 +44,7 @@ import javafx.scene.layout.VBox;
  */
 public class ProjectActions extends VBox {
 
-    private ProjectData project;
+    private Project project;
 
     @FXML
     private ProgressBar progressBar;
@@ -81,26 +81,25 @@ public class ProjectActions extends VBox {
         Action align = new Action("align.png", "Align genome", "Select FASTQ files first") {
 
             @Override
-            public boolean isDisabled(ProjectData project) {
-                return !project.contains(ProjectData.PropertyName.FORWARD_FASTQ)
-                        || !project.contains(ProjectData.PropertyName.REVERSE_FASTQ);
+            public boolean isDisabled(Project project) {
+                return !project.contains(Project.PropertyName.FORWARD_FASTQ)
+                        || !project.contains(Project.PropertyName.REVERSE_FASTQ);
             }
 
             @Override
-            public SystemTask getTask(ProjectData project) {
-                final String name = project.getProperty(ProjectData.PropertyName.CODE);
-                final String forward = project.getProperty(ProjectData.PropertyName.FORWARD_FASTQ);
-                final String reverse = project.getProperty(ProjectData.PropertyName.REVERSE_FASTQ);
+            public SystemTask getTask(Project project) {
+                final String name = project.getProperty(Project.PropertyName.CODE);
+                final String forward = project.getProperty(Project.PropertyName.FORWARD_FASTQ);
+                final String reverse = project.getProperty(Project.PropertyName.REVERSE_FASTQ);
                 final boolean illumina = project.
-                        getProperty(ProjectData.PropertyName.FASTQ_ENCODING).equals("phred+64");
+                        getProperty(Project.PropertyName.FASTQ_ENCODING).equals("phred+64");
                 final String temp = OS.getTempDir();
-                final String genomeVersion = project.getProperty(
-                        ProjectData.PropertyName.REFERENCE_GENOME);
+                final String genomeVersion = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
                 final String genome = OS.getProperty(genomeVersion);
                 final String dbsnp = OS.getProperty("dbsnp");
                 final String mills = OS.getProperty("mills");
                 final String phase1 = OS.getProperty("phase1");
-                final String path = project.getProperty(ProjectData.PropertyName.PATH);
+                final String path = project.getProperty(Project.PropertyName.PATH);
                 final String output = path + File.separator + name + ".bam";
                 return new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1, output,
                         name, illumina);
@@ -110,12 +109,12 @@ public class ProjectActions extends VBox {
         Action call = new Action("call.png", "Call variants", "Align genome first") {
 
             @Override
-            public boolean isDisabled(ProjectData project) {
-                return !project.contains(ProjectData.PropertyName.BAM_FILE);
+            public boolean isDisabled(Project project) {
+                return !project.contains(Project.PropertyName.BAM_FILE);
             }
 
             @Override
-            public SystemTask getTask(ProjectData project) {
+            public SystemTask getTask(Project project) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
@@ -123,7 +122,7 @@ public class ProjectActions extends VBox {
         actions.add(call);
     }
 
-    public void setProject(ProjectData project) {
+    public void setProject(Project project) {
         if (task == null || !task.isRunning()) {
             this.project = project;
             refreshActions();

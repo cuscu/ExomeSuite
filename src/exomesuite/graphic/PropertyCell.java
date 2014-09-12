@@ -16,8 +16,8 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.project.ProjectData;
-import exomesuite.project.ProjectData.PropertyName;
+import exomesuite.project.Project;
+import exomesuite.project.Project.PropertyName;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.util.Map;
@@ -35,7 +35,7 @@ import javafx.scene.layout.HBox;
  */
 public final class PropertyCell extends TableCell<Map.Entry<PropertyName, String>, PropertyName> {
 
-    private final ProjectData project;
+    private final Project project;
     private final TextField editField = new TextField();
     private final ComboBox<String> comboBox = new ComboBox();
 
@@ -48,7 +48,7 @@ public final class PropertyCell extends TableCell<Map.Entry<PropertyName, String
     private PropertyName currentProperty;
     private File fileSelected;
 
-    public PropertyCell(ProjectData project) {
+    public PropertyCell(Project project) {
         this.project = project;
         clear.setOnAction((ActionEvent event) -> clear());
         setContentDisplay(ContentDisplay.RIGHT);
@@ -121,12 +121,12 @@ public final class PropertyCell extends TableCell<Map.Entry<PropertyName, String
                 commitEdit(currentProperty);
                 break;
             case FASTQ_ENCODING:
-                comboBox.getItems().setAll(ProjectData.encondingValues());
+                comboBox.getItems().setAll(Project.encondingValues());
                 setGraphic(new HBox(comboBox, cancel, accept));
                 setText(null);
                 break;
             case REFERENCE_GENOME:
-                comboBox.getItems().setAll(ProjectData.referenceGenomes());
+                comboBox.getItems().setAll(Project.referenceGenomes());
                 setGraphic(new HBox(comboBox, cancel, accept));
                 setText(null);
             default:

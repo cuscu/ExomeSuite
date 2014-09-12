@@ -20,11 +20,9 @@ import exomesuite.graphic.Databases;
 import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
-import exomesuite.graphic.ProjectProperties;
 import exomesuite.graphic.ProjectTable;
 import exomesuite.graphic.ToolBarButton;
 import exomesuite.project.Project;
-import exomesuite.project.ProjectData;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.Config;
 import exomesuite.utils.Download;
@@ -33,9 +31,6 @@ import exomesuite.vcfreader.CombineVariants;
 import exomesuite.vcfreader.VCFReader;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
@@ -52,8 +47,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -75,16 +68,6 @@ public class MainViewController {
      */
     private static Config config;
 
-    /**
-     * The TabPane where all the projects views are put. Into the tabPane there are only Nodes. The
-     * {@link Project} are stored into projectList.
-     */
-    private TabPane projects;
-
-    /**
-     * An ArrayList to store all the opened projects.
-     */
-    private final List<Project> projectList = new ArrayList<>();
     @FXML
     private MenuItem openMenu;
     @FXML
@@ -111,8 +94,8 @@ public class MainViewController {
     /**
      * Current project properties.
      */
-    @FXML
-    private ProjectProperties projectProperties;
+//    @FXML
+//    private ProjectProperties projectProperties;
     @FXML
     private Label info;
     @FXML
@@ -134,10 +117,10 @@ public class MainViewController {
         setMenus();
         setToolBar();
         projectTable.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends ProjectData> observable,
-                ProjectData oldValue, ProjectData newValue) -> {
+                ObservableValue<? extends Project> observable,
+                Project oldValue, Project newValue) -> {
             if (newValue != null) {
-                projectProperties.setProject(newValue);
+//                projectProperties.setProject(newValue);
                 projectActions.setProject(newValue);
                 projectInfo.setProject(newValue);
             }
@@ -186,32 +169,14 @@ public class MainViewController {
         if (f == null) {
             return;
         }
-        ProjectData project = new ProjectData(f);
+        Project project = new Project(f);
         if (!projectTable.getItems().contains(project)) {
             projectTable.getItems().add(project);
             projectTable.getSelectionModel().select(project);
-            projectProperties.setProject(project);
+//            projectProperties.setProject(project);
             projectActions.setProject(project);
             projectInfo.setProject(project);
         }
-    }
-
-    /**
-     * Adds the project view to a new tab in the tabPane and the project to projectList.
-     *
-     */
-    private void addProjectToTabPane(Project project) {
-        final Tab tab = new Tab(project.getName());
-        tab.setContent(project.getView());
-        tab.setOnCloseRequest((Event event) -> {
-            if (!project.close()) {
-                event.consume();
-            }
-        });
-        tab.setGraphic(new ImageView("exomesuite/img/single.png"));
-        projects.getTabs().add(tab);
-        projectList.add(project);
-        projects.getSelectionModel().select(tab);
     }
 
     /**
@@ -227,16 +192,17 @@ public class MainViewController {
      * Checks if all projects can be close. Iterates over projectList, if any of the projects
      * couldn't be closed, returns false.
      *
-     * @return false if all projects can be closed, true otherwise.
+     * @return true if all projects can be closed, false otherwise.
      */
     boolean canClose() {
-        AtomicBoolean exit = new AtomicBoolean(true);
-        projectList.forEach((Project project) -> {
-            if (!project.close()) {
-                exit.set(false);
-            }
-        });
         return true;
+//        AtomicBoolean exit = new AtomicBoolean(true);
+//        projectList.forEach((Project project) -> {
+//            if (!project.close()) {
+//                exit.set(false);
+//            }
+//        });
+//        return true;
     }
 
     /**
@@ -300,18 +266,18 @@ public class MainViewController {
                 String code = controller.getCode();
                 File path = controller.getPath();
                 if (!name.isEmpty() && !code.isEmpty() && path != null) {
-                    ProjectData project = new ProjectData(name, code, path.getAbsolutePath());
+                    Project project = new Project(name, code, path.getAbsolutePath());
                     File forward = controller.getForward();
                     File reverse = controller.getReverse();
                     if (forward != null && reverse != null) {
-                        project.setProperty(ProjectData.PropertyName.FORWARD_FASTQ, forward.
+                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.
                                 getAbsolutePath());
-                        project.setProperty(ProjectData.PropertyName.REVERSE_FASTQ, reverse.
+                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.
                                 getAbsolutePath());
                     }
                     String reference = controller.getReference();
                     if (reference != null) {
-                        project.setProperty(ProjectData.PropertyName.REFERENCE_GENOME, reference);
+                        project.setProperty(Project.PropertyName.REFERENCE_GENOME, reference);
                     }
                     projectTable.getItems().add(project);
                     stage.close();
