@@ -18,7 +18,17 @@ package exomesuite.graphic;
 
 import exomesuite.project.Project;
 import exomesuite.utils.OS;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.FileVisitResult;
+import static java.nio.file.FileVisitResult.CONTINUE;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.Event;
@@ -48,6 +58,8 @@ public class ProjectInfo extends VBox {
     private Label code;
     @FXML
     private TextArea description;
+    @FXML
+    private FileSelector path;
 
     private Project project;
 
@@ -79,6 +91,8 @@ public class ProjectInfo extends VBox {
         description.setOnKeyTyped((KeyEvent event) -> {
             project.setProperty(Project.PropertyName.DESCRIPTION, description.getText());
         });
+        path.setOnFileChange((EventHandler) (Event event) -> changePath());
+        path.setDisable(true);
     }
 
     public void setProject(Project project) {
@@ -89,6 +103,42 @@ public class ProjectInfo extends VBox {
         name.setText(project.getProperty(Project.PropertyName.NAME, ""));
         code.setText(project.getProperty(Project.PropertyName.CODE, ""));
         description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
+        path.setFile(project.getProperty(Project.PropertyName.PATH, ""));
     }
 
+    private void changePath() {
+        final Path newPath = new File(path.getFile()).toPath();
+        final Path prevPath = new File(project.getProperty(Project.PropertyName.PATH)).toPath();
+
+        try {
+            Files.walkFileTree(prevPath, new FileVisitor<Path>() {
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes bfa) throws IOException {
+                    Files.copy(dir, newPath.resolve(prevPath.relativize(dir)));
+                    return CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes bfa) throws IOException {
+                    Files.copy(file, newPath.resolve(prevPath.relativize(file)), COPY_ATTRIBUTES);
+                    return CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path t, IOException ioe) throws IOException {
+                    System.err.println("Copy failed: " + t);
+                    return CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path t, IOException ioe) throws IOException {
+                    return CONTINUE;
+                }
+            });
+        } catch (IOException ex) {
+            Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 }

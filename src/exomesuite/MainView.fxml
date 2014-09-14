@@ -8,7 +8,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <center>
-        <SplitPane orientation="HORIZONTAL">
+        <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
             <items>
                 <VBox alignment="TOP_CENTER">
                     <children>
@@ -18,11 +18,14 @@
                 </VBox>
                 <VBox alignment="TOP_CENTER" >
                     <children>
-                        <SectionTitle title="Project properties"/>
+                        <HBox style="-fx-background-color: lightgray" alignment="CENTER" >
+                            <children>
+                                <Label text="Project properties"/>
+                            </children>
+                        </HBox>
                         <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS" />
-                        <!--<ProjectProperties fx:id="projectProperties" VBox.vgrow="ALWAYS" />-->
                         <SectionTitle title="Project actions"/>
-                        <ProjectActions fx:id="projectActions" alignment="CENTER_RIGHT" />
+                        <ProjectActions fx:id="projectActions" />
                     </children>
                     <padding>
                         <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />

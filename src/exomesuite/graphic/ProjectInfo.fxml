@@ -9,12 +9,14 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="3"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
+        <SectionTitle title="General options"/>
         <HBox >
             <children>
                 <Label text="Code: "/>
                 <Label fx:id="code" />
             </children>
         </HBox>
+        <FileSelector fx:id="path" openPath="true" text="Path" />
         <HBox alignment="CENTER" >
             <children>
                 <Label text="Name: "/>
@@ -22,7 +24,7 @@
             </children>
         </HBox>
         <Label text="Description"/>
-        <TextArea prefRowCount="5" fx:id="description" VBox.vgrow="ALWAYS"  />
+        <TextArea prefHeight="20"  prefRowCount="5" fx:id="description" VBox.vgrow="ALWAYS"  />
         <FileSelector text="Forward sequences" fx:id="forward" />
         <FileSelector text="Reverse sequences" fx:id="reverse" />
     </children>

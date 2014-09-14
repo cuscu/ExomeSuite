@@ -14,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.deprecated;
 
+import exomesuite.graphic.ProjectTable;
+import exomesuite.graphic.PropertyCell;
 import exomesuite.project.Project;
 import exomesuite.project.Project.PropertyName;
 import java.io.IOException;

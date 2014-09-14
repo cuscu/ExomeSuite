@@ -78,6 +78,9 @@ public class ProjectActions extends VBox {
             }
         });
         cancel.setDisable(true);
+        progressBar.setProgress(0);
+        progressBar.setVisible(false);
+        cancel.setVisible(false);
         Action align = new Action("align.png", "Align genome", "Select FASTQ files first") {
 
             @Override
@@ -153,8 +156,10 @@ public class ProjectActions extends VBox {
         buttons.getChildren().forEach((Node node) -> ((FlatButton) node).setDisable(true));
         // Launch the task
         new Thread(task).start();
-        // Enable cancel button
+        // Enable cancel button and show progress
         cancel.setDisable(false);
+        progressBar.setVisible(true);
+        cancel.setVisible(true);
     }
 
     private void cancelled(Action a, SystemTask t) {

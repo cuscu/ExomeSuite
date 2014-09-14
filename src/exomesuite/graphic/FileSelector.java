@@ -45,11 +45,14 @@ public class FileSelector extends HBox {
     @FXML
     private FlatButton button;
 
+    private boolean openPath;
+
     private EventHandler event;
 
     private final List<FileChooser.ExtensionFilter> filters = new ArrayList<>();
 
     public FileSelector() {
+        openPath = false;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FileSelector.fxml"));
         loader.setRoot(this);
         loader.setController(this);
@@ -62,7 +65,7 @@ public class FileSelector extends HBox {
 
     @FXML
     public void initialize() {
-        button.setOnAction((ActionEvent event) -> open());
+        button.setOnAction((ActionEvent e) -> open());
     }
 
     public void setText(String text) {
@@ -82,10 +85,10 @@ public class FileSelector extends HBox {
     }
 
     private void open() {
-        File f = OS.openFile(textField, label.getText(),
-                filters.toArray(new FileChooser.ExtensionFilter[filters.size()]));
-        if (f != null && event != null) {
-            event.handle(new ActionEvent());
+        if (openPath) {
+            openPath();
+        } else {
+            openFile();
         }
     }
 
@@ -95,5 +98,31 @@ public class FileSelector extends HBox {
 
     public void addExtensionFilter(FileChooser.ExtensionFilter filter) {
         filters.add(filter);
+    }
+
+    public boolean isOpenPath() {
+        return openPath;
+    }
+
+    public void setOpenPath(boolean openPath) {
+        this.openPath = openPath;
+    }
+
+    private void openPath() {
+        File f = OS.selectFolder(label.getText());
+        if (f != null) {
+            textField.setText(f.getAbsolutePath());
+            if (event != null) {
+                event.handle(new ActionEvent());
+            }
+        }
+    }
+
+    private void openFile() {
+        File f = OS.openFile(textField, label.getText(),
+                filters.toArray(new FileChooser.ExtensionFilter[filters.size()]));
+        if (f != null && event != null) {
+            event.handle(new ActionEvent());
+        }
     }
 }

@@ -172,28 +172,32 @@ public class OS {
      * @return a String with java7 path.
      */
     public static String scanJava7() {
-        ProcessBuilder pb = new ProcessBuilder("locate", "--regex", ".*1\\.7.*java$");
-        String java7 = null;
-        try {
-            Process p = pb.start();
-            List<String> javas = new ArrayList<>();
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                while ((java7 = in.readLine()) != null) {
-                    ProcessBuilder pbj = new ProcessBuilder(java7);
-                    Process pj = pbj.start();
-                    if (pj.waitFor() != 127) {
-                        p.destroy();
-                        return java7;
+        if (System.getProperty("os.name").contains("Linux")) {
+            ProcessBuilder pb = new ProcessBuilder("locate", "--regex", ".*1\\.7.*java$");
+            String java7 = null;
+            try {
+                Process p = pb.start();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                    while ((java7 = in.readLine()) != null) {
+                        ProcessBuilder pbj = new ProcessBuilder(java7);
+                        Process pj = pbj.start();
+                        if (pj.waitFor() != 127) {
+                            p.destroy();
+                            return java7;
+                        }
                     }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (InterruptedException ex) {
+            } catch (IOException ex) {
                 Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Java 1.7 not found in System");
+            return java7;
+
+        } else {
+            return null;
         }
-        System.err.println("Java 1.7 not found in System");
-        return java7;
     }
 
     /**
