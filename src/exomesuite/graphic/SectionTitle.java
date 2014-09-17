@@ -21,8 +21,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Paint;
 
 /**
  *
@@ -32,6 +38,10 @@ public class SectionTitle extends HBox {
 
     @FXML
     private Label title;
+    @FXML
+    private Separator leftSeparator;
+    @FXML
+    private Separator rightSeparator;
 
     public SectionTitle() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SectionTitle.fxml"));
@@ -51,4 +61,22 @@ public class SectionTitle extends HBox {
     public void setTitle(String title) {
         this.title.setText(title);
     }
+
+    public void setHLine(boolean hline) {
+        leftSeparator.setVisible(hline);
+        rightSeparator.setVisible(hline);
+    }
+
+    public boolean isHLine() {
+        return leftSeparator.isVisible();
+    }
+
+    public Paint getPaint() {
+        return getBackground().getFills().get(0).getFill();
+    }
+
+    public void setPaint(Paint paint) {
+        setBackground(new Background(new BackgroundFill(paint, CornerRadii.EMPTY, Insets.EMPTY)));
+    }
+
 }

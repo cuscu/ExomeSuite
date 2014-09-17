@@ -7,24 +7,27 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<fx:root type="javafx.scene.layout.VBox" spacing="3"  xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.VBox" spacing="3" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <SectionTitle title="General options"/>
-        <HBox >
+        <GridPane hgap="3" vgap="3" VBox.vgrow="ALWAYS" alignment="TOP_LEFT" >
+            <columnConstraints>
+                <ColumnConstraints fillWidth="true" halignment="RIGHT" hgrow="ALWAYS" />
+                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="SOMETIMES"  />
+            </columnConstraints>
             <children>
-                <Label text="Code: "/>
-                <Label fx:id="code" />
+                <SectionTitle GridPane.rowIndex="0" GridPane.columnSpan="2"  title="General options" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Code"/>
+                <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="code" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Name" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="name" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Path" />
+                <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Description" />
+                <TextArea GridPane.columnIndex="1" GridPane.rowIndex="4"
+                         fx:id="description"  />
             </children>
-        </HBox>
-        <FileSelector fx:id="path" openPath="true" text="Path" />
-        <HBox alignment="CENTER" >
-            <children>
-                <Label text="Name: "/>
-                <TextField fx:id="name" HBox.hgrow="ALWAYS" />
-            </children>
-        </HBox>
-        <Label text="Description"/>
-        <TextArea prefHeight="20"  prefRowCount="5" fx:id="description" VBox.vgrow="ALWAYS"  />
+        </GridPane>
+        <SectionTitle title="Original data" />
         <FileSelector text="Forward sequences" fx:id="forward" />
         <FileSelector text="Reverse sequences" fx:id="reverse" />
     </children>

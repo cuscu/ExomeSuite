@@ -16,15 +16,11 @@
                         <ProjectTable fx:id="projectTable"/>
                     </children>
                 </VBox>
-                <VBox alignment="TOP_CENTER" >
+                <VBox alignment="TOP_CENTER" fillWidth="true" >
                     <children>
-                        <HBox style="-fx-background-color: lightgray" alignment="CENTER" >
-                            <children>
-                                <Label text="Project properties"/>
-                            </children>
-                        </HBox>
+                        <SectionTitle hLine="false" title="Project properties" paint="Lightgray" />
                         <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS" />
-                        <SectionTitle title="Project actions"/>
+                        <SectionTitle title="Project actions" paint="lightgray" hLine="false"  />
                         <ProjectActions fx:id="projectActions" />
                     </children>
                     <padding>

@@ -9,8 +9,8 @@
          alignment="CENTER"
          spacing="3" >
     <children>
-        <Separator orientation="HORIZONTAL" HBox.hgrow="SOMETIMES"/>
+        <Separator orientation="HORIZONTAL" HBox.hgrow="SOMETIMES" fx:id="leftSeparator" />
         <Label fx:id="title" />
-        <Separator orientation="HORIZONTAL" HBox.hgrow="SOMETIMES"/>
+        <Separator orientation="HORIZONTAL" HBox.hgrow="SOMETIMES" fx:id="rightSeparator" />
     </children>
 </fx:root>
