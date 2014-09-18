@@ -17,8 +17,6 @@
 package exomesuite.systemtask;
 
 import exomesuite.tool.Console;
-import exomesuite.tool.Step;
-import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -123,16 +121,15 @@ public abstract class SystemTask extends Task<Integer> {
         return super.cancel(mayInterruptIfRunning);
     }
 
-    /**
-     * Must return true if the task could be configured successfully, otherwise return false. If
-     * this method returns true, it means the task can be launch.
-     *
-     * @param mainConfig The configuration of the application.
-     * @param projectConfig The configuration of the project.
-     * @return true is SystemTask has got all the parameters ready to launch.
-     */
-    public abstract boolean configure(Config mainConfig, Config projectConfig);
-
+//    /**
+//     * Must return true if the task could be configured successfully, otherwise return false. If
+//     * this method returns true, it means the task can be launch.
+//     *
+//     * @param mainConfig The configuration of the application.
+//     * @param projectConfig The configuration of the project.
+//     * @return true is SystemTask has got all the parameters ready to launch.
+//     */
+//    public abstract boolean configure(Config mainConfig, Config projectConfig);
     /**
      * Sets the value of the printStream. By default, its value is System.out.
      *

@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -35,18 +34,29 @@ public class DindelTask extends SystemTask {
     private File input, output, temp, dindel, windows, windows2;
     private String genome, name, dindel_exe;
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-        String al = projectConfig.getProperty("align_path");
-        String di = projectConfig.getProperty("dindel_path");
-        name = projectConfig.getProperty(Config.NAME);
-        temp = new File(projectConfig.getProperty(Config.PATH_TEMP));
-        input = new File(al, name + ".bam");
-        output = new File(di, name + "_dindel.vcf");
-        genome = mainConfig.getProperty(Config.GENOME);
-        return input.exists();
+    public DindelTask(File input, File output, File temp, File dindel, File windows, File windows2,
+            String genome, String name, String dindel_exe) {
+        this.input = input;
+        this.output = output;
+        this.temp = temp;
+        this.dindel = dindel;
+        this.windows = windows;
+        this.windows2 = windows2;
+        this.genome = genome;
+        this.name = name;
+        this.dindel_exe = dindel_exe;
     }
 
+//    public boolean configure(Config mainConfig, Config projectConfig) {
+//        String al = projectConfig.getProperty("align_path");
+//        String di = projectConfig.getProperty("dindel_path");
+//        name = projectConfig.getProperty(Config.NAME);
+//        temp = new File(projectConfig.getProperty(Config.PATH_TEMP));
+//        input = new File(al, name + ".bam");
+//        output = new File(di, name + "_dindel.vcf");
+//        genome = mainConfig.getProperty(Config.GENOME);
+//        return input.exists();
+//    }
     @Override
     protected Integer call() throws Exception {
         windows = new File(temp, "windows");

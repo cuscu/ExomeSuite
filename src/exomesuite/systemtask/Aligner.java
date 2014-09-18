@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 
@@ -34,10 +33,9 @@ public class Aligner extends SystemTask {
             + File.separator + "gatk"
             + File.separator + "GenomeAnalysisTK.jar");
 
-    public Aligner() {
-        cores = Runtime.getRuntime().availableProcessors();
-    }
-
+//    public Aligner() {
+//        cores = Runtime.getRuntime().availableProcessors();
+//    }
     public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
             String mills, String phase1, String output, String name, boolean illumina) {
         this.temp = temp;
@@ -54,42 +52,41 @@ public class Aligner extends SystemTask {
 
     }
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-        illumina = projectConfig.getProperty("phred64").equals("true");
-        dbsnp = mainConfig.getProperty(Config.DBSNP);
-        if (dbsnp == null || dbsnp.isEmpty()) {
-            return false;
-        }
-        mills = mainConfig.getProperty(Config.MILLS);
-        if (mills == null || mills.isEmpty()) {
-            return false;
-        }
-        phase1 = mainConfig.getProperty(Config.PHASE1);
-        if (phase1 == null || phase1.isEmpty()) {
-            return false;
-        }
-        genome = mainConfig.getProperty(Config.GENOME);
-        if (genome == null || genome.isEmpty()) {
-            return false;
-        }
-        forward = projectConfig.getProperty(Config.FORWARD);
-        if (forward == null || forward.isEmpty()) {
-            return false;
-        }
-        reverse = projectConfig.getProperty(Config.REVERSE);
-        if (reverse == null || reverse.isEmpty()) {
-            return false;
-        }
-        temp = projectConfig.getProperty(Config.PATH_TEMP);
-        if (temp == null || temp.isEmpty()) {
-            return false;
-        }
-        name = projectConfig.getProperty(Config.NAME);
-        output = new File(projectConfig.getProperty("align_path"), name + ".bam").getAbsolutePath();
-        return true;
-    }
-
+//    @Override
+//    public boolean configure(Config mainConfig, Config projectConfig) {
+//        illumina = projectConfig.getProperty("phred64").equals("true");
+//        dbsnp = mainConfig.getProperty(Config.DBSNP);
+//        if (dbsnp == null || dbsnp.isEmpty()) {
+//            return false;
+//        }
+//        mills = mainConfig.getProperty(Config.MILLS);
+//        if (mills == null || mills.isEmpty()) {
+//            return false;
+//        }
+//        phase1 = mainConfig.getProperty(Config.PHASE1);
+//        if (phase1 == null || phase1.isEmpty()) {
+//            return false;
+//        }
+//        genome = mainConfig.getProperty(Config.GENOME);
+//        if (genome == null || genome.isEmpty()) {
+//            return false;
+//        }
+//        forward = projectConfig.getProperty(Config.FORWARD);
+//        if (forward == null || forward.isEmpty()) {
+//            return false;
+//        }
+//        reverse = projectConfig.getProperty(Config.REVERSE);
+//        if (reverse == null || reverse.isEmpty()) {
+//            return false;
+//        }
+//        temp = projectConfig.getProperty(Config.PATH_TEMP);
+//        if (temp == null || temp.isEmpty()) {
+//            return false;
+//        }
+//        name = projectConfig.getProperty(Config.NAME);
+//        output = new File(projectConfig.getProperty("align_path"), name + ".bam").getAbsolutePath();
+//        return true;
+//    }
     @Override
     protected Integer call() throws Exception {
         System.out.println("Alingment parameters");

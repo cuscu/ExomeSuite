@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,13 +36,20 @@ import java.util.logging.Logger;
  */
 public class Mist extends SystemTask {
 
-    private File input, output, ensembl;
-    private int threshold;
+    private final File input, output, ensembl;
+    private final int threshold;
     private final static int WINDOW_SIZE = 10;
     private final static String INSIDE = "inside";
     private final static String OVERLAP = "overlap";
     private final static String LEFT = "left";
     private final static String RIGHT = "right";
+
+    public Mist(String input, String output, String ensembl, int threshold) {
+        this.input = new File(input);
+        this.output = new File(output);
+        this.ensembl = new File(ensembl);
+        this.threshold = threshold;
+    }
 
     /*
      DISCUSSION:
@@ -364,20 +370,6 @@ public class Mist extends SystemTask {
             output.delete();
         }
         writeLine(output, headers);
-    }
-
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-//    private int threshold;
-        // INPUT=path/alignments/name.bam
-        input = new File(projectConfig.getProperty("align_path"),
-                projectConfig.getProperty(Config.NAME) + ".bam");
-        // OUTPUT=path/mist/name.mist
-        output = new File(projectConfig.getProperty("mist_path"),
-                projectConfig.getProperty(Config.NAME) + ".mist");
-        ensembl = new File(mainConfig.getProperty(Config.ENSEMBL_EXONS));
-        threshold = Integer.valueOf(projectConfig.getProperty("threshold"));
-        return true;
     }
 
 }

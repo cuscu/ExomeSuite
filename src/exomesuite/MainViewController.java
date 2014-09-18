@@ -24,7 +24,6 @@ import exomesuite.graphic.ProjectTable;
 import exomesuite.graphic.ToolBarButton;
 import exomesuite.project.Project;
 import exomesuite.tsvreader.TSVReader;
-import exomesuite.utils.Config;
 import exomesuite.utils.Download;
 import exomesuite.utils.OS;
 import exomesuite.vcfreader.CombineVariants;
@@ -62,11 +61,6 @@ import javafx.stage.Stage;
  * @author Pascual Lorente Arencibia
  */
 public class MainViewController {
-
-    /**
-     * The config of the application.
-     */
-    private static Config config;
 
     @FXML
     private MenuItem openMenu;
@@ -113,7 +107,6 @@ public class MainViewController {
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
      */
     public void initialize() {
-        config = new Config(new File("exomesuite.config"));
         setMenus();
         setToolBar();
         projectTable.getSelectionModel().selectedItemProperty().addListener((
@@ -177,15 +170,6 @@ public class MainViewController {
             projectActions.setProject(project);
             projectInfo.setProject(project);
         }
-    }
-
-    /**
-     * Gets the Config of this project.
-     *
-     * @return the Config value of this project.
-     */
-    public static Config getConfig() {
-        return config;
     }
 
     /**

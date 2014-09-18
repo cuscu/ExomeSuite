@@ -100,6 +100,12 @@ public class FileSelector extends HBox {
         filters.add(filter);
     }
 
+    public void addExtensionFilters(FileChooser.ExtensionFilter... filters) {
+        for (FileChooser.ExtensionFilter filter : filters) {
+            this.filters.add(filter);
+        }
+    }
+
     public boolean isOpenPath() {
         return openPath;
     }

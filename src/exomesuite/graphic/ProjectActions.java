@@ -17,11 +17,11 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Action;
+import exomesuite.project.AlignAction;
+import exomesuite.project.CallAction;
+import exomesuite.project.MistAction;
 import exomesuite.project.Project;
-import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.SystemTask;
-import exomesuite.utils.OS;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,48 +81,13 @@ public class ProjectActions extends VBox {
         progressBar.setProgress(0);
         progressBar.setVisible(false);
         cancel.setVisible(false);
-        Action align = new Action("align.png", "Align genome", "Select FASTQ files first") {
 
-            @Override
-            public boolean isDisabled(Project project) {
-                return !project.contains(Project.PropertyName.FORWARD_FASTQ)
-                        || !project.contains(Project.PropertyName.REVERSE_FASTQ);
-            }
-
-            @Override
-            public SystemTask getTask(Project project) {
-                final String name = project.getProperty(Project.PropertyName.CODE);
-                final String forward = project.getProperty(Project.PropertyName.FORWARD_FASTQ);
-                final String reverse = project.getProperty(Project.PropertyName.REVERSE_FASTQ);
-                final boolean illumina = project.
-                        getProperty(Project.PropertyName.FASTQ_ENCODING).equals("phred+64");
-                final String temp = OS.getTempDir();
-                final String genomeVersion = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
-                final String genome = OS.getProperty(genomeVersion);
-                final String dbsnp = OS.getProperty("dbsnp");
-                final String mills = OS.getProperty("mills");
-                final String phase1 = OS.getProperty("phase1");
-                final String path = project.getProperty(Project.PropertyName.PATH);
-                final String output = path + File.separator + name + ".bam";
-                return new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1, output,
-                        name, illumina);
-            }
-        };
-
-        Action call = new Action("call.png", "Call variants", "Align genome first") {
-
-            @Override
-            public boolean isDisabled(Project project) {
-                return !project.contains(Project.PropertyName.BAM_FILE);
-            }
-
-            @Override
-            public SystemTask getTask(Project project) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
+        Action align = new AlignAction("align.png", "Align genome", "Select FASTQ files first");
+        Action call = new CallAction("call.png", "Call variants", "Align sequences first");
+        Action mist = new MistAction("mist.png", "Mist analysis", "Align sequences first");
         actions.add(align);
         actions.add(call);
+        actions.add(mist);
     }
 
     public void setProject(Project project) {
@@ -163,21 +128,25 @@ public class ProjectActions extends VBox {
     }
 
     private void cancelled(Action a, SystemTask t) {
-        progressBar.progressProperty().unbind();
-        progressBar.setProgress(0);
-        message.textProperty().unbind();
+        a.onCancelled(project, t);
+        unbind();
         message.setText(a.getDescription() + " cancelled: code " + t.getValue());
         cancel.setDisable(true);
         refreshActions();
     }
 
     private void succeded(Action a, SystemTask t) {
-        progressBar.progressProperty().unbind();
-        progressBar.setProgress(0);
-        message.textProperty().unbind();
+        a.onSucceeded(project, t);
+        unbind();
         message.setText(a.getDescription() + " succeded: code " + t.getValue());
         cancel.setDisable(true);
         refreshActions();
+    }
+
+    private void unbind() {
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(0);
+        message.textProperty().unbind();
     }
 
 }

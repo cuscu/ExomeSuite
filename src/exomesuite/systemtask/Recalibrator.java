@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.FileFilter;
@@ -30,6 +29,18 @@ import java.util.Date;
 public class Recalibrator extends SystemTask {
 
     String input, output, omni, mills, hapmap, dbsnp, genome, temp;
+
+    public Recalibrator(String input, String output, String omni, String mills, String hapmap,
+            String dbsnp, String genome, String temp) {
+        this.input = input;
+        this.output = output;
+        this.omni = omni;
+        this.mills = mills;
+        this.hapmap = hapmap;
+        this.dbsnp = dbsnp;
+        this.genome = genome;
+        this.temp = temp;
+    }
 
     @Override
     protected Integer call() throws Exception {
@@ -108,19 +119,4 @@ public class Recalibrator extends SystemTask {
         return ret;
     }
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-        omni = mainConfig.getProperty(Config.OMNI);
-        mills = mainConfig.getProperty(Config.MILLS);
-        hapmap = mainConfig.getProperty(Config.HAPMAP);
-        dbsnp = mainConfig.getProperty(Config.DBSNP);
-        genome = mainConfig.getProperty(Config.GENOME);
-        temp = projectConfig.getProperty(Config.PATH_TEMP);
-        String name = projectConfig.getProperty(Config.NAME);
-        // Input = path/call/name.vcf
-        input = new File(projectConfig.getProperty("call_path"), name + ".vcf").getAbsolutePath();
-        // Output = path/recal/name.vcf
-        output = new File(projectConfig.getProperty("recal_path"), name + ".vcf").getAbsolutePath();
-        return true;
-    }
 }

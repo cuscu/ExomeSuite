@@ -19,6 +19,7 @@
                 <FileSelector text="1000G OMNI" fx:id="omni" />
                 <FileSelector text="Hapmap" fx:id="hapmap" />
                 <FileSelector text="dbSNP" fx:id="dbsnp" />
+                <FileSelector text="Ensembl exons" fx:id="ensembl"/>
             </children>
         </VBox>
 

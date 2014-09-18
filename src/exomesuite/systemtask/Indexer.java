@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import java.io.File;
 import java.io.PrintStream;
 
@@ -59,9 +58,9 @@ public class Indexer extends SystemTask {
         return ret;
     }
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-        genome = mainConfig.getProperty(Config.GENOME);
-        return genome != null && !genome.isEmpty();
-    }
+//    @Override
+//    public boolean configure(Config mainConfig, Config projectConfig) {
+//        genome = mainConfig.getProperty(Config.GENOME);
+//        return genome != null && !genome.isEmpty();
+//    }
 }

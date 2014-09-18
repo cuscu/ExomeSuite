@@ -9,11 +9,23 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="3" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <GridPane hgap="3" vgap="3" VBox.vgrow="ALWAYS" alignment="TOP_LEFT" >
+        <GridPane hgap="3" vgap="3" VBox.vgrow="ALWAYS" alignment="TOP_CENTER">
             <columnConstraints>
-                <ColumnConstraints fillWidth="true" halignment="RIGHT" hgrow="ALWAYS" />
-                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="SOMETIMES"  />
+                <ColumnConstraints fillWidth="true" halignment="RIGHT" hgrow="SOMETIMES" />
+                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="ALWAYS"  />
             </columnConstraints>
+            <rowConstraints>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="BASELINE"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+                <RowConstraints valignment="CENTER"/>
+            </rowConstraints>
             <children>
                 <SectionTitle GridPane.rowIndex="0" GridPane.columnSpan="2"  title="General options" />
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Code"/>
@@ -23,8 +35,7 @@
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Path" />
                 <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" />
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Description" />
-                <TextArea GridPane.columnIndex="1" GridPane.rowIndex="4"
-                         fx:id="description"  />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="description" />
             </children>
         </GridPane>
         <SectionTitle title="Original data" />

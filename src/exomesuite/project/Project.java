@@ -82,7 +82,19 @@ public class Project {
         /**
          * The alignments file.
          */
-        BAM_FILE
+        BAM_FILE,
+        /**
+         * File containing variants
+         */
+        VCF_FILE,
+        /**
+         * Mist analysis threshold
+         */
+        THRESHOLD,
+        /**
+         * Variants file recalibrated
+         */
+        RECAL_VCF_FILE
     }
 
     /**

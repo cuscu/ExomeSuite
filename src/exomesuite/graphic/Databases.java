@@ -44,6 +44,8 @@ public class Databases extends VBox {
     @FXML
     private FileSelector hapmap;
     @FXML
+    private FileSelector ensembl;
+    @FXML
     private FileSelector grch37;
     @FXML
     private FileSelector grch38;
@@ -53,6 +55,7 @@ public class Databases extends VBox {
     private final static String OMNI = "omni";
     private final static String HAPMAP = "hapmap";
     private final static String PHASE1 = "phase1";
+    private final static String ENSMEBL = "ensembl";
     private final static String GRCH37 = "grch37";
     private final static String GRCH38 = "grch38";
 
@@ -108,6 +111,13 @@ public class Databases extends VBox {
         phase1.addExtensionFilter(OS.VCF_FILTER);
         phase1.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(PHASE1, phase1.getFile()));
+        // Ensembl
+        if (OS.containsKey(ENSMEBL)) {
+            ensembl.setFile(OS.getProperty(ENSMEBL));
+        }
+        ensembl.addExtensionFilters(OS.TSV_FILTER, OS.ALL_FILTER);
+        ensembl.setOnFileChange((EventHandler) (Event event)
+                -> OS.setProperty(ENSMEBL, ensembl.getFile()));
         // Human genome GRCHv37
         if (OS.containsKey(GRCH37)) {
             grch37.setFile(OS.getProperty(GRCH37));

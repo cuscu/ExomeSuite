@@ -13,11 +13,11 @@
             <children>
                 <Label fx:id="label" />
                 <HBox >
-            <children>
-                <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
-                <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
-            </children>
-        </HBox>
+                    <children>
+                        <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
+                        <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
             </children>
         </VBox>
     </children>

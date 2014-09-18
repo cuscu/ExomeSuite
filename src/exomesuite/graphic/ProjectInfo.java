@@ -20,13 +20,11 @@ import exomesuite.project.Project;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
@@ -36,7 +34,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
@@ -57,7 +54,7 @@ public class ProjectInfo extends VBox {
     @FXML
     private Label code;
     @FXML
-    private TextArea description;
+    private TextField description;
     @FXML
     private FileSelector path;
 
@@ -114,13 +111,15 @@ public class ProjectInfo extends VBox {
             Files.walkFileTree(prevPath, new FileVisitor<Path>() {
 
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes bfa) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes bfa) throws
+                        IOException {
                     Files.copy(dir, newPath.resolve(prevPath.relativize(dir)));
                     return CONTINUE;
                 }
 
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes bfa) throws IOException {
+                public FileVisitResult visitFile(Path file, BasicFileAttributes bfa) throws
+                        IOException {
                     Files.copy(file, newPath.resolve(prevPath.relativize(file)), COPY_ATTRIBUTES);
                     return CONTINUE;
                 }
@@ -132,7 +131,8 @@ public class ProjectInfo extends VBox {
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path t, IOException ioe) throws IOException {
+                public FileVisitResult postVisitDirectory(Path t, IOException ioe) throws
+                        IOException {
                     return CONTINUE;
                 }
             });

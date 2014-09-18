@@ -56,4 +56,12 @@ public abstract class Action {
      */
     public abstract SystemTask getTask(Project project);
 
+    public void onSucceeded(Project p, SystemTask t) {
+
+    }
+
+    public void onCancelled(Project p, SystemTask t) {
+
+    }
+
 }

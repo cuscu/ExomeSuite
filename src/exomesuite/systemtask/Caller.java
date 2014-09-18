@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.Config;
 import exomesuite.utils.OS;
 import java.io.File;
 
@@ -26,29 +25,13 @@ import java.io.File;
  */
 public class Caller extends SystemTask {
 
-    private String genome, output, input, dbsnp;
+    private final String genome, output, input, dbsnp;
 
-    @Override
-    public boolean configure(Config mainConfig, Config projectConfig) {
-        try {
-            genome = mainConfig.getProperty(Config.GENOME);
-            dbsnp = mainConfig.getProperty(Config.DBSNP);
-            String name = projectConfig.getProperty(Config.NAME);
-            // Input = path/alignments/name.bam
-            input = new File(projectConfig.getProperty("align_path"),
-                    name + ".bam").getAbsolutePath();
-            // Output = path/call/name.vcf
-            output = new File(projectConfig.getProperty("call_path"),
-                    name + ".vcf").getAbsolutePath();
-            System.out.println("genome: " + genome);
-            System.out.println("dbsnp: " + dbsnp);
-            System.out.println("input: " + input);
-            System.out.println("output: " + output);
-
-        } catch (NullPointerException ex) {
-            return false;
-        }
-        return true;
+    public Caller(String genome, String output, String input, String dbsnp) {
+        this.genome = genome;
+        this.output = output;
+        this.input = input;
+        this.dbsnp = dbsnp;
     }
 
     @Override
