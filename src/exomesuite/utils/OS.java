@@ -7,9 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.TextField;
@@ -75,6 +75,9 @@ public class OS {
     private static File propertiesFile;
     private static File usrPath;
     private static File usrHomePath;
+
+    private static TreeMap<String, String> referenceGenomes;
+    private static TreeMap<String, String> encodings;
 
     /**
      * Takes a byte value and convert it to the corresponding human readable unit.
@@ -177,7 +180,8 @@ public class OS {
             String java7 = null;
             try {
                 Process p = pb.start();
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                try (BufferedReader in = new BufferedReader(
+                        new InputStreamReader(p.getInputStream()))) {
                     while ((java7 = in.readLine()) != null) {
                         ProcessBuilder pbj = new ProcessBuilder(java7);
                         Process pj = pbj.start();
@@ -339,5 +343,22 @@ public class OS {
         } catch (IOException ex) {
             Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static TreeMap<String, String> getSupportedReferenceGenomes() {
+        if (referenceGenomes == null) {
+            referenceGenomes = new TreeMap<>();
+            referenceGenomes.put("Human genome v37 (grch37 / hg19)", "grch37");
+        }
+        return referenceGenomes;
+    }
+
+    public static TreeMap<String, String> getSupportedEncodings() {
+        if (encodings == null) {
+            encodings = new TreeMap<>();
+            encodings.put("Phred +64 (Illumina 1.3 to 1.6)", "phred+64");
+            encodings.put("Phred +33 (Sanger, Illumina 1.8+)", "phred+33");
+        }
+        return encodings;
     }
 }

@@ -117,14 +117,15 @@ public class Project {
      */
     public Project(String name, String code, String parent) {
         properties = new Properties();
-        file = new File(code + ".config");
+        File path = new File(parent, code);
+        file = new File(path, code + ".config");
         if (file.exists()) {
             // If file code.conf exists, data is loaded and no changes are done.
             loadFromDisk();
         } else {
             // If file do no exist, path is created (parent/code)
             // and PATH, NAME and CODE are updated.
-            File path = new File(parent, code);
+//            File path = new File(parent, code);
             path.mkdirs();
             properties.setProperty(PropertyName.PATH.toString(), path.getAbsolutePath());
             properties.setProperty(PropertyName.NAME.toString(), name);

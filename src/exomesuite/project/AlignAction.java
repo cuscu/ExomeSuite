@@ -20,6 +20,9 @@ import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.OS;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  *
@@ -28,6 +31,7 @@ import java.io.File;
 public class AlignAction extends Action {
 
     private String output;
+    List<String> errors;
 
     public AlignAction(String icon, String description, String disableDescription) {
         super(icon, description, disableDescription);
@@ -35,12 +39,14 @@ public class AlignAction extends Action {
 
     @Override
     public boolean isDisabled(Project project) {
-        return !project.contains(Project.PropertyName.FORWARD_FASTQ)
+        return project == null ? true
+                : !project.contains(Project.PropertyName.FORWARD_FASTQ)
                 || !project.contains(Project.PropertyName.REVERSE_FASTQ);
     }
 
     @Override
     public SystemTask getTask(Project project) {
+        errors = new ArrayList<>();
         final String name = project.getProperty(Project.PropertyName.CODE);
         final String forward = project.getProperty(Project.PropertyName.FORWARD_FASTQ);
         final String reverse = project.getProperty(Project.PropertyName.REVERSE_FASTQ);
@@ -49,13 +55,34 @@ public class AlignAction extends Action {
         final String temp = OS.getTempDir();
         final String genomeVersion = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
         final String genome = OS.getProperty(genomeVersion);
+        if (genomeVersion == null) {
+            errors.add("Not genome specified.");
+        }
         final String dbsnp = OS.getProperty("dbsnp");
+        if (dbsnp == null) {
+            errors.add("Not dbSNP specified.");
+        }
         final String mills = OS.getProperty("mills");
+        if (mills == null) {
+            errors.add("Not MILLS database specified.");
+        }
         final String phase1 = OS.getProperty("phase1");
+        if (phase1 == null) {
+            errors.add("Not Phase 1 database specified.");
+        }
         final String path = project.getProperty(Project.PropertyName.PATH);
         output = path + File.separator + name + ".bam";
-        return new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1, output,
-                name, illumina);
+        if (errors.isEmpty()) {
+            return new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1, output,
+                    name, illumina);
+        } else {
+            String msg = "";
+            for (String s : errors) {
+                msg += s + "\n";
+            }
+            Dialogs.create().title("Alignment parameters errors").message(msg).showConfirm();
+            return null;
+        }
     }
 
     @Override

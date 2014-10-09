@@ -36,3 +36,7 @@
     -fx-border-color: red;
     -fx-background-color: lightsalmon;
 }
+
+#nameColumn, #codeColumn {
+    -fx-alignment: CENTER;
+}

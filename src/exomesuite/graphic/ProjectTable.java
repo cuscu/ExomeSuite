@@ -20,12 +20,16 @@ import exomesuite.project.Project;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
 
 /**
  * FXML Controller class
@@ -38,6 +42,8 @@ public class ProjectTable extends TableView<Project> {
     private TableColumn<Project, String> name;
     @FXML
     private TableColumn<Project, String> code;
+    @FXML
+    private TableColumn<Project, Project> actions;
 
     /**
      * Initializes the controller class.
@@ -51,6 +57,11 @@ public class ProjectTable extends TableView<Project> {
         code.setCellValueFactory((TableColumn.CellDataFeatures<Project, String> param)
                 -> new SimpleStringProperty(param.getValue().getProperty(Project.PropertyName.CODE)));
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
+        // Actions
+        actions.setCellValueFactory((
+                TableColumn.CellDataFeatures<Project, Project> param)
+                -> new SimpleObjectProperty<>(param.getValue()));
+        actions.setCellFactory((TableColumn<Project, Project> param) -> new ActionsCell());
         setPlaceholder(new Label("Open or create a project."));
     }
 
@@ -65,4 +76,37 @@ public class ProjectTable extends TableView<Project> {
         }
     }
 
+    private class ActionsCell extends TableCell<Project, Project> {
+
+        private final HBox box;
+        private final FlatButton close, delete;
+
+        public ActionsCell() {
+            close = new FlatButton("cancel4.png", "Close project");
+            delete = new FlatButton("delete.png", "Delete project");
+            close.setOnAction((ActionEvent event) -> close());
+            delete.setOnAction((ActionEvent event) -> delete());
+            box = new HBox(5, close, delete);
+        }
+
+        @Override
+        protected void updateItem(Project item, boolean empty) {
+            if (empty) {
+                setGraphic(null);
+                setText(null);
+            } else {
+                setGraphic(box);
+            }
+        }
+
+        private void delete() {
+
+        }
+
+        private void close() {
+            System.out.println("Close " + getIndex());
+            getTableView().getItems().remove(getIndex());
+        }
+
+    }
 }

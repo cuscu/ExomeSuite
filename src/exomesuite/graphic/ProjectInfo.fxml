@@ -9,38 +9,49 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="3" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <GridPane hgap="3" vgap="3" VBox.vgrow="ALWAYS" alignment="TOP_CENTER">
+        <GridPane hgap="3" vgap="3" alignment="TOP_CENTER">
             <columnConstraints>
-                <ColumnConstraints fillWidth="true" halignment="RIGHT" hgrow="SOMETIMES" />
+                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="SOMETIMES" />
                 <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="ALWAYS"  />
             </columnConstraints>
-            <rowConstraints>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="BASELINE"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-                <RowConstraints valignment="CENTER"/>
-            </rowConstraints>
             <children>
+                <!-- General options -->
                 <SectionTitle GridPane.rowIndex="0" GridPane.columnSpan="2"  title="General options" />
+                <!-- Code is not modifiable -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Code"/>
                 <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="code" />
+                <!-- Name -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Name" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="name" />
+                <!-- Path is not modifiable -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Path" />
-                <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" />
+                <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" textPosition="LEFT"  />
+                <!-- Description. Free edition -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Description" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="description" />
+
+                <!-- Original data -->
+                <SectionTitle title="Original data" GridPane.rowIndex="5" GridPane.columnSpan="2"  />
+                <!-- Sequences -->
+                <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                <FileSelector fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="6" textPosition="LEFT" />
+                <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                <FileSelector fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="7" textPosition="LEFT" />
+                <!-- Encoding -->
+                <Label text="Encoding" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+                <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                <!-- Encoding -->
+                <Label text="Genome" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
+                <ComboBox fx:id="genome" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+
+                <!-- Processed data -->
+                <SectionTitle title="Processed data" GridPane.rowIndex="10" GridPane.columnSpan="2"  />
+                <Label text="Alignments" GridPane.columnIndex="0" GridPane.rowIndex="11" />
+                <FileSelector fx:id="alignments" textPosition="LEFT" GridPane.columnIndex="1"
+                              GridPane.rowIndex="11" promptText="Select SAM/BAM or run align." />
+
             </children>
         </GridPane>
-        <SectionTitle title="Original data" />
-        <FileSelector text="Forward sequences" fx:id="forward" />
-        <FileSelector text="Reverse sequences" fx:id="reverse" />
     </children>
 
 </fx:root>

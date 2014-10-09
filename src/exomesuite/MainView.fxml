@@ -6,22 +6,47 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <center>
-        <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
+        <SplitPane orientation="HORIZONTAL" dividerPositions="0.6" >
             <items>
-                <VBox alignment="TOP_CENTER">
-                    <children>
-                        <Label text="Projects"/>
-                        <ProjectTable fx:id="projectTable"/>
-                    </children>
-                </VBox>
+                <SplitPane orientation="VERTICAL" dividerPositions="0.4" >
+                    <items>
+                        <!-- List of Projects -->
+                        <VBox alignment="TOP_CENTER">
+                            <children>
+                                <SectionTitle hLine="false" title="Projects" paint="Lightgray" />
+                                <ProjectTable fx:id="projectTable"/>
+                            </children>
+                        </VBox>
+                        <!-- Project properties -->
+                        <VBox alignment="TOP_CENTER">
+                            <children>
+                                <TabPane >
+                                    <tabs>
+                                        <Tab text="Properties" closable="false"  >
+                                            <content>
+                                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                                    <content>
+                                                        <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
+                                                    </content>
+                                                </ScrollPane>
+                                            </content>
+                                        </Tab>
+                                        <Tab text="Actions" closable="false" >
+                                            <content>
+                                                <ProjectActions fx:id="projectActions" />
+                                            </content>
+                                        </Tab>
+                                    </tabs>
+                                </TabPane>
+                            </children>
+                        </VBox>
+                    </items>
+                </SplitPane>
                 <VBox alignment="TOP_CENTER" fillWidth="true" >
                     <children>
-                        <SectionTitle hLine="false" title="Project properties" paint="Lightgray" />
-                        <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS" />
-                        <SectionTitle title="Project actions" paint="lightgray" hLine="false"  />
-                        <ProjectActions fx:id="projectActions" />
+
                     </children>
                     <padding>
                         <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />

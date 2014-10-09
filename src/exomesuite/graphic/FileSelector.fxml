@@ -9,10 +9,10 @@
 
 <fx:root  type="javafx.scene.layout.HBox" spacing="5" alignment="CENTER"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT"  >
+        <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" fx:id="vBox" >
             <children>
                 <Label fx:id="label" />
-                <HBox >
+                <HBox fx:id="hBox" alignment="CENTER_LEFT"  >
                     <children>
                         <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
                         <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />

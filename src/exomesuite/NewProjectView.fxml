@@ -7,14 +7,8 @@
 <?import exomesuite.graphic.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
-    <children> 
-        <HBox alignment="CENTER" >
-            <children>
-                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />
-                <Label text="Required"/> 
-                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />                
-            </children>
-        </HBox>
+    <children>
+        <SectionTitle title="Required"/>
         <GridPane hgap="5.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml">
             <columnConstraints>
                 <ColumnConstraints />
@@ -26,32 +20,28 @@
                 <Label text="Root path" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <TextField fx:id="name" prefWidth="400" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Name"  />
                 <TextField fx:id="code" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Code" />
-                <FileInputTextField fx:id="path" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <FileSelector fx:id="path" GridPane.columnIndex="1" GridPane.rowIndex="2" openPath="true" textPosition="LEFT"  />
             </children>
             <VBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </VBox.margin>
         </GridPane>
         <Label fx:id="finalPath" />
-        <HBox alignment="CENTER" >
-            <children>
-                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />
-                <Label text="Optional"/> 
-                <Separator orientation="HORIZONTAL" HBox.hgrow="ALWAYS" />                
-            </children>
-        </HBox>
+        <SectionTitle title="Optional" hLine="true" />
         <GridPane hgap="5.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml">
             <columnConstraints>
                 <ColumnConstraints />
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <children>
-                <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="3" />   
-                <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                <Label text="Reference genome" GridPane.columnIndex="0" GridPane.rowIndex="5"/>    
-                <FileInputTextField fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <FileInputTextField fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="5"  />
+                <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <Label text="Reference genome" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Label text="Encoding" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                <FileSelector fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="1" textPosition="LEFT" />
+                <FileSelector fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="2" textPosition="LEFT" />
+                <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="3"  />
+                <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
             </children>
             <VBox.margin>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

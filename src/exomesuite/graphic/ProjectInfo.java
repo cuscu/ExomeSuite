@@ -29,14 +29,17 @@ import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  * Shows information about a project. This class may substitute ProjectProperties.
@@ -57,6 +60,10 @@ public class ProjectInfo extends VBox {
     private TextField description;
     @FXML
     private FileSelector path;
+    @FXML
+    private ComboBox<String> encoding;
+    @FXML
+    private ComboBox<String> genome;
 
     private Project project;
 
@@ -90,17 +97,62 @@ public class ProjectInfo extends VBox {
         });
         path.setOnFileChange((EventHandler) (Event event) -> changePath());
         path.setDisable(true);
+        encoding.getItems().addAll(OS.getSupportedEncodings().keySet());
+        encoding.getSelectionModel().selectedItemProperty().addListener((
+                ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null) {
+                Dialogs.create().title("Change encoding").
+                        message("Changing encoding can change the behaviour of aligning process.").
+                        showWarning();
+            }
+            project.setProperty(Project.PropertyName.FASTQ_ENCODING,
+                    OS.getSupportedEncodings().get(encoding.getValue()));
+        });
+        genome.getItems().addAll(OS.getSupportedReferenceGenomes().keySet());
+        genome.getSelectionModel().selectedItemProperty().addListener((
+                ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            if (oldValue != null) {
+                Dialogs.create().title("Warning").
+                        message("Changing genome can change the behaviour of aligning and call processes.").
+                        showWarning();
+            }
+            project.setProperty(Project.PropertyName.REFERENCE_GENOME,
+                    OS.getSupportedReferenceGenomes().get(genome.getValue()));
+        });
     }
 
     public void setProject(Project project) {
-        setVisible(true);
-        this.project = project;
-        forward.setFile(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
-        reverse.setFile(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
-        name.setText(project.getProperty(Project.PropertyName.NAME, ""));
-        code.setText(project.getProperty(Project.PropertyName.CODE, ""));
-        description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
-        path.setFile(project.getProperty(Project.PropertyName.PATH, ""));
+        if (project == null) {
+            setVisible(false);
+            this.project = null;
+        } else {
+            setVisible(true);
+            this.project = project;
+            forward.setFile(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
+            reverse.setFile(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
+            name.setText(project.getProperty(Project.PropertyName.NAME, ""));
+            code.setText(project.getProperty(Project.PropertyName.CODE, ""));
+            description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
+            path.setFile(project.getProperty(Project.PropertyName.PATH, ""));
+            String encodingKey = project.getProperty(Project.PropertyName.FASTQ_ENCODING);
+            if (encodingKey != null) {
+                // Look for a value equals to
+                OS.getSupportedEncodings().entrySet().stream().
+                        filter((entrySet) -> (entrySet.getValue().equals(encodingKey))).
+                        forEach((entrySet) -> {
+                    encoding.getSelectionModel().select(entrySet.getKey());
+                });
+            }
+            String genomeValue = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
+            if (genomeValue != null) {
+                // Look for a value equals to
+                OS.getSupportedReferenceGenomes().entrySet().stream().
+                        filter((entrySet) -> (entrySet.getValue().equals(genomeValue))).
+                        forEach((entrySet) -> {
+                    genome.getSelectionModel().select(entrySet.getKey());
+                });
+            }
+        }
     }
 
     private void changePath() {

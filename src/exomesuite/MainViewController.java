@@ -76,8 +76,6 @@ public class MainViewController {
     private MenuItem openVCFMenu;
     @FXML
     private MenuItem combineVCFMenu;
-    @FXML
-    private ProgressBar progressBar;
 
     private static ProgressBar staticBar;
     /**
@@ -99,24 +97,18 @@ public class MainViewController {
     @FXML
     private ProjectInfo projectInfo;
 
-    public MainViewController() {
-        staticBar = progressBar;
-    }
-
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
      */
     public void initialize() {
         setMenus();
         setToolBar();
+        progress.setProgress(0);
         projectTable.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable,
                 Project oldValue, Project newValue) -> {
-            if (newValue != null) {
-//                projectProperties.setProject(newValue);
-                projectActions.setProject(newValue);
-                projectInfo.setProject(newValue);
-            }
+            projectActions.setProject(newValue);
+            projectInfo.setProject(newValue);
         });
         FlatButton download = new FlatButton("download.png", "Download something");
 //        actionButtons.getChildren().add(download);
@@ -245,23 +237,24 @@ public class MainViewController {
             stage.setTitle("Create new project");
             stage.initModality(Modality.APPLICATION_MODAL);
             controller.setHandler((EventHandler) (Event event) -> {
-                System.out.println("Hi");
                 String name = controller.getName();
                 String code = controller.getCode();
-                File path = controller.getPath();
-                if (!name.isEmpty() && !code.isEmpty() && path != null) {
-                    Project project = new Project(name, code, path.getAbsolutePath());
-                    File forward = controller.getForward();
-                    File reverse = controller.getReverse();
-                    if (forward != null && reverse != null) {
-                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.
-                                getAbsolutePath());
-                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.
-                                getAbsolutePath());
+                String path = controller.getPath();
+                if (!name.isEmpty() && !code.isEmpty() && !path.isEmpty()) {
+                    Project project = new Project(name, code, path);
+                    String forward = controller.getForward();
+                    String reverse = controller.getReverse();
+                    if (!forward.isEmpty() && !reverse.isEmpty()) {
+                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward);
+                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse);
                     }
                     String reference = controller.getReference();
-                    if (reference != null) {
+                    if (reference != null && !reference.isEmpty()) {
                         project.setProperty(Project.PropertyName.REFERENCE_GENOME, reference);
+                    }
+                    String encoding = controller.getEncoding();
+                    if (encoding != null) {
+                        project.setProperty(Project.PropertyName.FASTQ_ENCODING, encoding);
                     }
                     projectTable.getItems().add(project);
                     stage.close();

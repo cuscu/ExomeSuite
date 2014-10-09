@@ -30,11 +30,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 /**
  *
- * @author uichuimi03
+ * @author Pascual Lorente Arencibia
  */
 public class FileSelector extends HBox {
 
@@ -44,10 +45,20 @@ public class FileSelector extends HBox {
     private TextField textField;
     @FXML
     private FlatButton button;
-
+    @FXML
+    private VBox vBox;
+    @FXML
+    private HBox hBox;
     private boolean openPath;
 
     private EventHandler event;
+
+    public enum Position {
+
+        LEFT, TOP
+    }
+
+    public Position textPosition;
 
     private final List<FileChooser.ExtensionFilter> filters = new ArrayList<>();
 
@@ -131,4 +142,32 @@ public class FileSelector extends HBox {
             event.handle(new ActionEvent());
         }
     }
+
+    public void setTextPosition(Position textPosition) {
+        this.textPosition = textPosition;
+        vBox.getChildren().remove(label);
+        hBox.getChildren().remove(label);
+        switch (textPosition) {
+            case LEFT:
+                hBox.getChildren().add(0, label);
+                break;
+            case TOP:
+                vBox.getChildren().add(0, label);
+                break;
+
+        }
+    }
+
+    public Position getTextPosition() {
+        return textPosition;
+    }
+
+    public void setPromptText(String text) {
+        textField.setPromptText(text);
+    }
+
+    public String getPromptText() {
+        return textField.getPromptText();
+    }
+
 }

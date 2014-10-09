@@ -16,11 +16,10 @@
  */
 package exomesuite;
 
-import exomesuite.graphic.FileInputTextField;
+import exomesuite.graphic.FileSelector;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.util.Map;
-import java.util.TreeMap;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -41,47 +40,48 @@ public class NewProjectViewController {
     @FXML
     private TextField name;
     @FXML
-    private FileInputTextField path;
+    private FileSelector path;
     @FXML
     private Button acceptButton;
     @FXML
     private Label finalPath;
-
     @FXML
-    private FileInputTextField forward;
+    private FileSelector forward;
     @FXML
-    private FileInputTextField reverse;
+    private FileSelector reverse;
     @FXML
     private TextField code;
     @FXML
     private ComboBox<String> reference;
+    @FXML
+    private ComboBox<String> encoding;
 
     private EventHandler handler;
 
     private Map<String, String> genomes;
+    private Map<String, String> encodings;
+
+    private boolean codeChangedManually;
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
         code.setOnKeyTyped((KeyEvent event) -> updateFolder());
-        forward.setFilters(OS.FASTQ_FILTER);
-        forward.setTitle("Select forward sequences file");
-        forward.setPromptText("Forward sequences");
-        reverse.setFilters(OS.FASTQ_FILTER);
-        reverse.setTitle("Select reverse sequences file");
-        reverse.setPromptText("Reverse sequences");
-        path.setDirSelection(true);
-        path.setPromptText("Root path");
-        path.setOnSelect((EventHandler) (Event event) -> {
-            updateFolder();
-        });
+        forward.addExtensionFilters(OS.FASTQ_FILTER);
+        reverse.addExtensionFilter(OS.FASTQ_FILTER);
+        path.setOnFileChange((EventHandler) (Event event) -> updateFolder());
         // Set genome
-        genomes = new TreeMap<>();
-        genomes.put("Human genome v37 (grch37 / hg19)", "grch37");
+        genomes = OS.getSupportedReferenceGenomes();
         reference.getItems().addAll(genomes.keySet());
-        acceptButton.setOnAction((ActionEvent event) -> {
-            handler.handle(event);
+        // Set encoding
+        encodings = OS.getSupportedEncodings();
+        encoding.getItems().addAll(encodings.keySet());
+        acceptButton.setOnAction((ActionEvent event) -> handler.handle(event));
+        name.setOnKeyReleased((KeyEvent event) -> {
+            if (!codeChangedManually) {
+                code.setText(name.getText().replace(" ", "_").toLowerCase());
+            }
         });
     }
 
@@ -90,7 +90,7 @@ public class NewProjectViewController {
      *
      * @return the path
      */
-    public File getPath() {
+    public String getPath() {
         return path.getFile();
     }
 
@@ -107,6 +107,7 @@ public class NewProjectViewController {
      * Updates the text of the whole path label.
      */
     private void updateFolder() {
+        codeChangedManually = true;
         if (path.getFile() != null) {
             finalPath.
                     setText(path.getFile() + File.separator + code.getText() + " will be created.");
@@ -127,7 +128,7 @@ public class NewProjectViewController {
      *
      * @return the forward file
      */
-    public File getForward() {
+    public String getForward() {
         return forward.getFile();
     }
 
@@ -136,12 +137,16 @@ public class NewProjectViewController {
      *
      * @return the reverse file
      */
-    public File getReverse() {
+    public String getReverse() {
         return reverse.getFile();
     }
 
     public String getReference() {
         return reference.getValue() != null ? genomes.get(reference.getValue()) : null;
+    }
+
+    public String getEncoding() {
+        return encoding.getValue() != null ? encodings.get(encoding.getValue()) : null;
     }
 
     public void setHandler(EventHandler handler) {

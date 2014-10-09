@@ -8,7 +8,8 @@
 
 <fx:root type="javafx.scene.control.TableView" xmlns:fx="http://javafx.com/fxml/1">
     <columns>
-        <TableColumn fx:id="name" editable="false" text="Name" />
-        <TableColumn fx:id="code" editable="false" text="Code" />
+        <TableColumn fx:id="code" editable="false" text="Code" id="codeColumn"  />
+        <TableColumn fx:id="name" editable="false" text="Name" id="nameColumn" />
+        <TableColumn fx:id="actions" editable="false" text="Actions" />
     </columns>
 </fx:root>

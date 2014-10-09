@@ -111,6 +111,9 @@ public class ProjectActions extends VBox {
     private void call(Action a) {
         // Get the task form the action, getTask must configure using project
         task = a.getTask(project);
+        if (task == null) {
+            return;
+        }
         // Bind progress
         progressBar.progressProperty().bind(task.progressProperty());
         message.textProperty().bind(task.messageProperty());

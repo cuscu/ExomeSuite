@@ -34,7 +34,9 @@ public abstract class Action {
         this.running = false;
     }
 
-    public abstract boolean isDisabled(Project project);
+    public boolean isDisabled(Project project) {
+        return project == null;
+    }
 
     public String getDescription() {
         return description;
@@ -54,12 +56,28 @@ public abstract class Action {
      * @param project the Project to which task is performed
      * @return a SystemTask ready to launch
      */
-    public abstract SystemTask getTask(Project project);
+    public SystemTask getTask(Project project) {
+        return null;
+    }
 
+    /**
+     * Override me please. This method is called when the Action.getTask is successfully terminated.
+     * By default does nothing.
+     *
+     * @param p the associated project
+     * @param t the terminated task
+     */
     public void onSucceeded(Project p, SystemTask t) {
 
     }
 
+    /**
+     * Override me please. This method is called when the Action.getTask is wrongly terminated or
+     * canceled. By default does nothing.
+     *
+     * @param p the associated project
+     * @param t the terminated task
+     */
     public void onCancelled(Project p, SystemTask t) {
 
     }

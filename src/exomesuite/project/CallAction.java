@@ -35,7 +35,8 @@ public class CallAction extends Action {
 
     @Override
     public boolean isDisabled(Project project) {
-        return !project.contains(Project.PropertyName.BAM_FILE);
+        return project == null ? true
+                : !project.contains(Project.PropertyName.BAM_FILE);
     }
 
     @Override
