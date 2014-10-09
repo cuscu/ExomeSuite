@@ -54,9 +54,11 @@ public class AlignAction extends Action {
                 getProperty(Project.PropertyName.FASTQ_ENCODING).equals("phred+64");
         final String temp = OS.getTempDir();
         final String genomeVersion = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
-        final String genome = OS.getProperty(genomeVersion);
+        String genome = null;
         if (genomeVersion == null) {
             errors.add("Not genome specified.");
+        } else {
+            genome = OS.getProperty(genomeVersion);
         }
         final String dbsnp = OS.getProperty("dbsnp");
         if (dbsnp == null) {
@@ -80,7 +82,7 @@ public class AlignAction extends Action {
             for (String s : errors) {
                 msg += s + "\n";
             }
-            Dialogs.create().title("Alignment parameters errors").message(msg).showConfirm();
+            Dialogs.create().title("Alignment parameters errors").message(msg).showError();
             return null;
         }
     }

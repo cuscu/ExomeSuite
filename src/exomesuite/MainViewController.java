@@ -204,7 +204,7 @@ public class MainViewController {
         newMenu.setGraphic(new ImageView("exomesuite/img/add.png"));
         newMenu.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         // Databases menu
-        databaseMenu.setOnAction((ActionEvent event) -> showDatabasesPane());
+        databaseMenu.setOnAction(event -> showDatabasesPane());
         databaseMenu.setGraphic(new ImageView("exomesuite/img/database.png"));
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         // Open TSV

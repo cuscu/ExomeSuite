@@ -17,19 +17,22 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Project;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
+import javafx.scene.image.ImageView;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  * FXML Controller class
@@ -42,8 +45,17 @@ public class ProjectTable extends TableView<Project> {
     private TableColumn<Project, String> name;
     @FXML
     private TableColumn<Project, String> code;
-    @FXML
-    private TableColumn<Project, Project> actions;
+
+    public ProjectTable() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectTable.fxml"));
+        loader.setRoot(this);
+        loader.setController(this);
+        try {
+            loader.load();
+        } catch (IOException ex) {
+            Logger.getLogger(ProjectTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     /**
      * Initializes the controller class.
@@ -57,56 +69,54 @@ public class ProjectTable extends TableView<Project> {
         code.setCellValueFactory((TableColumn.CellDataFeatures<Project, String> param)
                 -> new SimpleStringProperty(param.getValue().getProperty(Project.PropertyName.CODE)));
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-        // Actions
-        actions.setCellValueFactory((
-                TableColumn.CellDataFeatures<Project, Project> param)
-                -> new SimpleObjectProperty<>(param.getValue()));
-        actions.setCellFactory((TableColumn<Project, Project> param) -> new ActionsCell());
+        // ContextMenu
         setPlaceholder(new Label("Open or create a project."));
+        MenuItem close = new MenuItem("Close project", new ImageView("exomesuite/img/cancel4.png"));
+        MenuItem delete = new MenuItem("Delete project", new ImageView("exomesuite/img/delete.png"));
+        final ContextMenu contextMenu = new ContextMenu(close, delete);
+        setContextMenu(contextMenu);
+        close.setOnAction(event -> closeProject());
+        delete.setOnAction(event -> deleteProject());
     }
 
-    public ProjectTable() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectTable.fxml"));
-        loader.setRoot(this);
-        loader.setController(this);
-        try {
-            loader.load();
-        } catch (IOException ex) {
-            Logger.getLogger(ProjectTable.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void closeProject() {
+        getItems().remove(getSelectionModel().getSelectedIndex());
     }
 
-    private class ActionsCell extends TableCell<Project, Project> {
-
-        private final HBox box;
-        private final FlatButton close, delete;
-
-        public ActionsCell() {
-            close = new FlatButton("cancel4.png", "Close project");
-            delete = new FlatButton("delete.png", "Delete project");
-            close.setOnAction((ActionEvent event) -> close());
-            delete.setOnAction((ActionEvent event) -> delete());
-            box = new HBox(5, close, delete);
-        }
-
-        @Override
-        protected void updateItem(Project item, boolean empty) {
-            if (empty) {
-                setGraphic(null);
-                setText(null);
-            } else {
-                setGraphic(box);
+    private void deleteProject() {
+        Project project = getSelectionModel().getSelectedItem();
+        if (project != null) {
+            // Ask user to remove folder content
+            File path = new File(project.getProperty(Project.PropertyName.PATH));
+            File config = project.getConfigFile();
+            Action showConfirm = Dialogs.create()
+                    .message("Do you want to delete everything under " + path + "?")
+                    .showConfirm();
+            if (showConfirm == Dialog.ACTION_NO) {
+                config.delete();
+                getItems().remove(getSelectionModel().getSelectedIndex());
+            } else if (showConfirm == Dialog.ACTION_YES) {
+                config.delete();
+                delete(path, true);
+                getItems().remove(getSelectionModel().getSelectedIndex());
             }
         }
+    }
 
-        private void delete() {
-
+    private boolean delete(File file, boolean recursive) {
+        if (recursive) {
+            if (file.isDirectory()) {
+                for (File f : file.listFiles()) {
+                    if (!delete(f, recursive)) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return file.delete();
+            }
+        } else {
+            return file.delete();
         }
-
-        private void close() {
-            System.out.println("Close " + getIndex());
-            getTableView().getItems().remove(getIndex());
-        }
-
     }
 }

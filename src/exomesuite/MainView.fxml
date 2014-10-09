@@ -10,7 +10,7 @@
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.6" >
             <items>
-                <SplitPane orientation="VERTICAL" dividerPositions="0.4" >
+                <SplitPane orientation="VERTICAL" dividerPositions="0.25" >
                     <items>
                         <!-- List of Projects -->
                         <VBox alignment="TOP_CENTER">
@@ -21,25 +21,15 @@
                         </VBox>
                         <!-- Project properties -->
                         <VBox alignment="TOP_CENTER">
+
                             <children>
-                                <TabPane >
-                                    <tabs>
-                                        <Tab text="Properties" closable="false"  >
-                                            <content>
-                                                <ScrollPane fitToHeight="true" fitToWidth="true">
-                                                    <content>
-                                                        <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
-                                                    </content>
-                                                </ScrollPane>
-                                            </content>
-                                        </Tab>
-                                        <Tab text="Actions" closable="false" >
-                                            <content>
-                                                <ProjectActions fx:id="projectActions" />
-                                            </content>
-                                        </Tab>
-                                    </tabs>
-                                </TabPane>
+                                <ProjectActions fx:id="projectActions" />
+                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                    <content>
+                                        <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
+                                    </content>
+                                </ScrollPane>
+
                             </children>
                         </VBox>
                     </items>

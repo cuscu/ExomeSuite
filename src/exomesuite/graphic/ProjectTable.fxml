@@ -10,6 +10,5 @@
     <columns>
         <TableColumn fx:id="code" editable="false" text="Code" id="codeColumn"  />
         <TableColumn fx:id="name" editable="false" text="Name" id="nameColumn" />
-        <TableColumn fx:id="actions" editable="false" text="Actions" />
     </columns>
 </fx:root>

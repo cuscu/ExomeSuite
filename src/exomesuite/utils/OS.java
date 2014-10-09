@@ -101,7 +101,7 @@ public class OS {
     }
 
     public OS() {
-        lastPath = getUserPath();
+        lastPath = getUserHomePath();
 
     }
 
@@ -325,7 +325,7 @@ public class OS {
 
     public static File getLastPath() {
         if (lastPath == null) {
-            lastPath = getUserPath();
+            lastPath = getUserHomePath();
         }
         return lastPath;
     }

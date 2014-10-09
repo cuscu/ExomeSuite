@@ -134,6 +134,10 @@ public class Project {
         }
     }
 
+    public File getConfigFile() {
+        return file;
+    }
+
     /**
      * Creates a new Project using data from file. file must exist or Project will not be loaded.
      *

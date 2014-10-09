@@ -20,13 +20,9 @@ import exomesuite.project.Project;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import static java.nio.file.FileVisitResult.CONTINUE;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
@@ -89,14 +85,14 @@ public class ProjectInfo extends VBox {
         reverse.setOnFileChange((EventHandler) (Event event) -> {
             project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getFile());
         });
-        name.setOnKeyTyped((KeyEvent event) -> {
+        name.setOnKeyReleased((KeyEvent event) -> {
             project.setProperty(Project.PropertyName.NAME, name.getText());
         });
-        description.setOnKeyTyped((KeyEvent event) -> {
+        description.setOnKeyReleased((KeyEvent event) -> {
             project.setProperty(Project.PropertyName.DESCRIPTION, description.getText());
         });
-        path.setOnFileChange((EventHandler) (Event event) -> changePath());
-        path.setDisable(true);
+        path.setOnFileChange(event -> changePath());
+//        path.setDisable(true);
         encoding.getItems().addAll(OS.getSupportedEncodings().keySet());
         encoding.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
@@ -156,41 +152,44 @@ public class ProjectInfo extends VBox {
     }
 
     private void changePath() {
-        final Path newPath = new File(path.getFile()).toPath();
-        final Path prevPath = new File(project.getProperty(Project.PropertyName.PATH)).toPath();
+        // Move files and directories
+        final File from = new File(project.getProperty(Project.PropertyName.PATH));
+        final File to = new File(path.getFile());
+        clone(from, to);
+        // Change properties by replacing path in all properties
+        project.getProperties().forEach((Object t, Object u) -> {
+            String key = (String) t;
+            String value = (String) u;
+            if (value.startsWith(from.getAbsolutePath())) {
+                project.getProperties().setProperty(key,
+                        value.replace(from.getAbsolutePath(), to.getAbsolutePath()));
+            }
+        });
+        // Force properties file to be written
+        project.setProperty(Project.PropertyName.PATH, to.getAbsolutePath());
+    }
 
-        try {
-            Files.walkFileTree(prevPath, new FileVisitor<Path>() {
-
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes bfa) throws
-                        IOException {
-                    Files.copy(dir, newPath.resolve(prevPath.relativize(dir)));
-                    return CONTINUE;
+    private void clone(File from, File to) {
+        for (File f : from.listFiles()) {
+            if (f.isFile()) {
+                Path source = f.toPath();
+                Path target = new File(to, f.getName()).toPath();
+                try {
+                    Files.copy(source, target, COPY_ATTRIBUTES);
+                    f.delete();
+                } catch (IOException ex) {
+                    Dialogs.create().showException(ex);
+                    Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes bfa) throws
-                        IOException {
-                    Files.copy(file, newPath.resolve(prevPath.relativize(file)), COPY_ATTRIBUTES);
-                    return CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult visitFileFailed(Path t, IOException ioe) throws IOException {
-                    System.err.println("Copy failed: " + t);
-                    return CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path t, IOException ioe) throws
-                        IOException {
-                    return CONTINUE;
-                }
-            });
-        } catch (IOException ex) {
-            Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
+            } else if (f.isDirectory()) {
+                File newPath = new File(to, f.getName());
+                newPath.mkdirs();
+                clone(f, newPath);
+            } else {
+                f.delete();
+            }
         }
-
+        from.delete();
     }
 }
