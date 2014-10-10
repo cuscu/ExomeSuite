@@ -34,15 +34,7 @@
                         </VBox>
                     </items>
                 </SplitPane>
-                <VBox alignment="TOP_CENTER" fillWidth="true" >
-                    <children>
-
-                    </children>
-                    <padding>
-                        <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
-                    </padding>
-                </VBox>
-
+                <TabPane fx:id="workingArea"/>
             </items>
         </SplitPane>
     </center>
@@ -79,7 +71,7 @@
         <HBox >
             <children>
                 <Label fx:id="info"/>
-                <ProgressBar fx:id="progress"/>
+                <ProgressBar fx:id="progress" visible="false"  />
             </children>
         </HBox>
     </bottom>

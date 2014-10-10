@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -80,56 +81,56 @@ public class Databases extends VBox {
         if (OS.containsKey(MILLS)) {
             mills.setFile(OS.getProperty(MILLS));
         }
-        mills.addExtensionFilter(OS.VCF_FILTER);
+        mills.addExtensionFilter(FileManager.VCF_FILTER);
         mills.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(MILLS, mills.getFile()));
         // OMNI
         if (OS.containsKey(OMNI)) {
             omni.setFile(OS.getProperty(OMNI));
         }
-        omni.addExtensionFilter(OS.VCF_FILTER);
+        omni.addExtensionFilter(FileManager.VCF_FILTER);
         omni.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(OMNI, omni.getFile()));
         // dbSNP
         if (OS.containsKey(DBSNP)) {
             dbsnp.setFile(OS.getProperty(DBSNP));
         }
-        dbsnp.addExtensionFilter(OS.VCF_FILTER);
+        dbsnp.addExtensionFilter(FileManager.VCF_FILTER);
         dbsnp.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(DBSNP, dbsnp.getFile()));
         // Hapmap
         if (OS.containsKey(HAPMAP)) {
             hapmap.setFile(OS.getProperty(HAPMAP));
         }
-        hapmap.addExtensionFilter(OS.VCF_FILTER);
+        hapmap.addExtensionFilter(FileManager.VCF_FILTER);
         hapmap.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(HAPMAP, hapmap.getFile()));
         // Phase 1
         if (OS.containsKey(PHASE1)) {
             phase1.setFile(OS.getProperty(PHASE1));
         }
-        phase1.addExtensionFilter(OS.VCF_FILTER);
+        phase1.addExtensionFilter(FileManager.VCF_FILTER);
         phase1.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(PHASE1, phase1.getFile()));
         // Ensembl
         if (OS.containsKey(ENSMEBL)) {
             ensembl.setFile(OS.getProperty(ENSMEBL));
         }
-        ensembl.addExtensionFilters(OS.TSV_FILTER, OS.ALL_FILTER);
+        ensembl.addExtensionFilters(FileManager.TSV_FILTER, FileManager.ALL_FILTER);
         ensembl.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty(ENSMEBL, ensembl.getFile()));
         // Human genome GRCHv37
         if (OS.containsKey(GRCH37)) {
             grch37.setFile(OS.getProperty(GRCH37));
         }
-        grch37.addExtensionFilter(OS.FASTA_FILTER);
+        grch37.addExtensionFilter(FileManager.FASTA_FILTER);
         grch37.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty("grch37", grch37.getFile()));
         // Human genome GRCH38
         if (OS.containsKey(GRCH38)) {
             grch38.setFile(OS.getProperty(GRCH38));
         }
-        grch38.addExtensionFilter(OS.FASTA_FILTER);
+        grch38.addExtensionFilter(FileManager.FASTA_FILTER);
         grch38.setOnFileChange((EventHandler) (Event event)
                 -> OS.setProperty("grch38", grch38.getFile()));
     }

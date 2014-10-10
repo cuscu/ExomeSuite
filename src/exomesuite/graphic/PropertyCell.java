@@ -18,7 +18,7 @@ package exomesuite.graphic;
 
 import exomesuite.project.Project;
 import exomesuite.project.Project.PropertyName;
-import exomesuite.utils.OS;
+import exomesuite.utils.FileManager;
 import java.io.File;
 import java.util.Map;
 import javafx.event.ActionEvent;
@@ -112,12 +112,12 @@ public final class PropertyCell extends TableCell<Map.Entry<PropertyName, String
                 setText(null);
                 break;
             case PATH:
-                fileSelected = OS.selectFolder("Select Path");
+                fileSelected = FileManager.selectFolder("Select Path");
                 commitEdit(currentProperty);
                 break;
             case FORWARD_FASTQ:
             case REVERSE_FASTQ:
-                fileSelected = OS.openFile("Select FASTQ file", OS.FASTQ_FILTER);
+                fileSelected = FileManager.openFile("Select FASTQ file", FileManager.FASTQ_FILTER);
                 commitEdit(currentProperty);
                 break;
             case FASTQ_ENCODING:

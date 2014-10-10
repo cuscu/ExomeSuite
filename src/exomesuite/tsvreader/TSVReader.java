@@ -18,8 +18,8 @@ package exomesuite.tsvreader;
 
 import exomesuite.ExomeSuite;
 import exomesuite.graphic.FlatButton;
-import exomesuite.utils.OS;
 import exomesuite.graphic.TabCell;
+import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,6 +40,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -158,12 +159,7 @@ public class TSVReader {
             Logger.getLogger(TSVReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         updateTable();
-        stage = new Stage();
-        Scene scene = new Scene(view);
-        scene.getStylesheets().add(ExomeSuite.class.getResource("main.css").toExternalForm());
-        stage.setTitle(file.getName());
-        stage.setScene(scene);
-        stage.showAndWait();
+
     }
 
     /**
@@ -225,6 +221,12 @@ public class TSVReader {
      */
     public void show() {
         initializeTable();
+        stage = new Stage();
+        Scene scene = new Scene(view);
+        scene.getStylesheets().add(ExomeSuite.class.getResource("main.css").toExternalForm());
+        stage.setTitle(file.getName());
+        stage.setScene(scene);
+        stage.showAndWait();
     }
 
     /**
@@ -319,5 +321,10 @@ public class TSVReader {
         st.setX(filters[i].getLayoutX());
         st.setY(filters[i].getLayoutY());
         st.showAndWait();
+    }
+
+    public Node get() {
+        initializeTable();
+        return view;
     }
 }

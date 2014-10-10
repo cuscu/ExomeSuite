@@ -16,7 +16,7 @@
  */
 package exomesuite.vcfreader;
 
-import exomesuite.utils.OS;
+import exomesuite.utils.FileManager;
 import java.io.File;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -67,7 +67,7 @@ public class CombineController {
     }
 
     private void openVCF(TextField vcf) {
-        File f = OS.openFile(vcf, "Select Variant Call File", OS.VCF_FILTER);
+        File f = FileManager.openFile(vcf, "Select Variant Call File", FileManager.VCF_FILTER);
         if (f != null) {
             File possibleMist = new File(f.getAbsolutePath().replace(".vcf", ".mist"));
             TextField mist;
@@ -89,7 +89,7 @@ public class CombineController {
     }
 
     private void openMIST(TextField mist) {
-        File f = OS.openFile(mist, "Select MIST file", OS.MIST_FILTER);
+        File f = FileManager.openFile(mist, "Select MIST file", FileManager.MIST_FILTER);
         if (mist.equals(mist1)) {
             exons1 = f;
         } else {
@@ -98,7 +98,7 @@ public class CombineController {
     }
 
     private void openOutput() {
-        outputFile = OS.saveFile(output, "Select an output file", OS.VCF_FILTER);
+        outputFile = FileManager.saveFile(output, "Select an output file", FileManager.VCF_FILTER);
     }
 
     /**

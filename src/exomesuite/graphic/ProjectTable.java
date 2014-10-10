@@ -111,7 +111,7 @@ public class ProjectTable extends TableView<Project> {
                         return false;
                     }
                 }
-                return true;
+                return file.delete();
             } else {
                 return file.delete();
             }

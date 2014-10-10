@@ -17,6 +17,7 @@
 package exomesuite;
 
 import exomesuite.graphic.FileSelector;
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.util.Map;
@@ -68,8 +69,8 @@ public class NewProjectViewController {
      */
     public void initialize() {
         code.setOnKeyTyped((KeyEvent event) -> updateFolder());
-        forward.addExtensionFilters(OS.FASTQ_FILTER);
-        reverse.addExtensionFilter(OS.FASTQ_FILTER);
+        forward.addExtensionFilters(FileManager.FASTQ_FILTER);
+        reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
         path.setOnFileChange((EventHandler) (Event event) -> updateFolder());
         // Set genome
         genomes = OS.getSupportedReferenceGenomes();

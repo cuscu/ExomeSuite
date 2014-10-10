@@ -32,6 +32,8 @@ import javafx.stage.WindowEvent;
  */
 public class ExomeSuite extends Application {
 
+    private static Stage mainStage;
+
     @Override
     public void start(Stage stage) throws Exception {
         final String[] ps = new String[]{
@@ -68,6 +70,7 @@ public class ExomeSuite extends Application {
                 event.consume();
             }
         });
+        mainStage = stage;
         stage.getIcons().add(new Image(ExomeSuite.class.getResourceAsStream("img/exomesuite.png")));
         stage.show();
     }
@@ -77,5 +80,9 @@ public class ExomeSuite extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public static Stage getMainStage() {
+        return mainStage;
     }
 }

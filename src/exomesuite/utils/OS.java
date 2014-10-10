@@ -1,5 +1,6 @@
 package exomesuite.utils;
 
+import exomesuite.MainViewController;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +13,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.control.TextField;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.concurrent.Task;
 
 /**
  * Contains methods to control files in DNAnalytics and fields containing file filters. Open and
@@ -25,56 +23,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
  */
 public class OS {
 
-    /**
-     * Filters FASTA files (.fasta .fa)
-     */
-    public static final ExtensionFilter FASTA_FILTER = new ExtensionFilter("FASTA (.fasta .fa)",
-            "*.fasta", "*.fa");
-    /**
-     * Filters FASTQ files (.fq .fastq .fq.gz .fasq.gz)
-     */
-    public static final ExtensionFilter FASTQ_FILTER = new ExtensionFilter(
-            "FASTQ (.fastq .fq .fq.gz .fastq.gz)", "*.fastq", "*.fq", "*.fq.gz", "*.fastq.gz");
-    /**
-     * Filters MIST files (.mist)
-     */
-    public static final ExtensionFilter MIST_FILTER = new ExtensionFilter(
-            "Missing sequences tool format (.mist)", "*.mist");
-    /**
-     * Filters TSV files (.tsv)
-     */
-    public static final ExtensionFilter TSV_FILTER
-            = new ExtensionFilter("Tab Separated Values (.tsv)", "*.tsv");
-    /**
-     * Filters SAM or BAM files (.bam and .sam)
-     */
-    public static final ExtensionFilter SAM_FILTER = new ExtensionFilter(
-            "Sequence Alignment/Map Format (.bam .sam)", "*.bam", "*.sam");
-    /**
-     * Filters VCF files (.vcf)
-     */
-    public static final ExtensionFilter VCF_FILTER = new ExtensionFilter(
-            "Variant Call Format (.vcf)", "*.vcf");
-    /**
-     * Admits all files
-     */
-    public static final ExtensionFilter ALL_FILTER = new ExtensionFilter("All files", "*");
-    /**
-     * Filters config files (.config)
-     */
-    public static final ExtensionFilter CONFIG_FILTER = new ExtensionFilter("Config file (.config)",
-            "*.config");
-
-    /**
-     * The last successful path. Id est, the last path where the user did not canceled the file
-     * selection.
-     */
-    private static File lastPath;
-
     private static Properties properties;
     private static File propertiesFile;
-    private static File usrPath;
-    private static File usrHomePath;
 
     private static TreeMap<String, String> referenceGenomes;
     private static TreeMap<String, String> encodings;
@@ -98,75 +48,6 @@ public class OS {
 
     public static boolean containsKey(String key) {
         return getProperties().containsKey(key);
-    }
-
-    public OS() {
-        lastPath = getUserHomePath();
-
-    }
-
-    /**
-     * Opens a dialog for the user to create a file. File system file is not created in this method.
-     * If the user do not write the file extension, the default will be the first of the selected
-     * ExtensionFilter.
-     *
-     * @param title dialog title
-     * @param filters any number of ExtensionFilters
-     * @return the selected file or null
-     */
-    public static File saveFile(String title, ExtensionFilter... filters) {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle(title);
-        chooser.setInitialDirectory(getLastPath());
-        chooser.getExtensionFilters().addAll(filters);
-        File file = chooser.showSaveDialog(null);
-        if (file != null) {
-            lastPath = file.getParentFile();
-            String ext = chooser.getSelectedExtensionFilter().getExtensions().get(0).
-                    replace("*", "");
-            // Add extension to bad named files
-
-            if (file.getName().endsWith(ext)) {
-                return file;
-            } else {
-                return new File(file.getAbsolutePath() + ext);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Opens a dialog for the user to create a file and sets the text of the TextField to the file
-     * name. If the user do not write the file extension, the default will be the first of the
-     * selected ExtensionFilter.
-     *
-     * @param textField
-     * @param title dialog title
-     * @param filters any number of ExtensionFilters
-     * @return the selected file or null
-     */
-    public static File saveFile(TextField textField, String title, ExtensionFilter... filters) {
-        File f = saveFile(title, filters);
-        if (f != null) {
-            textField.setText(f.getAbsolutePath());
-        }
-        return f;
-    }
-
-    /**
-     * Opens a Dialog to select a folder.
-     *
-     * @param title The title for the DirectoryChooser.
-     * @return A File or null if user canceled.
-     */
-    public static File selectFolder(String title) {
-        DirectoryChooser chooser = new DirectoryChooser();
-        if (title != null) {
-            chooser.setTitle(title);
-        }
-        chooser.setInitialDirectory(getLastPath());
-        File file = chooser.showDialog(null);
-        return (file != null) ? (lastPath = file) : null;
     }
 
     /**
@@ -202,42 +83,6 @@ public class OS {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Opens a dialog window (FileChooser) and lets the user select a single File. Additionally, if
-     * the selected file is not null, the textField text will be set to the file.getAbsolutePath().
-     *
-     * @param textField the textField to set if a file is selected
-     * @param title the title of the FileChooser
-     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
-     * @return the selected file or null
-     */
-    public static File openFile(TextField textField, String title, ExtensionFilter... filters) {
-        File f = openFile(title, filters);
-        if (f != null) {
-            textField.setText(f.getAbsolutePath());
-        }
-        return f;
-    }
-
-    /**
-     * Opens a dialog window (FileChooser) and lets the user select a single File.
-     *
-     * @param title the title of the FileChooser
-     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
-     * @return the selected file or null
-     */
-    public static File openFile(String title, ExtensionFilter... filters) {
-        FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(getLastPath());
-        chooser.getExtensionFilters().addAll(filters);
-        chooser.setTitle(title);
-        File f = chooser.showOpenDialog(null);
-        if (f != null) {
-            lastPath = f.getParentFile();
-        }
-        return f;
     }
 
     /**
@@ -285,31 +130,17 @@ public class OS {
     }
 
     public static String getTempDir() {
-        return new File(getUserPath(), "temp").getAbsolutePath();
+        return new File(FileManager.getUserPath(), "temp").getAbsolutePath();
     }
 
     public static String getGenome(String property) {
         return getProperties().getProperty(property);
     }
 
-    public static File getUserPath() {
-        if (usrPath == null) {
-            usrPath = new File(System.getProperty("user.dir"));
-        }
-        return usrPath;
-    }
-
-    public static File getUserHomePath() {
-        if (usrHomePath == null) {
-            usrHomePath = new File(System.getProperty("user.home"));
-        }
-        return usrHomePath;
-    }
-
     private static Properties getProperties() {
         if (properties == null) {
             properties = new Properties();
-            propertiesFile = new File(getUserPath(), "properties.txt");
+            propertiesFile = new File(FileManager.getUserPath(), "properties.txt");
             if (propertiesFile.exists()) {
                 try {
                     properties.load(new FileInputStream(propertiesFile));
@@ -321,13 +152,6 @@ public class OS {
             }
         }
         return properties;
-    }
-
-    public static File getLastPath() {
-        if (lastPath == null) {
-            lastPath = getUserHomePath();
-        }
-        return lastPath;
     }
 
     public static String getProperty(String key) {
@@ -360,5 +184,36 @@ public class OS {
             encodings.put("Phred +33 (Sanger, Illumina 1.8+)", "phred+33");
         }
         return encodings;
+    }
+
+    public static void downloadSomething(MainViewController mainViewController) {
+        Task genome
+                = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        String[] genomeFiles
+                        = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+                            "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
+                        String ftpserver = "ftp://ftp.ncbi.nlm.nih.gov/genbank/genomes";
+                        String ftpGenome = "/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38";
+                        String ftpFASTA = "/Primary_Assembly/assembled_chromosomes/FASTA/";
+                        final String ftpLink = ftpserver + ftpGenome + ftpFASTA;
+                        for (int i = 0; i < 3;
+                        i++) {
+                            String chr = "chr" + genomeFiles[i] + ".fa.gz";
+                            File f = new File(chr);
+                            final String ftp = ftpLink + chr;
+                            Download download = new Download(ftp, f);
+                            MainViewController.getInfo().textProperty().bind(download.
+                                    messageProperty());
+                            mainViewController.getProgress().progressProperty().bind(download.
+                                    progressProperty());
+                            Thread th = new Thread(download);
+                            th.start();
+                        }
+                        return null;
+                    }
+                };
+        new Thread(genome).start();
     }
 }

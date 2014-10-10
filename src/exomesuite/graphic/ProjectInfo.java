@@ -17,6 +17,8 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Project;
+import exomesuite.project.ProjectListener;
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,7 @@ import org.controlsfx.dialog.Dialogs;
  *
  * @author Pascual Lorente Arencibia
  */
-public class ProjectInfo extends VBox {
+public class ProjectInfo extends VBox implements ProjectListener {
 
     @FXML
     private FileSelector forward;
@@ -77,8 +79,8 @@ public class ProjectInfo extends VBox {
     @FXML
     private void initialize() {
         setVisible(false);
-        forward.addExtensionFilter(OS.FASTQ_FILTER);
-        reverse.addExtensionFilter(OS.FASTQ_FILTER);
+        forward.addExtensionFilter(FileManager.FASTQ_FILTER);
+        reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
         forward.setOnFileChange((EventHandler) (Event event) -> {
             project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getFile());
         });
@@ -191,5 +193,16 @@ public class ProjectInfo extends VBox {
             }
         }
         from.delete();
+    }
+
+    @Override
+    public void projectChanged(Project.PropertyName property) {
+        switch (property) {
+            case BAM_FILE://...
+        }
+    }
+
+    private void fillProperties() {
+
     }
 }

@@ -7,19 +7,14 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<fx:root  type="javafx.scene.layout.HBox" spacing="5" alignment="CENTER"  xmlns:fx="http://javafx.com/fxml/1">
+<fx:root  type="javafx.scene.layout.VBox" spacing="5" alignment="CENTER_LEFT"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" fx:id="vBox" >
+        <Label fx:id="label" />
+        <HBox fx:id="hBox" alignment="CENTER_LEFT"  >
             <children>
-                <Label fx:id="label" />
-                <HBox fx:id="hBox" alignment="CENTER_LEFT"  >
-                    <children>
-                        <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
-                        <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
-                    </children>
-                </HBox>
+                <TextField fx:id="textField" promptText="Select a file" HBox.hgrow="SOMETIMES" />
+                <FlatButton icon="browse.png" fx:id="button" HBox.hgrow="ALWAYS" />
             </children>
-        </VBox>
+        </HBox>
     </children>
-
 </fx:root>

@@ -21,6 +21,7 @@ import exomesuite.project.AlignAction;
 import exomesuite.project.CallAction;
 import exomesuite.project.MistAction;
 import exomesuite.project.Project;
+import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.SystemTask;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class ProjectActions extends VBox {
+public class ProjectActions extends VBox implements ProjectListener {
 
     private Project project;
 
@@ -91,8 +92,9 @@ public class ProjectActions extends VBox {
     }
 
     public void setProject(Project project) {
-        if (task == null || !task.isRunning()) {
+        if (task == null || !task.isRunning() && project != null) {
             this.project = project;
+            project.addListener(this);
             refreshActions();
         }
     }
@@ -150,6 +152,11 @@ public class ProjectActions extends VBox {
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
         message.textProperty().unbind();
+    }
+
+    @Override
+    public void projectChanged(Project.PropertyName property) {
+        refreshActions();
     }
 
 }

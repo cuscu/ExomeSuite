@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -106,6 +107,8 @@ public class Project {
      */
     private File file;
 
+    private final List<ProjectListener> listeners = new ArrayList<>();
+
     /**
      * Creates a new ProjectData with the name and the code. If an existing project with the same
      * code is present, project data will be loaded from disk and name will NOT be changed. If
@@ -177,6 +180,7 @@ public class Project {
         }
         properties.setProperty(name.toString(), value);
         saveToDisk();
+        callListeners(name);
     }
 
     public String getProperty(PropertyName name) {
@@ -247,4 +251,15 @@ public class Project {
         return hash;
     }
 
+    private void callListeners(PropertyName property) {
+        listeners.forEach(t -> t.projectChanged(property));
+    }
+
+    public boolean addListener(ProjectListener listener) {
+        return listeners.add(listener);
+    }
+
+    public boolean removeListener(ProjectListener listener) {
+        return listeners.remove(listener);
+    }
 }
