@@ -10,7 +10,7 @@
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.6" >
             <items>
-                <SplitPane orientation="VERTICAL" dividerPositions="0.25" >
+                <SplitPane orientation="VERTICAL" dividerPositions="0.25" maxHeight="9999" >
                     <items>
                         <!-- List of Projects -->
                         <VBox alignment="TOP_CENTER">
@@ -21,15 +21,13 @@
                         </VBox>
                         <!-- Project properties -->
                         <VBox alignment="TOP_CENTER">
-
                             <children>
                                 <ProjectActions fx:id="projectActions" />
-                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS" >
                                     <content>
                                         <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
                                     </content>
                                 </ScrollPane>
-
                             </children>
                         </VBox>
                     </items>

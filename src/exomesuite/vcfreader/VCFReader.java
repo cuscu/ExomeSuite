@@ -16,8 +16,8 @@
  */
 package exomesuite.vcfreader;
 
-import exomesuite.tsvreader.TSVReader;
 import exomesuite.graphic.TabCell;
+import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +36,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -65,26 +66,19 @@ public class VCFReader {
     private Map<String, Integer>[] stats;
     private final int MAX_ROWS = 100000;
     private int NUMBER_OF_COLUMNS;
+    private Parent view;
 
     public VCFReader(File file) {
         this.file = file;
     }
 
     public void show() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFReader.fxml"));
-            Scene scene = new Scene(loader.load());
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            controller = loader.getController();
-            controller.getFile().setText(file.getAbsolutePath());
-            controller.getSize().setText(OS.humanReadableByteCount(file.length(), false));
-            initializeTable();
-            stage.showAndWait();
-        } catch (IOException ex) {
-            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        Scene scene = new Scene(getView());
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+
     }
 
     private void initializeTable() {
@@ -189,4 +183,20 @@ public class VCFReader {
         }
     }
 
+    public Parent getView() {
+        if (view == null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFReader.fxml"));
+                view = loader.load();
+                controller = loader.getController();
+                controller.getFile().setText(file.getAbsolutePath());
+                controller.getSize().setText(OS.humanReadableByteCount(file.length(), false));
+                initializeTable();
+            } catch (IOException ex) {
+                Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        return view;
+    }
 }

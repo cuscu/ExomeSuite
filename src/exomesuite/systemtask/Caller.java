@@ -36,6 +36,20 @@ public class Caller extends SystemTask {
 
     @Override
     protected Integer call() throws Exception {
+        String msg = "";
+        if (!tripleCheck(genome)) {
+            msg += "Reference genome\n";
+        }
+        if (!tripleCheck(input)) {
+            msg += "Alignments\n";
+        }
+        if (!tripleCheck(dbsnp)) {
+            msg += "dbSNP\n";
+        }
+        if (!msg.isEmpty()) {
+            System.err.println("Some arguments are missing:\n" + msg);
+            return 1;
+        }
         // So easy, only one command.
         updateTitle("Calling " + new File(output).getName());
         String gatk = "software" + File.separator + "gatk" + File.separator

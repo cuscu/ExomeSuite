@@ -16,31 +16,40 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
+import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
+import exomesuite.vcfreader.VCFReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Dialogs;
 
 /**
- * Shows information about a project. This class may substitute ProjectProperties.
+ * Shows properties of a project.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -62,6 +71,14 @@ public class ProjectInfo extends VBox implements ProjectListener {
     private ComboBox<String> encoding;
     @FXML
     private ComboBox<String> genome;
+    @FXML
+    private FileSelector alignments;
+    @FXML
+    private FileSelector variants;
+    @FXML
+    private ListView<String> files;
+    @FXML
+    private Button addButton;
 
     private Project project;
 
@@ -78,23 +95,30 @@ public class ProjectInfo extends VBox implements ProjectListener {
 
     @FXML
     private void initialize() {
+        // By default, this panel is hidden
         setVisible(false);
+
         forward.addExtensionFilter(FileManager.FASTQ_FILTER);
         reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
-        forward.setOnFileChange((EventHandler) (Event event) -> {
-            project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getFile());
-        });
-        reverse.setOnFileChange((EventHandler) (Event event) -> {
-            project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getFile());
-        });
-        name.setOnKeyReleased((KeyEvent event) -> {
-            project.setProperty(Project.PropertyName.NAME, name.getText());
-        });
-        description.setOnKeyReleased((KeyEvent event) -> {
-            project.setProperty(Project.PropertyName.DESCRIPTION, description.getText());
-        });
+        // Add listeners to each property change, so every time a property is changed,
+        // it is reflected in project.getProperties()
+        forward.setOnFileChange(event
+                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getFile()));
+        reverse.setOnFileChange(event
+                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getFile()));
+        name.setOnKeyReleased(event
+                -> project.setProperty(Project.PropertyName.NAME, name.getText()));
+        description.setOnKeyReleased(event
+                -> project.setProperty(Project.PropertyName.DESCRIPTION, description.getText()));
         path.setOnFileChange(event -> changePath());
+        alignments.addExtensionFilter(FileManager.SAM_FILTER);
+        alignments.setOnFileChange(event
+                -> project.setProperty(Project.PropertyName.BAM_FILE, alignments.getFile()));
+        variants.addExtensionFilter(FileManager.VCF_FILTER);
+        variants.setOnFileChange(event
+                -> project.setProperty(Project.PropertyName.VCF_FILE, variants.getFile()));
 //        path.setDisable(true);
+        // Fill encodings and genomes lists
         encoding.getItems().addAll(OS.getSupportedEncodings().keySet());
         encoding.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
@@ -117,6 +141,15 @@ public class ProjectInfo extends VBox implements ProjectListener {
             project.setProperty(Project.PropertyName.REFERENCE_GENOME,
                     OS.getSupportedReferenceGenomes().get(genome.getValue()));
         });
+        // Add behaviour to other files list
+        files.getSelectionModel().selectedItemProperty().addListener((
+                ObservableValue<? extends String> observable, String oldValue, String newValue)
+                -> showFile());
+        files.setContextMenu(getFilesContextMenu());
+        // humm, with only one file I cannot listen to chagnes in selected item.
+        files.setOnMouseClicked((MouseEvent event) -> showFile());
+        addButton.setGraphic(new ImageView("exomesuite/img/addFile.png"));
+        addButton.setOnAction(event -> addFile());
     }
 
     public void setProject(Project project) {
@@ -132,6 +165,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
             code.setText(project.getProperty(Project.PropertyName.CODE, ""));
             description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
             path.setFile(project.getProperty(Project.PropertyName.PATH, ""));
+            alignments.setFile(project.getProperty(Project.PropertyName.BAM_FILE, ""));
+            variants.setFile(project.getProperty(Project.PropertyName.VCF_FILE, ""));
             String encodingKey = project.getProperty(Project.PropertyName.FASTQ_ENCODING);
             if (encodingKey != null) {
                 // Look for a value equals to
@@ -150,7 +185,60 @@ public class ProjectInfo extends VBox implements ProjectListener {
                     genome.getSelectionModel().select(entrySet.getKey());
                 });
             }
+            files.getItems().clear();
+            String fs = project.getProperty(Project.PropertyName.FILES);
+            if (fs != null && !fs.isEmpty()) {
+                files.getItems().setAll(Arrays.asList(fs.split(";")));
+            }
         }
+    }
+
+    private void addFile() {
+        File f = FileManager.openFile("Select a file", FileManager.ALL_FILTER);
+        if (f != null && !files.getItems().contains(f.getAbsolutePath())) {
+            files.getItems().add(f.getAbsolutePath());
+            // Add file to properties
+            String fils = project.getProperty(Project.PropertyName.FILES, "");
+            fils += f.getAbsolutePath() + ";";
+            project.setProperty(Project.PropertyName.FILES, fils);
+        }
+    }
+
+    private void showFile() {
+        String f = files.getSelectionModel().getSelectedItem();
+        if (f == null || f.isEmpty()) {
+            return;
+        }
+        File file = new File(f);
+        TabPane wa = MainViewController.getWorkingArea();
+        // If it is already open, do not open another tab, do not be a spammer
+        for (Tab t : wa.getTabs()) {
+            if (t.getText().equals(file.getName())) {
+                wa.getSelectionModel().select(t);
+                return;
+            }
+        }
+        Tab t = new Tab(file.getName());
+        // Use TSV only on TSV files
+        if (f.endsWith(".tsv") || f.endsWith(".txt") || f.endsWith(".mist")) {
+            t.setContent(new TSVReader(file).get());
+        } else if (f.endsWith(".vcf")) {
+            t.setContent(new VCFReader(file).getView());
+        } else {
+            return;
+        }
+        MainViewController.getWorkingArea().getTabs().add(t);
+    }
+
+    private void removeFile() {
+        String file = files.getSelectionModel().getSelectedItem();
+        int index = files.getSelectionModel().getSelectedIndex();
+        // Remove file from properties
+        String fils = project.getProperty(Project.PropertyName.FILES, "");
+        fils = fils.replace(file + ";", "");
+        project.setProperty(Project.PropertyName.FILES, fils);
+//            new File(file).delete(); NOO, don't delete the file. Or at least ask the user for
+        files.getItems().remove(index);
     }
 
     private void changePath() {
@@ -197,12 +285,29 @@ public class ProjectInfo extends VBox implements ProjectListener {
 
     @Override
     public void projectChanged(Project.PropertyName property) {
+        // Outside ProjectInfo, only a few properties can be changed.
         switch (property) {
-            case BAM_FILE://...
+            case BAM_FILE:
+                alignments.setFile(project.getProperty(Project.PropertyName.BAM_FILE, ""));
+                break;
+            case VCF_FILE:
+                variants.setFile(project.getProperty(Project.PropertyName.VCF_FILE, ""));
+                break;
+            case FILES:
+                files.getItems().clear();
+                String fs = project.getProperty(Project.PropertyName.FILES);
+                if (fs != null && !fs.isEmpty()) {
+                    files.getItems().setAll(Arrays.asList(fs.split(";")));
+                }
+                break;
+
         }
     }
 
-    private void fillProperties() {
-
+    private ContextMenu getFilesContextMenu() {
+        MenuItem delete = new MenuItem("Delete", new ImageView("exomesuite/img/cancel4.png"));
+        delete.setOnAction(event -> removeFile());
+        return new ContextMenu(delete);
     }
+
 }

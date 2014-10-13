@@ -79,9 +79,7 @@ public class AlignAction extends Action {
                     name, illumina);
         } else {
             String msg = "";
-            for (String s : errors) {
-                msg += s + "\n";
-            }
+            msg = errors.stream().map((s) -> s + "\n").reduce(msg, String::concat);
             Dialogs.create().title("Alignment parameters errors").message(msg).showError();
             return null;
         }

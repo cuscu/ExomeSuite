@@ -10,7 +10,7 @@
 <fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER_LEFT" >
     <children>
         <HBox fx:id="buttons" />
-        <Label fx:id="message" text="Do something interesting"  />
+        <Label fx:id="message" text="Click on an action."  />
         <HBox alignment="CENTER"  >
             <children>
                 <ProgressBar fx:id="progressBar" maxWidth="999999" HBox.hgrow="ALWAYS" />

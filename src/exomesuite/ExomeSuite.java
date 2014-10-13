@@ -69,6 +69,7 @@ public class ExomeSuite extends Application {
             if (!controller.canClose()) {
                 event.consume();
             }
+            controller.closeWindow();
         });
         mainStage = stage;
         stage.getIcons().add(new Image(ExomeSuite.class.getResourceAsStream("img/exomesuite.png")));

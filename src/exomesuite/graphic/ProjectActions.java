@@ -92,7 +92,7 @@ public class ProjectActions extends VBox implements ProjectListener {
     }
 
     public void setProject(Project project) {
-        if (task == null || !task.isRunning() && project != null) {
+        if ((task == null || !task.isRunning()) && project != null) {
             this.project = project;
             project.addListener(this);
             refreshActions();
@@ -143,7 +143,7 @@ public class ProjectActions extends VBox implements ProjectListener {
     private void succeded(Action a, SystemTask t) {
         a.onSucceeded(project, t);
         unbind();
-        message.setText(a.getDescription() + " succeded: code " + t.getValue());
+        message.setText(a.getDescription() + " terminated with code " + t.getValue());
         cancel.setDisable(true);
         refreshActions();
     }
@@ -152,6 +152,8 @@ public class ProjectActions extends VBox implements ProjectListener {
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
         message.textProperty().unbind();
+        progressBar.setVisible(false);
+        cancel.setVisible(false);
     }
 
     @Override

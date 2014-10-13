@@ -41,8 +41,8 @@ public class CallAction extends Action {
 
     @Override
     public SystemTask getTask(Project project) {
-        final String genome = OS.getProperty(project.getProperty(
-                Project.PropertyName.REFERENCE_GENOME));
+        final String genome
+                = OS.getProperty(project.getProperty(Project.PropertyName.REFERENCE_GENOME));
         output = project.getProperty(Project.PropertyName.PATH) + File.separator
                 + project.getProperty(Project.PropertyName.CODE) + ".vcf";
         final String input = project.getProperty(Project.PropertyName.BAM_FILE);
@@ -53,7 +53,10 @@ public class CallAction extends Action {
     @Override
     public void onSucceeded(Project p, SystemTask t) {
         if (t.getValue() == 0) {
+            String files = p.getProperty(Project.PropertyName.FILES, "");
+            files += output + ";";
             p.setProperty(Project.PropertyName.VCF_FILE, output);
+            p.setProperty(Project.PropertyName.FILES, files);
         }
     }
 

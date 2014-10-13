@@ -20,12 +20,20 @@
     -fx-padding: 2;
 }
 
+.button {
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-border-color: transparent;
+}
 .button:hover {
     -fx-opacity: 50%;
+    -fx-border-color: black;
 }
 
 .button:pressed{
     -fx-opacity: 25%;
+    -fx-border-color: black;
+
 }
 .green {
     -fx-border-color: green;

@@ -18,6 +18,7 @@ package exomesuite.systemtask;
 
 import exomesuite.tool.Console;
 import exomesuite.utils.OS;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -163,4 +164,7 @@ public abstract class SystemTask extends Task<Integer> {
         System.out.println(message);
     }
 
+    public static boolean tripleCheck(String parameter) {
+        return parameter != null && !parameter.isEmpty() && new File(parameter).exists();
+    }
 }

@@ -54,39 +54,6 @@ public class Aligner extends SystemTask {
 
 //    @Override
 //    public boolean configure(Config mainConfig, Config projectConfig) {
-//        illumina = projectConfig.getProperty("phred64").equals("true");
-//        dbsnp = mainConfig.getProperty(Config.DBSNP);
-//        if (dbsnp == null || dbsnp.isEmpty()) {
-//            return false;
-//        }
-//        mills = mainConfig.getProperty(Config.MILLS);
-//        if (mills == null || mills.isEmpty()) {
-//            return false;
-//        }
-//        phase1 = mainConfig.getProperty(Config.PHASE1);
-//        if (phase1 == null || phase1.isEmpty()) {
-//            return false;
-//        }
-//        genome = mainConfig.getProperty(Config.GENOME);
-//        if (genome == null || genome.isEmpty()) {
-//            return false;
-//        }
-//        forward = projectConfig.getProperty(Config.FORWARD);
-//        if (forward == null || forward.isEmpty()) {
-//            return false;
-//        }
-//        reverse = projectConfig.getProperty(Config.REVERSE);
-//        if (reverse == null || reverse.isEmpty()) {
-//            return false;
-//        }
-//        temp = projectConfig.getProperty(Config.PATH_TEMP);
-//        if (temp == null || temp.isEmpty()) {
-//            return false;
-//        }
-//        name = projectConfig.getProperty(Config.NAME);
-//        output = new File(projectConfig.getProperty("align_path"), name + ".bam").getAbsolutePath();
-//        return true;
-//    }
     @Override
     protected Integer call() throws Exception {
         System.out.println("Alingment parameters");
@@ -100,30 +67,55 @@ public class Aligner extends SystemTask {
         System.out.println("output=" + output);
         System.out.println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
-        for (int i = 0; i < 10; i++) {
-            updateProgress(i, 10);
-            updateMessage(i + "/" + 10);
-            Thread.sleep(1000);
-        }
-        updateProgress(1, 1);
-        Thread.sleep(1000);
-        return 0;
-//        int ret;
-//        if ((ret = firstAlignment()) != 0) {
-//            return ret;
+//        for (int i = 0; i < 10; i++) {
+//            updateProgress(i, 10);
+//            updateMessage(i + "/" + 10);
+//            Thread.sleep(1000);
 //        }
-//        if ((ret = refineBAM()) != 0) {
-//            return ret;
-//        }
-//        if ((ret = realignBAM()) != 0) {
-//            return ret;
-//        }
-//        if ((ret = recalibrateBAM()) != 0) {
-//            return ret;
-//        }
-//        updateMessage("Done");
 //        updateProgress(1, 1);
-//        return ret;
+//        Thread.sleep(1000);
+        String msg = "";
+        if (!tripleCheck(dbsnp)) {
+            msg += "dbSNP\n";
+        }
+        if (mills == null || mills.isEmpty()) {
+            msg += "Mills database\n";
+        }
+        if (phase1 == null || phase1.isEmpty()) {
+            msg += "1000 genomes pahse 1 indels database\n";
+        }
+        if (genome == null || genome.isEmpty()) {
+            msg += "Reference genome\n";
+        }
+        if (forward == null || forward.isEmpty()) {
+            msg += "Forward sequences";
+        }
+        if (reverse == null || reverse.isEmpty()) {
+            msg += "Reverse sequences";
+        }
+        if (temp == null || temp.isEmpty()) {
+            msg += "Temporary folder";
+        }
+        if (!msg.isEmpty()) {
+            System.err.println("There is one or more arguments not specifierd:\n" + msg);
+            return 1;
+        }
+        int ret;
+        if ((ret = firstAlignment()) != 0) {
+            return ret;
+        }
+        if ((ret = refineBAM()) != 0) {
+            return ret;
+        }
+        if ((ret = realignBAM()) != 0) {
+            return ret;
+        }
+        if ((ret = recalibrateBAM()) != 0) {
+            return ret;
+        }
+        updateMessage("Done");
+        updateProgress(1, 1);
+        return ret;
 
     }
 

@@ -17,7 +17,6 @@
 package exomesuite;
 
 import exomesuite.graphic.Databases;
-import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectTable;
@@ -52,9 +51,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  * Controller class for the main window. Manages projects, adds tabs to the
@@ -116,23 +117,30 @@ public class MainViewController {
         mainProgress = progress;
         infoLabel = info;
         staticWorkingArea = workingArea;
-        FlatButton download = new FlatButton("download.png", "Download something");
+//        FlatButton download = new FlatButton("download.png", "Download something");
 //        actionButtons.getChildren().add(download);
-        download.setOnAction((ActionEvent event) -> {
-            OS.downloadSomething(this);
-        });
+//        download.setOnAction((ActionEvent event) -> {
+//            OS.downloadSomething(this);
+//        });
+        // Open recently opened projects
+        final String openedProjects = OS.getProperty("projects");
+        if (openedProjects != null && !openedProjects.isEmpty()) {
+            String[] op = openedProjects.split(";");
+            for (String s : op) {
+                openProject(new File(s));
+            }
+        }
     }
 
     /**
      * Opens a FileChooser and lets the user open a .config file. If returned file is not null, it
      * will call {@code addProjectTab}.
      */
-    private void openProject() {
-        File f = FileManager.openFile("Config file", FileManager.CONFIG_FILTER);
-        if (f == null) {
+    private void openProject(File configFile) {
+        if (configFile == null || !configFile.exists()) {
             return;
         }
-        Project project = new Project(f);
+        Project project = new Project(configFile);
         if (!projectTable.getItems().contains(project)) {
             projectTable.getItems().add(project);
             projectTable.getSelectionModel().select(project);
@@ -149,7 +157,9 @@ public class MainViewController {
      * @return true if all projects can be closed, false otherwise.
      */
     boolean canClose() {
-        return true;
+        Action showConfirm
+                = Dialogs.create().message("Are you sure you want to exit?").showConfirm();
+        return showConfirm == Dialog.ACTION_YES;
 //        AtomicBoolean exit = new AtomicBoolean(true);
 //        projectList.forEach((Project project) -> {
 //            if (!project.close()) {
@@ -160,21 +170,12 @@ public class MainViewController {
     }
 
     /**
-     * Gets a Vbox with a TextField for each database.
-     *
-     * @return the vbox
-     */
-    private VBox getDatabasesView() {
-//        return new VBox(new Databases(), new GenomeManager().getView());
-        return new Databases();
-    }
-
-    /**
      * Prepares the menus.
      */
     private void setMenus() {
         // Open menu
-        openMenu.setOnAction((ActionEvent event) -> openProject());
+        openMenu.setOnAction((ActionEvent event) -> openProject(FileManager.openFile("Config file",
+                FileManager.CONFIG_FILTER)));
         openMenu.setGraphic(new ImageView("exomesuite/img/open.png"));
         openMenu.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         // New menu
@@ -195,7 +196,8 @@ public class MainViewController {
 
     private void setToolBar() {
         Button open = new ToolBarButton("open.png", "Open project... Ctrl+O", "Open");
-        open.setOnAction((ActionEvent event) -> openProject());
+        open.setOnAction((ActionEvent event) -> openProject(FileManager.openFile("Config file",
+                FileManager.CONFIG_FILTER)));
         Button newProject = new ToolBarButton("add.png", "New project... Ctrl+N", "New");
         newProject.setOnAction((ActionEvent event) -> showNewPane());
         Button db = new ToolBarButton("database.png", "Select databases... Ctrl+D", "Databases");
@@ -296,6 +298,16 @@ public class MainViewController {
 
     public ProgressBar getProgress() {
         return mainProgress;
+    }
+
+    void closeWindow() {
+        String projects = "";
+        projects
+                = projectTable.getItems().stream().
+                map((p) -> p.getConfigFile().getAbsolutePath() + ";").
+                reduce(projects,
+                        String::concat);
+        OS.setProperty("projects", projects);
     }
 
 }

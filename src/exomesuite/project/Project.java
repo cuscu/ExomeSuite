@@ -95,7 +95,11 @@ public class Project {
         /**
          * Variants file recalibrated
          */
-        RECAL_VCF_FILE
+        RECAL_VCF_FILE,
+        /**
+         * Other files list
+         */
+        FILES
     }
 
     /**
