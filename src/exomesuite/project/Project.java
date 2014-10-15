@@ -266,4 +266,12 @@ public class Project {
     public boolean removeListener(ProjectListener listener) {
         return listeners.remove(listener);
     }
+
+    public void addExtraFile(String file) {
+        String files = getProperty(PropertyName.FILES, "");
+        if (!file.isEmpty()) {
+            files += file + ";";
+            setProperty(PropertyName.FILES, files);
+        }
+    }
 }

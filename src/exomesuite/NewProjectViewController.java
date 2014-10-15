@@ -16,20 +16,18 @@
  */
 package exomesuite;
 
-import exomesuite.graphic.FileSelector;
+import exomesuite.graphic.Parameter;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
-import java.util.Map;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class
@@ -39,28 +37,26 @@ import javafx.scene.input.KeyEvent;
 public class NewProjectViewController {
 
     @FXML
-    private TextField name;
+    private Parameter name;
     @FXML
-    private FileSelector path;
+    private Parameter path;
     @FXML
     private Button acceptButton;
     @FXML
     private Label finalPath;
     @FXML
-    private FileSelector forward;
+    private Parameter forward;
     @FXML
-    private FileSelector reverse;
+    private Parameter reverse;
     @FXML
-    private TextField code;
+    private Parameter code;
     @FXML
-    private ComboBox<String> reference;
+    private Parameter genome;
     @FXML
-    private ComboBox<String> encoding;
-
+    private Parameter encoding;
+    @FXML
+    private VBox root;
     private EventHandler handler;
-
-    private Map<String, String> genomes;
-    private Map<String, String> encodings;
 
     private boolean codeChangedManually;
 
@@ -68,20 +64,19 @@ public class NewProjectViewController {
      * Initializes the controller class.
      */
     public void initialize() {
+        root.getStylesheets().add("/exomesuite/main.css");
         code.setOnKeyTyped((KeyEvent event) -> updateFolder());
-        forward.addExtensionFilters(FileManager.FASTQ_FILTER);
+        forward.addExtensionFilter(FileManager.FASTQ_FILTER);
         reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
-        path.setOnFileChange((EventHandler) (Event event) -> updateFolder());
+        path.setOnValueChanged((EventHandler) (Event event) -> updateFolder());
         // Set genome
-        genomes = OS.getSupportedReferenceGenomes();
-        reference.getItems().addAll(genomes.keySet());
+        genome.setOptions(OS.getSupportedReferenceGenomes());
         // Set encoding
-        encodings = OS.getSupportedEncodings();
-        encoding.getItems().addAll(encodings.keySet());
+        encoding.setOptions(OS.getSupportedEncodings());
         acceptButton.setOnAction((ActionEvent event) -> handler.handle(event));
-        name.setOnKeyReleased((KeyEvent event) -> {
+        name.setOnValueChanged((EventHandler) (Event event) -> {
             if (!codeChangedManually) {
-                code.setText(name.getText().replace(" ", "_").toLowerCase());
+                code.setValue(name.getValue().replace(" ", "_").toLowerCase());
             }
         });
     }
@@ -92,7 +87,7 @@ public class NewProjectViewController {
      * @return the path
      */
     public String getPath() {
-        return path.getFile();
+        return path.getValue();
     }
 
     /**
@@ -101,7 +96,7 @@ public class NewProjectViewController {
      * @return the name
      */
     public String getName() {
-        return name.getText();
+        return name.getValue();
     }
 
     /**
@@ -109,9 +104,9 @@ public class NewProjectViewController {
      */
     private void updateFolder() {
         codeChangedManually = true;
-        if (path.getFile() != null) {
+        if (path.getValue() != null) {
             finalPath.
-                    setText(path.getFile() + File.separator + code.getText() + " will be created.");
+                    setText(path.getValue() + File.separator + code.getValue() + " will be created.");
         }
     }
 
@@ -130,7 +125,7 @@ public class NewProjectViewController {
      * @return the forward file
      */
     public String getForward() {
-        return forward.getFile();
+        return forward.getValue();
     }
 
     /**
@@ -139,15 +134,15 @@ public class NewProjectViewController {
      * @return the reverse file
      */
     public String getReverse() {
-        return reverse.getFile();
+        return reverse.getValue();
     }
 
     public String getReference() {
-        return reference.getValue() != null ? genomes.get(reference.getValue()) : null;
+        return genome.getValue();
     }
 
     public String getEncoding() {
-        return encoding.getValue() != null ? encodings.get(encoding.getValue()) : null;
+        return encoding.getValue();
     }
 
     public void setHandler(EventHandler handler) {
@@ -155,7 +150,7 @@ public class NewProjectViewController {
     }
 
     String getCode() {
-        return code.getText();
+        return code.getValue();
     }
 
 }

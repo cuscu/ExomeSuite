@@ -35,21 +35,21 @@ import javafx.scene.layout.VBox;
 public class Databases extends VBox {
 
     @FXML
-    private FileSelector mills;
+    private Parameter mills;
     @FXML
-    private FileSelector omni;
+    private Parameter omni;
     @FXML
-    private FileSelector phase1;
+    private Parameter phase1;
     @FXML
-    private FileSelector dbsnp;
+    private Parameter dbsnp;
     @FXML
-    private FileSelector hapmap;
+    private Parameter hapmap;
     @FXML
-    private FileSelector ensembl;
+    private Parameter ensembl;
     @FXML
-    private FileSelector grch37;
+    private Parameter grch37;
     @FXML
-    private FileSelector grch38;
+    private Parameter grch38;
 
     private final static String MILLS = "mills";
     private final static String DBSNP = "dbsnp";
@@ -57,14 +57,15 @@ public class Databases extends VBox {
     private final static String HAPMAP = "hapmap";
     private final static String PHASE1 = "phase1";
     private final static String ENSMEBL = "ensembl";
-    private final static String GRCH37 = "grch37";
-    private final static String GRCH38 = "grch38";
+    private final static String GRCH37 = "GRCh37";
+    private final static String GRCH38 = "GRCh38";
 
     public Databases() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Databases.fxml"));
             loader.setRoot(this);
             loader.setController(this);
+            getStylesheets().add("/exomesuite/main.css");
             loader.load();
         } catch (IOException ex) {
             Logger.getLogger(Databases.class.getName()).log(Level.SEVERE, null, ex);
@@ -79,60 +80,61 @@ public class Databases extends VBox {
     public void initialize() {
         // MILLS
         if (OS.containsKey(MILLS)) {
-            mills.setFile(OS.getProperty(MILLS));
+            mills.setValue(OS.getProperty(MILLS));
         }
         mills.addExtensionFilter(FileManager.VCF_FILTER);
-        mills.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(MILLS, mills.getFile()));
+        mills.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(MILLS, mills.getValue()));
         // OMNI
         if (OS.containsKey(OMNI)) {
-            omni.setFile(OS.getProperty(OMNI));
+            omni.setValue(OS.getProperty(OMNI));
         }
         omni.addExtensionFilter(FileManager.VCF_FILTER);
-        omni.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(OMNI, omni.getFile()));
+        omni.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(OMNI, omni.getValue()));
         // dbSNP
         if (OS.containsKey(DBSNP)) {
-            dbsnp.setFile(OS.getProperty(DBSNP));
+            dbsnp.setValue(OS.getProperty(DBSNP));
         }
         dbsnp.addExtensionFilter(FileManager.VCF_FILTER);
-        dbsnp.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(DBSNP, dbsnp.getFile()));
+        dbsnp.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(DBSNP, dbsnp.getValue()));
         // Hapmap
         if (OS.containsKey(HAPMAP)) {
-            hapmap.setFile(OS.getProperty(HAPMAP));
+            hapmap.setValue(OS.getProperty(HAPMAP));
         }
         hapmap.addExtensionFilter(FileManager.VCF_FILTER);
-        hapmap.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(HAPMAP, hapmap.getFile()));
+        hapmap.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(HAPMAP, hapmap.getValue()));
         // Phase 1
         if (OS.containsKey(PHASE1)) {
-            phase1.setFile(OS.getProperty(PHASE1));
+            phase1.setValue(OS.getProperty(PHASE1));
         }
         phase1.addExtensionFilter(FileManager.VCF_FILTER);
-        phase1.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(PHASE1, phase1.getFile()));
+        phase1.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(PHASE1, phase1.getValue()));
         // Ensembl
         if (OS.containsKey(ENSMEBL)) {
-            ensembl.setFile(OS.getProperty(ENSMEBL));
+            ensembl.setValue(OS.getProperty(ENSMEBL));
         }
-        ensembl.addExtensionFilters(FileManager.TSV_FILTER, FileManager.ALL_FILTER);
-        ensembl.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty(ENSMEBL, ensembl.getFile()));
+        ensembl.addExtensionFilter(FileManager.TSV_FILTER);
+        ensembl.addExtensionFilter(FileManager.ALL_FILTER);
+        ensembl.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(ENSMEBL, ensembl.getValue()));
         // Human genome GRCHv37
         if (OS.containsKey(GRCH37)) {
-            grch37.setFile(OS.getProperty(GRCH37));
+            grch37.setValue(OS.getProperty(GRCH37));
         }
         grch37.addExtensionFilter(FileManager.FASTA_FILTER);
-        grch37.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty("grch37", grch37.getFile()));
+        grch37.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(GRCH37, grch37.getValue()));
         // Human genome GRCH38
         if (OS.containsKey(GRCH38)) {
-            grch38.setFile(OS.getProperty(GRCH38));
+            grch38.setValue(OS.getProperty(GRCH38));
         }
         grch38.addExtensionFilter(FileManager.FASTA_FILTER);
-        grch38.setOnFileChange((EventHandler) (Event event)
-                -> OS.setProperty("grch38", grch38.getFile()));
+        grch38.setOnValueChanged((EventHandler) (Event event)
+                -> OS.setProperty(GRCH38, grch38.getValue()));
     }
 
 }

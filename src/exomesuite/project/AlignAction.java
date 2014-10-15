@@ -88,7 +88,8 @@ public class AlignAction extends Action {
     @Override
     public void onSucceeded(Project p, SystemTask t) {
         if (t.getValue() == 0) {
-            p.setProperty(Project.PropertyName.BAM_FILE, output);
+//            p.setProperty(Project.PropertyName.BAM_FILE, output);
+            p.addExtraFile(output);
         }
     }
 

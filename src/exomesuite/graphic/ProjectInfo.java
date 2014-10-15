@@ -31,20 +31,16 @@ import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Dialogs;
 
@@ -56,25 +52,25 @@ import org.controlsfx.dialog.Dialogs;
 public class ProjectInfo extends VBox implements ProjectListener {
 
     @FXML
-    private FileSelector forward;
+    private Parameter forward;
     @FXML
-    private FileSelector reverse;
+    private Parameter reverse;
     @FXML
-    private TextField name;
+    private Parameter name;
     @FXML
-    private Label code;
+    private Parameter code;
     @FXML
-    private TextField description;
+    private Parameter description;
     @FXML
-    private FileSelector path;
+    private Parameter path;
     @FXML
-    private ComboBox<String> encoding;
+    private Parameter encoding;
     @FXML
-    private ComboBox<String> genome;
+    private Parameter genome;
     @FXML
-    private FileSelector alignments;
+    private Parameter alignments;
     @FXML
-    private FileSelector variants;
+    private Parameter variants;
     @FXML
     private ListView<String> files;
     @FXML
@@ -102,52 +98,34 @@ public class ProjectInfo extends VBox implements ProjectListener {
         reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
         // Add listeners to each property change, so every time a property is changed,
         // it is reflected in project.getProperties()
-        forward.setOnFileChange(event
-                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getFile()));
-        reverse.setOnFileChange(event
-                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getFile()));
-        name.setOnKeyReleased(event
-                -> project.setProperty(Project.PropertyName.NAME, name.getText()));
-        description.setOnKeyReleased(event
-                -> project.setProperty(Project.PropertyName.DESCRIPTION, description.getText()));
-        path.setOnFileChange(event -> changePath());
-        alignments.addExtensionFilter(FileManager.SAM_FILTER);
-        alignments.setOnFileChange(event
-                -> project.setProperty(Project.PropertyName.BAM_FILE, alignments.getFile()));
-        variants.addExtensionFilter(FileManager.VCF_FILTER);
-        variants.setOnFileChange(event
-                -> project.setProperty(Project.PropertyName.VCF_FILE, variants.getFile()));
+        forward.setOnValueChanged(event
+                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getValue()));
+        reverse.setOnValueChanged(event
+                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getValue()));
+        name.setOnValueChanged(event
+                -> project.setProperty(Project.PropertyName.NAME, name.getValue()));
+        description.setOnValueChanged(event
+                -> project.setProperty(Project.PropertyName.DESCRIPTION, description.getValue()));
+        path.setOnValueChanged(event -> changePath());
+        encoding.setOnValueChanged(event -> project.setProperty(Project.PropertyName.FASTQ_ENCODING,
+                encoding.getValue()));
+        genome.setOnValueChanged(event -> project.setProperty(Project.PropertyName.REFERENCE_GENOME,
+                genome.getValue()));
+//        alignments.addExtensionFilter(FileManager.SAM_FILTER);
+//        alignments.setOnValueChanged(event
+//                -> project.setProperty(Project.PropertyName.BAM_FILE, alignments.getValue()));
+//        variants.addExtensionFilter(FileManager.VCF_FILTER);
+//        variants.setOnValueChanged(event
+//                -> project.setProperty(Project.PropertyName.VCF_FILE, variants.getValue()));
 //        path.setDisable(true);
-        // Fill encodings and genomes lists
-        encoding.getItems().addAll(OS.getSupportedEncodings().keySet());
-        encoding.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (oldValue != null) {
-                Dialogs.create().title("Change encoding").
-                        message("Changing encoding can change the behaviour of aligning process.").
-                        showWarning();
-            }
-            project.setProperty(Project.PropertyName.FASTQ_ENCODING,
-                    OS.getSupportedEncodings().get(encoding.getValue()));
-        });
-        genome.getItems().addAll(OS.getSupportedReferenceGenomes().keySet());
-        genome.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (oldValue != null) {
-                Dialogs.create().title("Warning").
-                        message("Changing genome can change the behaviour of aligning and call processes.").
-                        showWarning();
-            }
-            project.setProperty(Project.PropertyName.REFERENCE_GENOME,
-                    OS.getSupportedReferenceGenomes().get(genome.getValue()));
-        });
-        // Add behaviour to other files list
-        files.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends String> observable, String oldValue, String newValue)
-                -> showFile());
+
         files.setContextMenu(getFilesContextMenu());
         // humm, with only one file I cannot listen to chagnes in selected item.
-        files.setOnMouseClicked((MouseEvent event) -> showFile());
+        files.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+                showFile();
+            }
+        });
         addButton.setGraphic(new ImageView("exomesuite/img/addFile.png"));
         addButton.setOnAction(event -> addFile());
     }
@@ -159,32 +137,18 @@ public class ProjectInfo extends VBox implements ProjectListener {
         } else {
             setVisible(true);
             this.project = project;
-            forward.setFile(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
-            reverse.setFile(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
-            name.setText(project.getProperty(Project.PropertyName.NAME, ""));
-            code.setText(project.getProperty(Project.PropertyName.CODE, ""));
-            description.setText(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
-            path.setFile(project.getProperty(Project.PropertyName.PATH, ""));
-            alignments.setFile(project.getProperty(Project.PropertyName.BAM_FILE, ""));
-            variants.setFile(project.getProperty(Project.PropertyName.VCF_FILE, ""));
-            String encodingKey = project.getProperty(Project.PropertyName.FASTQ_ENCODING);
-            if (encodingKey != null) {
-                // Look for a value equals to
-                OS.getSupportedEncodings().entrySet().stream().
-                        filter((entrySet) -> (entrySet.getValue().equals(encodingKey))).
-                        forEach((entrySet) -> {
-                    encoding.getSelectionModel().select(entrySet.getKey());
-                });
-            }
-            String genomeValue = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
-            if (genomeValue != null) {
-                // Look for a value equals to
-                OS.getSupportedReferenceGenomes().entrySet().stream().
-                        filter((entrySet) -> (entrySet.getValue().equals(genomeValue))).
-                        forEach((entrySet) -> {
-                    genome.getSelectionModel().select(entrySet.getKey());
-                });
-            }
+            forward.setValue(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
+            reverse.setValue(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
+            name.setValue(project.getProperty(Project.PropertyName.NAME, ""));
+            code.setValue(project.getProperty(Project.PropertyName.CODE, ""));
+            description.setValue(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
+            path.setValue(project.getProperty(Project.PropertyName.PATH, ""));
+            encoding.setOptions(OS.getSupportedEncodings());
+            encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING, ""));
+            genome.setOptions(OS.getSupportedReferenceGenomes());
+            genome.setValue(project.getProperty(Project.PropertyName.REFERENCE_GENOME, ""));
+//            alignments.setValue(project.getProperty(Project.PropertyName.BAM_FILE, ""));
+//            variants.setValue(project.getProperty(Project.PropertyName.VCF_FILE, ""));
             files.getItems().clear();
             String fs = project.getProperty(Project.PropertyName.FILES);
             if (fs != null && !fs.isEmpty()) {
@@ -244,7 +208,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
     private void changePath() {
         // Move files and directories
         final File from = new File(project.getProperty(Project.PropertyName.PATH));
-        final File to = new File(path.getFile());
+        final File to = new File(path.getValue());
         clone(from, to);
         // Change properties by replacing path in all properties
         project.getProperties().forEach((Object t, Object u) -> {
@@ -288,10 +252,10 @@ public class ProjectInfo extends VBox implements ProjectListener {
         // Outside ProjectInfo, only a few properties can be changed.
         switch (property) {
             case BAM_FILE:
-                alignments.setFile(project.getProperty(Project.PropertyName.BAM_FILE, ""));
+                alignments.setValue(project.getProperty(Project.PropertyName.BAM_FILE, ""));
                 break;
             case VCF_FILE:
-                variants.setFile(project.getProperty(Project.PropertyName.VCF_FILE, ""));
+                variants.setValue(project.getProperty(Project.PropertyName.VCF_FILE, ""));
                 break;
             case FILES:
                 files.getItems().clear();

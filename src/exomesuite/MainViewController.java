@@ -19,7 +19,7 @@ package exomesuite;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
-import exomesuite.graphic.ProjectTable;
+import exomesuite.graphic.ProjectList;
 import exomesuite.graphic.ToolBarButton;
 import exomesuite.project.Project;
 import exomesuite.tsvreader.TSVReader;
@@ -81,8 +81,10 @@ public class MainViewController {
     /**
      * The table where all the opened projects are listed.
      */
+//    @FXML
+//    private ProjectTable projectTable;
     @FXML
-    private ProjectTable projectTable;
+    private ProjectList projectList;
     /**
      * Current project properties.
      */
@@ -108,9 +110,14 @@ public class MainViewController {
         setMenus();
         setToolBar();
         progress.setProgress(0);
-        projectTable.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends Project> observable,
-                Project oldValue, Project newValue) -> {
+//        projectTable.getSelectionModel().selectedItemProperty().addListener((
+//                ObservableValue<? extends Project> observable, Project old, Project current) -> {
+//            projectActions.setProject(current);
+//            projectInfo.setProject(current);
+//        });
+        projectList.getSelectionModel().selectedItemProperty().addListener((
+                ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
+                -> {
             projectActions.setProject(newValue);
             projectInfo.setProject(newValue);
         });
@@ -141,13 +148,14 @@ public class MainViewController {
             return;
         }
         Project project = new Project(configFile);
-        if (!projectTable.getItems().contains(project)) {
-            projectTable.getItems().add(project);
-            projectTable.getSelectionModel().select(project);
-//            projectProperties.setProject(project);
-            projectActions.setProject(project);
-            projectInfo.setProject(project);
+        if (!projectList.getItems().contains(project)) {
+            projectList.getItems().add(project);
+            projectList.getSelectionModel().select(project);
         }
+//        if (!projectTable.getItems().contains(project)) {
+//            projectTable.getItems().add(project);
+//            projectTable.getSelectionModel().select(project);
+//        }
     }
 
     /**
@@ -158,7 +166,8 @@ public class MainViewController {
      */
     boolean canClose() {
         Action showConfirm
-                = Dialogs.create().message("Are you sure you want to exit?").showConfirm();
+                = Dialogs.create().title("We will miss you").message(
+                        "Are you sure you want to exit?").showConfirm();
         return showConfirm == Dialog.ACTION_YES;
 //        AtomicBoolean exit = new AtomicBoolean(true);
 //        projectList.forEach((Project project) -> {
@@ -220,6 +229,7 @@ public class MainViewController {
                 String name = controller.getName();
                 String code = controller.getCode();
                 String path = controller.getPath();
+                // NUll check
                 if (!name.isEmpty() && !code.isEmpty() && !path.isEmpty()) {
                     Project project = new Project(name, code, path);
                     String forward = controller.getForward();
@@ -236,8 +246,8 @@ public class MainViewController {
                     if (encoding != null) {
                         project.setProperty(Project.PropertyName.FASTQ_ENCODING, encoding);
                     }
-                    projectTable.getItems().add(project);
-                    projectTable.getSelectionModel().select(project);
+                    projectList.getItems().add(project);
+                    projectList.getSelectionModel().select(project);
                     stage.close();
                 }
             });
@@ -302,11 +312,9 @@ public class MainViewController {
 
     void closeWindow() {
         String projects = "";
-        projects
-                = projectTable.getItems().stream().
+        projects = projectList.getItems().stream().
                 map((p) -> p.getConfigFile().getAbsolutePath() + ";").
-                reduce(projects,
-                        String::concat);
+                reduce(projects, String::concat);
         OS.setProperty("projects", projects);
     }
 

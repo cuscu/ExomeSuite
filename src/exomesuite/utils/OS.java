@@ -8,9 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.concurrent.Task;
@@ -26,8 +26,8 @@ public class OS {
     private static Properties properties;
     private static File propertiesFile;
 
-    private static TreeMap<String, String> referenceGenomes;
-    private static TreeMap<String, String> encodings;
+    private static List<String> referenceGenomes;
+    private static List<String> encodings;
 
     /**
      * Takes a byte value and convert it to the corresponding human readable unit.
@@ -47,7 +47,7 @@ public class OS {
     }
 
     public static boolean containsKey(String key) {
-        return getProperties().containsKey(key);
+        return getProperties().containsKey(key.toLowerCase());
     }
 
     /**
@@ -130,7 +130,9 @@ public class OS {
     }
 
     public static String getTempDir() {
-        return new File(FileManager.getUserPath(), "temp").getAbsolutePath();
+        File temp = new File(FileManager.getUserPath(), "temp");
+        temp.mkdirs();
+        return temp.getAbsolutePath();
     }
 
     public static String getGenome(String property) {
@@ -155,11 +157,11 @@ public class OS {
     }
 
     public static String getProperty(String key) {
-        return getProperties().getProperty(key);
+        return getProperties().getProperty(key.toLowerCase());
     }
 
     public static void setProperty(String key, String value) {
-        getProperties().setProperty(key, value);
+        getProperties().setProperty(key.toLowerCase(), value);
         try {
             properties.store(new FileOutputStream(propertiesFile), null);
         } catch (FileNotFoundException ex) {
@@ -169,19 +171,20 @@ public class OS {
         }
     }
 
-    public static TreeMap<String, String> getSupportedReferenceGenomes() {
+    public static List<String> getSupportedReferenceGenomes() {
         if (referenceGenomes == null) {
-            referenceGenomes = new TreeMap<>();
-            referenceGenomes.put("Human genome v37 (grch37 / hg19)", "grch37");
+            referenceGenomes = new ArrayList<>();
+            referenceGenomes.add("GRCh37");
+            referenceGenomes.add("GRCh38");
         }
         return referenceGenomes;
     }
 
-    public static TreeMap<String, String> getSupportedEncodings() {
+    public static List<String> getSupportedEncodings() {
         if (encodings == null) {
-            encodings = new TreeMap<>();
-            encodings.put("Phred +64 (Illumina 1.3 to 1.6)", "phred+64");
-            encodings.put("Phred +33 (Sanger, Illumina 1.8+)", "phred+33");
+            encodings = new ArrayList<>();
+            encodings.add("phred+64");
+            encodings.add("phred+33");
         }
         return encodings;
     }

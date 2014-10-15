@@ -9,51 +9,61 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="3" alignment="TOP_CENTER"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
+        <SectionTitle title="Properties"  />
+        <HBox maxWidth="9999" >
+            <children>
+                <Parameter name="Name" fx:id="name" type="TEXT"  HBox.hgrow="ALWAYS" />
+                <Parameter name="Code" fx:id="code" type="TEXT" HBox.hgrow="ALWAYS"  />
+            </children>
+        </HBox>
+        <Parameter name="Path" fx:id="path" type="DIRECTORY" />
+        <Parameter name="Description"  fx:id="description" type="TEXT" />
+        <SectionTitle title="Original data"  />
+        <Parameter name="Forward sequences" fx:id="forward" type="FILE"/>
+        <Parameter name="Reverse sequences" fx:id="reverse" type="FILE"/>
+        <HBox maxWidth="9999">
+            <children>
+                <Parameter name="Base encoding" fx:id="encoding" type="OPTIONS" HBox.hgrow="ALWAYS"  />
+                <Parameter name="Reference genome" fx:id="genome" type="OPTIONS" HBox.hgrow="ALWAYS"  />
+            </children>
+        </HBox>
+
+        <!--
         <GridPane hgap="3" vgap="3" alignment="TOP_CENTER">
             <columnConstraints>
                 <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="SOMETIMES" />
                 <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="ALWAYS"  />
             </columnConstraints>
             <children>
-                <!-- General options -->
                 <SectionTitle GridPane.rowIndex="0" GridPane.columnSpan="2"  title="General options" />
-                <!-- Code is not modifiable -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Code"/>
                 <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="code" />
-                <!-- Name -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Name" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="name" />
-                <!-- Path is not modifiable -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Path" />
                 <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" textPosition="LEFT"  />
-                <!-- Description. Free edition -->
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Description" />
                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="description" />
 
-                <!-- Original data -->
                 <SectionTitle title="Original data" GridPane.rowIndex="5" GridPane.columnSpan="2"  />
-                <!-- Sequences -->
                 <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="6" />
                 <FileSelector fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="6" textPosition="LEFT" />
                 <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="7" />
                 <FileSelector fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="7" textPosition="LEFT" />
-                <!-- Encoding -->
                 <Label text="Encoding" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
                 <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
-                <!-- Encoding -->
                 <Label text="Genome" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
                 <ComboBox fx:id="genome" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
 
-                <!-- Processed data -->
                 <SectionTitle title="Processed data" GridPane.rowIndex="10" GridPane.columnSpan="2"  />
                 <Label text="Alignments" GridPane.columnIndex="0" GridPane.rowIndex="11" />
                 <FileSelector fx:id="alignments" textPosition="LEFT" GridPane.columnIndex="1" GridPane.rowIndex="11" promptText="Select SAM/BAM or run align." />
                 <Label text="Variants" GridPane.columnIndex="0" GridPane.rowIndex="12"/>
                 <FileSelector fx:id="variants" GridPane.columnIndex="1" GridPane.rowIndex="12" textPosition="LEFT" promptText="Select VCF file or run 'call variants'" />
             </children>
-        </GridPane>
-        <SectionTitle title="Other files" />
-        <Button fx:id="addButton" text="Add a (TSV) file"/>
+        </GridPane> -->
+        <SectionTitle title="Processed data" />
+        <Button fx:id="addButton" text="Add a file"/>
         <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />
     </children>
 

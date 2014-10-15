@@ -7,30 +7,22 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<fx:root type="javafx.scene.layout.VBox" spacing="5"  xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.VBox" spacing="5"  xmlns:fx="http://javafx.com/fxml/1" maxHeight="600" >
     <children>
 
         <!-- Standard databases -->
         <SectionTitle title="Variant databases"/>
-        <VBox spacing="5" >
-            <children>
-                <FileSelector text="Mills and 1000G indels" fx:id="mills"/>
-                <FileSelector text="1000G phase 1 indels" fx:id="phase1" />
-                <FileSelector text="1000G OMNI" fx:id="omni" />
-                <FileSelector text="Hapmap" fx:id="hapmap" />
-                <FileSelector text="dbSNP" fx:id="dbsnp" />
-                <FileSelector text="Ensembl exons" fx:id="ensembl" textPosition="TOP"  />
-            </children>
-        </VBox>
+        <Parameter type="FILE" name="Mills and 1000G indels" fx:id="mills"/>
+        <Parameter type="FILE" name="1000G phase 1 indels" fx:id="phase1" />
+        <Parameter type="FILE" name="1000G OMNI" fx:id="omni" />
+        <Parameter type="FILE" name="Hapmap" fx:id="hapmap" />
+        <Parameter type="FILE" name="dbSNP" fx:id="dbsnp" />
+        <Parameter type="FILE" name="Ensembl exons" fx:id="ensembl"/>
 
         <!-- Reference genomes -->
         <SectionTitle title="Reference genome" />
-        <VBox spacing="5" >
-            <children>
-                <FileSelector text="GRCHv37 (hg19)" fx:id="grch37"/>
-                <FileSelector text="GRCHv38" fx:id="grch38" />
-            </children>
-        </VBox>
+        <Parameter type="FILE" name="GRCHv37 (hg19)" fx:id="grch37"/>
+        <Parameter type="FILE" name="GRCHv38" fx:id="grch38" />
 
     </children>
 </fx:root>
