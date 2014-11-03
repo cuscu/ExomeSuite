@@ -105,9 +105,9 @@ public class Mist extends SystemTask {
         "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "transcript_info",
         "gene_biotype", "match"};
 
-    private static String chromosome;
-    private static int[] depths;
-    static boolean go = false;
+    private String chromosome;
+    private int[] depths;
+    boolean go = false;
 
     /*
      * IMPORTANT NOTE FOR DEVELOPERS. Genomic positions start at 1, Java array positions start at 0.
@@ -127,6 +127,7 @@ public class Mist extends SystemTask {
         depths = new int[lengths.get(chromosome) + 1];
         String message = String.format("Chromosome %s (%d/%d)", chromosome,
                 iterations.incrementAndGet(), lengths.size());
+        updateTitle("MIST " + input.getName());
         updateMessage(message);
         updateProgress(iterations.get(), lengths.size());
         // qname | flag | chr | pos | mapq | cigar | rnext | pnext | tlen | seq | qual
@@ -180,6 +181,8 @@ public class Mist extends SystemTask {
         } catch (IOException | NumberFormatException ex) {
             Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
         }
+        updateProgress(1, 1);
+        updateMessage("Succesful");
         return 0;
     }
 

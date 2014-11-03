@@ -49,7 +49,7 @@ public abstract class SystemTask extends Task<Integer> {
      * A PrintStream to replace System.out.println. See that every Task has its own PrintStream,
      * this allows ExomeSuite to manage a different {@link Console} for each SystemTask.
      */
-    private PrintStream printStream;
+    protected PrintStream printStream;
     /**
      * The Process used by {@code execute{String...&nbsp;args)}. If there is no System command
      * running, it will be null.
@@ -149,7 +149,7 @@ public abstract class SystemTask extends Task<Integer> {
     @Override
     protected void updateMessage(String message) {
         super.updateMessage(message);
-        printStream.println(message);
+//        printStream.println(message);
         System.out.println(message);
     }
 

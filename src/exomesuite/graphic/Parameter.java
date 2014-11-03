@@ -66,6 +66,10 @@ public class Parameter extends VBox {
 
     private List<String> options;
 
+    private boolean editable = true;
+
+    private Position position = Position.TOP;
+
     /**
      * The fired event when a File is selected.
      */
@@ -130,20 +134,20 @@ public class Parameter extends VBox {
         setContent(label);
         switch (type) {
             case TEXT:
-                label.setText("Enter value");
+                label.setText(value != null ? value : "Enter value");
                 break;
             case FILE:
-                label.setText("Select file");
+                label.setText(value != null ? value : "Select file");
                 break;
             case DIRECTORY:
-                label.setText("Select folder");
+                label.setText(value != null ? value : "Select folder");
                 break;
 
         }
     }
 
     private void startEdit() {
-        if (onEditMode) {
+        if (!editable || onEditMode) {
             return;
         }
         oldText = value;
@@ -156,17 +160,15 @@ public class Parameter extends VBox {
                 textField.requestFocus();
                 break;
             case FILE:
+                // Try to establish the default location in the current File parent
+                // Current file: /home/user/myfolder/myfile.txt
+                // Then the FileChooser opens on /home/user/myfolder
                 File prev;
-                FileChooser.ExtensionFilter[] arrayFilters
-                        = new FileChooser.ExtensionFilter[filters.size()];
-                for (int i = 0; i < filters.size(); i++) {
-                    arrayFilters[i] = filters.get(i);
-                }
                 File f;
                 if (value != null && (prev = new File(value)).exists()) {
-                    f = FileManager.openFile("Select file", prev.getParentFile(), arrayFilters);
+                    f = FileManager.openFile("Select file", prev.getParentFile(), filters);
                 } else {
-                    f = FileManager.openFile("Select file", arrayFilters);
+                    f = FileManager.openFile("Select file", filters);
                 }
                 if (f != null) {
                     value = f.getAbsolutePath();
@@ -178,7 +180,7 @@ public class Parameter extends VBox {
             case DIRECTORY:
                 File pre;
                 if (value != null && (pre = new File(value)).exists()) {
-                    f = FileManager.selectFolder("Select folder", pre);
+                    f = FileManager.openDirectory("Select folder", pre);
                 } else {
                     f = FileManager.selectFolder("Select folder");
                 }
@@ -190,6 +192,7 @@ public class Parameter extends VBox {
                 break;
             case OPTIONS:
                 ComboBox<String> opt = new ComboBox<>(FXCollections.observableArrayList(options));
+                opt.getSelectionModel().select(0);
                 opt.setMaxWidth(Double.MAX_VALUE);
                 HBox.setHgrow(opt, Priority.ALWAYS);
                 HBox box = new HBox(opt, cancel);
@@ -242,9 +245,16 @@ public class Parameter extends VBox {
     }
 
     public void setContent(Node content) {
-        getChildren().remove(this.content);
-        this.content = content;
-        getChildren().add(content);
+        if (position == Position.LEFT) {
+            getChildren().clear();
+            this.content = new HBox(5, name, content);
+            getChildren().add(this.content);
+
+        } else {
+            getChildren().remove(this.content);
+            this.content = content;
+            getChildren().add(content);
+        }
     }
 
     public Node getContent() {
@@ -276,8 +286,29 @@ public class Parameter extends VBox {
         this.options = options;
     }
 
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     public enum Type {
 
         FILE, DIRECTORY, TEXT, OPTIONS
+    }
+
+    public enum Position {
+
+        LEFT, TOP
     }
 }

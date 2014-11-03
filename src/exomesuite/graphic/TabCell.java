@@ -20,7 +20,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 
 /**
@@ -36,9 +35,7 @@ public class TabCell extends TableCell<String[], String> {
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);
         textField.setPadding(new Insets(1));
-        textField.setOnMouseClicked((MouseEvent event) -> {
-            textField.selectAll();
-        });
+        textField.setOnMouseClicked(e -> textField.selectAll());
         textField.setTooltip(new Tooltip());
     }
 

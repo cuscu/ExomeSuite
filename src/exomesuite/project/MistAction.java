@@ -82,7 +82,7 @@ public class MistAction extends Action {
             return null;
         }
         output = project.getProperty(Project.PropertyName.PATH) + File.separator
-                + project.getProperty(Project.PropertyName.CODE) + ".mist";
+                + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + ".mist";
         String ensembl = OS.getProperty("ensembl");
         if (ensembl == null || ensembl.isEmpty()) {
             Dialogs.create().title("Ensembl database is missing").message(

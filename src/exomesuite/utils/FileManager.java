@@ -17,6 +17,7 @@
 package exomesuite.utils;
 
 import java.io.File;
+import java.util.List;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -86,14 +87,14 @@ public class FileManager {
     private static final File USER_PATH = new File(System.getProperty("user.dir"));
 
     /**
-     * Opens a Dialog to select a folder. It is the same than calling @code{selectFolder(title,
+     * Opens a Dialog to select a folder. It is the same than calling @code{openDirectory(title,
      * null)}
      *
      * @param title The title for the DirectoryChooser.
      * @return A File or null if user canceled.
      */
     public static File selectFolder(String title) {
-        return selectFolder(title, null);
+        return openDirectory(title, null);
     }
 
     /**
@@ -103,7 +104,7 @@ public class FileManager {
      * @param initDir the initial directory.
      * @return A File or null if user canceled.
      */
-    public static File selectFolder(String title, File initDir) {
+    public static File openDirectory(String title, File initDir) {
         DirectoryChooser chooser = new DirectoryChooser();
         if (title != null) {
             chooser.setTitle(title);
@@ -161,11 +162,43 @@ public class FileManager {
      * Opens a dialog window (FileChooser) and lets the user select a single File.
      *
      * @param title the title of the FileChooser
+     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @return the selected file or null
+     */
+    public static File openFile(String title, List<ExtensionFilter> filters) {
+        return openFile(title, null, filters);
+    }
+
+    /**
+     * Opens a dialog window (FileChooser) and lets the user select a single File.
+     *
+     * @param title the title of the FileChooser
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
      */
     public static File openFile(String title, File initDir, ExtensionFilter... filters) {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
+                ? initDir : getLastPath());
+        chooser.getExtensionFilters().addAll(filters);
+        chooser.setTitle(title);
+        File f = chooser.showOpenDialog(null);
+        if (f != null) {
+            lastPath = f.getParentFile();
+        }
+        return f;
+    }
+
+    /**
+     * Opens a dialog window (FileChooser) and lets the user select a single File.
+     *
+     * @param title the title of the FileChooser
+     * @param initDir the initial directory
+     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @return the selected file or null
+     */
+    public static File openFile(String title, File initDir, List<ExtensionFilter> filters) {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
                 ? initDir : getLastPath());
@@ -266,7 +299,7 @@ public class FileManager {
         if (FileManager.lastPath == null) {
             FileManager.lastPath = getUserHome();
         }
-        return FileManager.lastPath;
+        return lastPath;
     }
 
     /**

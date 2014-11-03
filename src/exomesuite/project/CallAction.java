@@ -16,6 +16,7 @@
  */
 package exomesuite.project;
 
+import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.graphic.CallParams;
 import exomesuite.graphic.MistParams;
 import exomesuite.systemtask.Caller;
@@ -39,6 +40,7 @@ import org.controlsfx.dialog.Dialogs;
 public class CallAction extends Action {
 
     private String output, inputBAM;
+    private Algorithm selectedAlgorithm;
 
     public CallAction(String icon, String description, String disableDescription) {
         super(icon, description, disableDescription);
@@ -79,10 +81,19 @@ public class CallAction extends Action {
             errors.add("dbSNP is missing. Select it in Databases");
         }
         if (errors.isEmpty()) {
-            return new Caller(genomeFile, output, inputBAM, dbsnp);
+            switch (selectedAlgorithm) {
+                case GATK:
+                    return new Caller(genomeFile, output, inputBAM, dbsnp);
+                case SAMTOOLS:
+                    return new SamtoolsCaller(genomeFile, dbsnp, inputBAM, output);
+                default:
+                    Dialogs.create().title("Algorithm not found")
+                            .message("Please select an algorithm").showError();
+                    return null;
+            }
         } else {
-            Dialogs.create().title("Wrong parameters in Call task").message(errors.toString()).
-                    showError();
+            Dialogs.create().title("Wrong parameters in Call task")
+                    .message(errors.toString()).showError();
             return null;
         }
     }
@@ -108,14 +119,24 @@ public class CallAction extends Action {
             FXMLLoader loader = new FXMLLoader(MistParams.class.getResource("CallParams.fxml"));
             loader.load();
             CallParams params = loader.getController();
+            // Pass the BAM option (which file to use)
             params.setBamOptions(bams);
+            // Pass the algorithm options
+            List<String> algs = new ArrayList<>();
+            for (Algorithm a : Algorithm.values()) {
+                algs.add(a.name());
+            }
+            params.setAlgorithmOptions(algs);
+            // Show the scene
             Scene scene = new Scene(loader.getRoot());
             Stage stage = new Stage();
             stage.setScene(scene);
             stage.centerOnScreen();
+            // When the user closes the window
             params.setOnAccept(e -> {
                 stage.close();
                 inputBAM = params.getSelectedBam();
+                selectedAlgorithm = Algorithm.valueOf(params.getAlgorithm());
             });
             stage.showAndWait();
         } catch (IOException ex) {
@@ -123,4 +144,8 @@ public class CallAction extends Action {
         }
     }
 
+    public enum Algorithm {
+
+        GATK, SAMTOOLS
+    }
 }

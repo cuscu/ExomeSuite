@@ -207,7 +207,7 @@ public class FileSelector extends VBox {
     }
 
     /**
-     * Calls @code{FileManager.selectFolder()}.
+     * Calls @code{FileManager.openDirectory()}.
      */
     private void openPath() {
         // Try to use the current selected directory as initial directory.
@@ -215,7 +215,7 @@ public class FileSelector extends VBox {
         if (!textField.getText().isEmpty()) {
             parent = new File(textField.getText());
         }
-        File f = FileManager.selectFolder(label.getText(), parent);
+        File f = FileManager.openDirectory(label.getText(), parent);
         if (f != null) {
             textField.setText(f.getAbsolutePath());
             if (event != null) {

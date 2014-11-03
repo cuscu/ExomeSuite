@@ -9,7 +9,7 @@
         <GridPane xmlns:fx="http://javafx.com/fxml">
             <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" />
-                <ColumnConstraints hgrow="SOMETIMES"/> 
+                <ColumnConstraints hgrow="SOMETIMES"/>
             </columnConstraints>
             <children>
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="0" text="VCF 1" />

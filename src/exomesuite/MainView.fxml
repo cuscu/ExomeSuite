@@ -15,7 +15,7 @@
                         <!-- List of Projects -->
                         <VBox alignment="TOP_CENTER" >
                             <children>
-                                <SectionTitle hLine="false" title="Projects" paint="Lightgray" />
+                                <SectionTitle  title="Projects"/>
                                 <!--<ProjectTable fx:id="projectTable"/>-->
                                 <ProjectList fx:id="projectList" />
                             </children>

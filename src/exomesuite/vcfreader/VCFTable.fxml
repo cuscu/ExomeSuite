@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1" >
+    <children>
+        <TableView VBox.vgrow="SOMETIMES" fx:id="table" />
+        <VBox  spacing="5" >
+            <children>
+                <HBox>
+                    <children>
+                        <Parameter fx:id="coordinatesParameter" name="Coordinates" type="TEXT" editable="false" />
+                        <Parameter fx:id="variantParameter" name="Variant" type="TEXT" editable="false" />
+                        <Parameter fx:id="rsidParameter" name="Identifier" type="TEXT" editable="false"/>
+                        <Parameter fx:id="qualParameter" name="Quality" type="TEXT" editable="false"/>
+                        <Parameter fx:id="filterParameter" name="Filter" type="TEXT" editable="false"/>
+                    </children>
+                </HBox>
+                <HBox fx:id="infoBox" />
+                <HBox fx:id="formatBox"/>
+                <VariantInfo fx:id="variantInfo"/>
+            </children>
+        </VBox>
+    </children>
+
+</fx:root>

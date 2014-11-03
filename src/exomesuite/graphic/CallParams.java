@@ -32,6 +32,8 @@ public class CallParams {
     @FXML
     private Parameter bamFile;
     @FXML
+    private Parameter algorithm;
+    @FXML
     private Button accept;
     private EventHandler acceptEvent;
 
@@ -56,6 +58,14 @@ public class CallParams {
 
     public void setOnAccept(EventHandler eventHandler) {
         this.acceptEvent = eventHandler;
+    }
+
+    public void setAlgorithmOptions(List<String> options) {
+        algorithm.setOptions(options);
+    }
+
+    public String getAlgorithm() {
+        return algorithm.getValue();
     }
 
 }

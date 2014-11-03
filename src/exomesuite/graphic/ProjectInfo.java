@@ -19,10 +19,11 @@ package exomesuite.graphic;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
+import exomesuite.systemtask.SystemTask;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
-import exomesuite.vcfreader.VCFReader;
+import exomesuite.vcfreader.VCFTable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -170,7 +171,9 @@ public class ProjectInfo extends VBox implements ProjectListener {
 
     private void showFile() {
         String f = files.getSelectionModel().getSelectedItem();
-        if (f == null || f.isEmpty()) {
+        if (!SystemTask.tripleCheck(f)) {
+            Dialogs.create().title("File does not exist").message("File " + f + " does not exist.").
+                    showError();
             return;
         }
         File file = new File(f);
@@ -187,11 +190,14 @@ public class ProjectInfo extends VBox implements ProjectListener {
         if (f.endsWith(".tsv") || f.endsWith(".txt") || f.endsWith(".mist")) {
             t.setContent(new TSVReader(file).get());
         } else if (f.endsWith(".vcf")) {
-            t.setContent(new VCFReader(file).getView());
+            VCFTable vCFTable = new VCFTable();
+            vCFTable.setFile(file);
+            t.setContent(vCFTable);
         } else {
             return;
         }
         MainViewController.getWorkingArea().getTabs().add(t);
+        MainViewController.getWorkingArea().getSelectionModel().select(t);
     }
 
     private void removeFile() {

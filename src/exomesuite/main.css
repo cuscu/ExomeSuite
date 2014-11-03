@@ -26,12 +26,12 @@
     -fx-border-color: transparent;
 }
 .button:hover {
-    -fx-opacity: 50%;
+    -fx-opacity: 0.5;
     -fx-border-color: black;
 }
 
 .button:pressed{
-    -fx-opacity: 25%;
+    -fx-opacity: 0.25;
     -fx-border-color: black;
 
 }
@@ -65,7 +65,7 @@
     -fx-background-color: white;
 }
 
-.list-cell:filled {
+/*.list-cell:filled {
     -fx-background-color: ghostwhite;
     -fx-background-insets: 2px;
     -fx-background-radius: 5px;
@@ -88,7 +88,7 @@
     //    -fx-text-fill: black;
     -fx-border-color: black;
     -fx-border-width: 2px;
-}
+}*/
 
 .list-cell .button {
     -fx-background-radius: 8px;
@@ -99,4 +99,8 @@
     -fx-background-color: transparent;
     -fx-border-width: 0;
 
+}
+
+.root {
+    -fx-background-color: white;
 }

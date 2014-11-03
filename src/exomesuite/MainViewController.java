@@ -110,11 +110,6 @@ public class MainViewController {
         setMenus();
         setToolBar();
         progress.setProgress(0);
-//        projectTable.getSelectionModel().selectedItemProperty().addListener((
-//                ObservableValue<? extends Project> observable, Project old, Project current) -> {
-//            projectActions.setProject(current);
-//            projectInfo.setProject(current);
-//        });
         projectList.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
                 -> {
@@ -152,10 +147,6 @@ public class MainViewController {
             projectList.getItems().add(project);
             projectList.getSelectionModel().select(project);
         }
-//        if (!projectTable.getItems().contains(project)) {
-//            projectTable.getItems().add(project);
-//            projectTable.getSelectionModel().select(project);
-//        }
     }
 
     /**
@@ -166,8 +157,8 @@ public class MainViewController {
      */
     boolean canClose() {
         Action showConfirm
-                = Dialogs.create().title("We will miss you").message(
-                        "Are you sure you want to exit?").showConfirm();
+                = Dialogs.create().title("We will miss you")
+                .message("Are you sure you want to exit?").showConfirm();
         return showConfirm == Dialog.ACTION_YES;
 //        AtomicBoolean exit = new AtomicBoolean(true);
 //        projectList.forEach((Project project) -> {

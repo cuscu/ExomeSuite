@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.MainViewController;
 import exomesuite.project.Action;
 import exomesuite.project.AlignAction;
 import exomesuite.project.CallAction;
@@ -24,17 +25,21 @@ import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.SystemTask;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.concurrent.WorkerStateEvent;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -116,20 +121,62 @@ public class ProjectActions extends VBox implements ProjectListener {
         if (task == null) {
             return;
         }
+        // Get the view
+        FXMLLoader loader = new FXMLLoader(TaskPanel.class.getResource("TaskPanel.fxml"));
+        try {
+            loader.load();
+        } catch (IOException ex) {
+            Logger.getLogger(ProjectActions.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+        final TaskPanel taskPanel = loader.getController();
+        // Message and progress are easy
+        //taskPanel.getTitle().textProperty().bind(task.titleProperty());
+        taskPanel.getMessage().textProperty().bind(task.messageProperty());
+        taskPanel.getProgress().progressProperty().bind(task.progressProperty());
+        // PrintStream its a bit tricky
+        task.setPrintStream(new PrintStream(new OutputStream() {
+
+            @Override
+            public void write(int b) throws IOException {
+                Platform.runLater(() -> {
+                    taskPanel.getTextArea().appendText((char) b + "");
+                });
+            }
+        }));
+        // Title is binded to the tab
+        Tab t = new Tab(task.getTitle());
+        task.titleProperty().addListener((ObservableValue<? extends String> observable,
+                String oldValue, String newValue) -> t.setText(newValue));
+        // When closed, process is killed
+        t.setOnCloseRequest(e -> {
+            System.err.println("Trying to cancel task");
+            task.cancel();
+        });
+        taskPanel.getCancelButton().setOnAction(e -> {
+            System.err.println("Trying to cancel task");
+            task.cancel();
+        });
+        // Fill the tab
+        Parent parent = loader.getRoot();
+        t.setContent(parent);
+        // Put it on working area
+        MainViewController.getWorkingArea().getTabs().add(t);
+        MainViewController.getWorkingArea().getSelectionModel().select(t);
         // Bind progress
-        progressBar.progressProperty().bind(task.progressProperty());
-        message.textProperty().bind(task.messageProperty());
+//        progressBar.progressProperty().bind(task.progressProperty());
+//        message.textProperty().bind(task.messageProperty());
         // Bind end actions, cancelled or succeded
-        task.setOnCancelled((WorkerStateEvent event) -> cancelled(a, task));
-        task.setOnSucceeded((WorkerStateEvent event) -> succeded(a, task));
+        task.setOnCancelled(e -> cancelled(a, task));
+        task.setOnSucceeded(e -> succeded(a, task));
         // Disable action buttons, only one action at a time
-        buttons.getChildren().forEach((Node node) -> ((FlatButton) node).setDisable(true));
+//        buttons.getChildren().forEach(node -> ((FlatButton) node).setDisable(true));
         // Launch the task
         new Thread(task).start();
         // Enable cancel button and show progress
-        cancel.setDisable(false);
-        progressBar.setVisible(true);
-        cancel.setVisible(true);
+//        cancel.setDisable(false);
+//        progressBar.setVisible(true);
+//        cancel.setVisible(true);
     }
 
     private void cancelled(Action a, SystemTask t) {
@@ -159,6 +206,11 @@ public class ProjectActions extends VBox implements ProjectListener {
     @Override
     public void projectChanged(Project.PropertyName property) {
         refreshActions();
+    }
+
+    private FXMLLoader loadTaskView() {
+
+        return null;
     }
 
 }
