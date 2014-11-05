@@ -60,6 +60,11 @@
                                 <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>
                             </items>
                         </Menu>
+                        <Menu text="MIST">
+                            <items>
+                                <MenuItem fx:id="intersectMIST" text="Intersect"/>
+                            </items>
+                        </Menu>
                     </menus>
                 </MenuBar>
                 <FlowPane fx:id="toolBar"/>

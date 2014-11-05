@@ -17,6 +17,7 @@
 package exomesuite.graphic;
 
 import java.util.List;
+import java.util.Properties;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -33,6 +34,8 @@ public class MistParams {
     private Parameter bamFile;
     @FXML
     private Parameter threshold;
+    @FXML
+    private Parameter length;
     @FXML
     private Button accept;
 
@@ -51,14 +54,6 @@ public class MistParams {
         bamFile.setOptions(options);
     }
 
-    public String getSelectedBam() {
-        return bamFile.getValue();
-    }
-
-    public int getThreshold() {
-        return Integer.valueOf(threshold.getValue());
-    }
-
     public void enableAccept() {
         if (bamFile.getValue() != null && !bamFile.getValue().isEmpty()) {
             accept.setDisable(false);
@@ -73,5 +68,13 @@ public class MistParams {
 
     public void setOnAccept(EventHandler eventHandler) {
         closeEvent = eventHandler;
+    }
+
+    public Properties getProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("threshold", threshold.getValue());
+        properties.setProperty("length", length.getValue());
+        properties.setProperty("input", bamFile.getValue());
+        return properties;
     }
 }

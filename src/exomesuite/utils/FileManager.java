@@ -17,6 +17,7 @@
 package exomesuite.utils;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
@@ -178,16 +179,7 @@ public class FileManager {
      * @return the selected file or null
      */
     public static File openFile(String title, File initDir, ExtensionFilter... filters) {
-        FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
-                ? initDir : getLastPath());
-        chooser.getExtensionFilters().addAll(filters);
-        chooser.setTitle(title);
-        File f = chooser.showOpenDialog(null);
-        if (f != null) {
-            lastPath = f.getParentFile();
-        }
-        return f;
+        return openFile(title, initDir, Arrays.asList(filters));
     }
 
     /**
@@ -207,6 +199,31 @@ public class FileManager {
         File f = chooser.showOpenDialog(null);
         if (f != null) {
             lastPath = f.getParentFile();
+        }
+        return f;
+    }
+
+    public static List<File> openFiles(String title, ExtensionFilter... filters) {
+        return openFiles(title, lastPath, Arrays.asList(filters));
+    }
+
+    /**
+     * Opens a dialog window (FileChooser) and lets the user select a single File.
+     *
+     * @param title the title of the FileChooser
+     * @param initDir the initial directory
+     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @return the selected file or null
+     */
+    public static List<File> openFiles(String title, File initDir, List<ExtensionFilter> filters) {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
+                ? initDir : getLastPath());
+        chooser.getExtensionFilters().addAll(filters);
+        chooser.setTitle(title);
+        List<File> f = chooser.showOpenMultipleDialog(null);
+        if (f != null && !f.isEmpty()) {
+            lastPath = f.get(0).getParentFile();
         }
         return f;
     }

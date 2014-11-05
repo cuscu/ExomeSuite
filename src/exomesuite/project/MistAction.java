@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
@@ -36,9 +37,6 @@ import org.controlsfx.dialog.Dialogs;
  * @author Pascual Lorente Arencibia
  */
 public class MistAction extends Action {
-
-    String output, input;
-    int threshold;
 
     public MistAction(String icon, String description, String disableDescription) {
         super(icon, description, disableDescription);
@@ -73,7 +71,10 @@ public class MistAction extends Action {
                     showError();
             return null;
         }
-        showParamsView(bamfiles);
+        Properties params = showParamsView(bamfiles);
+        String input = params.getProperty("input");
+        int threshold = Integer.valueOf(params.getProperty("threshold"));
+        int length = Integer.valueOf(params.getProperty("length"));
         if (!SystemTask.tripleCheck(input) || threshold < 0) {
             Dialogs.create().title("Bad arguments").message(
                     "Input: " + input
@@ -81,7 +82,11 @@ public class MistAction extends Action {
                     showError();
             return null;
         }
-        output = project.getProperty(Project.PropertyName.PATH) + File.separator
+        if (!SystemTask.tripleCheck(project.getProperty(Project.PropertyName.PATH))) {
+            Dialogs.create().title("Incorrect path").message("PATH " + project.getProperty(
+                    Project.PropertyName.PATH) + " does not exist").showError();
+        }
+        String output = project.getProperty(Project.PropertyName.PATH) + File.separator
                 + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + ".mist";
         String ensembl = OS.getProperty("ensembl");
         if (ensembl == null || ensembl.isEmpty()) {
@@ -90,17 +95,17 @@ public class MistAction extends Action {
                     showError();
             return null;
         }
-        return new Mist(input, output, ensembl, threshold);
+        Mist mist = new Mist(input, output, ensembl, threshold, length);
+        mist.setOnSucceeded(e -> {
+            if (mist.getValue() == 0) {
+                project.addExtraFile(output);
+            }
+        });
+        return mist;
     }
 
-    @Override
-    public void onSucceeded(Project p, SystemTask t) {
-        if (t.getValue() == 0) {
-            p.addExtraFile(output);
-        }
-    }
-
-    private void showParamsView(List<String> bams) {
+    private Properties showParamsView(List<String> bams) {
+        Properties properties = new Properties();
         try {
             FXMLLoader loader = new FXMLLoader(MistParams.class.getResource("MistParams.fxml"));
             loader.load();
@@ -113,13 +118,13 @@ public class MistAction extends Action {
             stage.centerOnScreen();
             params.setOnAccept(e -> {
                 stage.close();
-                threshold = params.getThreshold();
-                input = params.getSelectedBam();
+                properties.putAll(params.getProperties());
             });
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(MistAction.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return properties;
     }
 
 }

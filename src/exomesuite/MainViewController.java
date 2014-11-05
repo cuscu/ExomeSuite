@@ -16,6 +16,7 @@
  */
 package exomesuite;
 
+import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
@@ -38,6 +39,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -78,6 +80,8 @@ public class MainViewController {
     private MenuItem openVCFMenu;
     @FXML
     private MenuItem combineVCFMenu;
+    @FXML
+    private MenuItem intersectMIST;
     /**
      * The table where all the opened projects are listed.
      */
@@ -191,7 +195,7 @@ public class MainViewController {
         // VCF menu
         openVCFMenu.setOnAction((ActionEvent event) -> openVCF());
         combineVCFMenu.setOnAction((ActionEvent event) -> combineVCF());
-
+        intersectMIST.setOnAction(e -> combineMIST());
     }
 
     private void setToolBar() {
@@ -307,6 +311,22 @@ public class MainViewController {
                 map((p) -> p.getConfigFile().getAbsolutePath() + ";").
                 reduce(projects, String::concat);
         OS.setProperty("projects", projects);
+    }
+
+    private void combineMIST() {
+        try {
+            FXMLLoader loader = new FXMLLoader(CombineMIST.class.getResource("CombineMIST.fxml"));
+            Parent p = loader.load();
+            Scene scene = new Scene(p);
+            Stage stage = new Stage();
+            scene.getStylesheets().add("/exomesuite/main.css");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+            stage.setTitle("Intersect MIST files");
+            stage.showAndWait();
+        } catch (IOException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

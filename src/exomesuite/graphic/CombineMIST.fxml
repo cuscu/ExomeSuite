@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600.0" alignment="TOP_CENTER"
+      fx:controller="exomesuite.graphic.CombineMIST">
+    <children>
+        <SectionTitle title="Select files"/>
+        <ListView fx:id="fileList" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
+        <FlatButton fx:id="addButton" text="Add" icon="addFile.png" />
+        <Parameter fx:id="outputParam" type="FILE" name="Output" />
+        <FlatButton fx:id="startButton" text="Start" icon="start.png"/>
+    </children>
+
+</VBox>

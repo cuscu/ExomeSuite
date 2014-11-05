@@ -11,6 +11,7 @@
     <children>
         <Parameter fx:id="bamFile" name="Alignments file" type="OPTIONS" value="Select a BAM file"/>
         <Parameter fx:id="threshold" name="Threshold" type="TEXT" value="10" />
+        <Parameter fx:id="length" name="Length" type="TEXT" value="1"/>
         <Button text="Accept" fx:id="accept"/>
     </children>
     <padding>

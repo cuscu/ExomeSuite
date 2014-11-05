@@ -37,8 +37,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -52,17 +50,16 @@ public class ProjectActions extends VBox implements ProjectListener {
 
     private Project project;
 
-    @FXML
-    private ProgressBar progressBar;
+//    @FXML
+//    private ProgressBar progressBar;
     @FXML
     private HBox buttons;
-    @FXML
-    private Label message;
-    @FXML
-    private FlatButton cancel;
+//    @FXML
+//    private Label message;
+//    @FXML
+//    private FlatButton cancel;
 
-    private SystemTask task;
-
+//    private SystemTask task;
     private final List<Action> actions = new ArrayList<>();
 
     public ProjectActions() {
@@ -78,15 +75,6 @@ public class ProjectActions extends VBox implements ProjectListener {
 
     @FXML
     public void initialize() {
-        cancel.setOnAction((ActionEvent event) -> {
-            if (task != null && task.isRunning()) {
-                task.cancel(true);
-            }
-        });
-        cancel.setDisable(true);
-        progressBar.setProgress(0);
-        progressBar.setVisible(false);
-        cancel.setVisible(false);
 
         Action align = new AlignAction("align.png", "Align genome", "Select FASTQ files first");
         Action call = new CallAction("call.png", "Call variants", "Align sequences first");
@@ -97,7 +85,7 @@ public class ProjectActions extends VBox implements ProjectListener {
     }
 
     public void setProject(Project project) {
-        if ((task == null || !task.isRunning()) && project != null) {
+        if (project != null) {
             this.project = project;
             project.addListener(this);
             refreshActions();
@@ -117,7 +105,7 @@ public class ProjectActions extends VBox implements ProjectListener {
 
     private void call(Action a) {
         // Get the task form the action, getTask must configure using project
-        task = a.getTask(project);
+        SystemTask task = a.getTask(project);
         if (task == null) {
             return;
         }
@@ -163,54 +151,13 @@ public class ProjectActions extends VBox implements ProjectListener {
         // Put it on working area
         MainViewController.getWorkingArea().getTabs().add(t);
         MainViewController.getWorkingArea().getSelectionModel().select(t);
-        // Bind progress
-//        progressBar.progressProperty().bind(task.progressProperty());
-//        message.textProperty().bind(task.messageProperty());
-        // Bind end actions, cancelled or succeded
-        task.setOnCancelled(e -> cancelled(a, task));
-        task.setOnSucceeded(e -> succeded(a, task));
-        // Disable action buttons, only one action at a time
-//        buttons.getChildren().forEach(node -> ((FlatButton) node).setDisable(true));
         // Launch the task
         new Thread(task).start();
-        // Enable cancel button and show progress
-//        cancel.setDisable(false);
-//        progressBar.setVisible(true);
-//        cancel.setVisible(true);
-    }
-
-    private void cancelled(Action a, SystemTask t) {
-        a.onCancelled(project, t);
-        unbind();
-        message.setText(a.getDescription() + " cancelled: code " + t.getValue());
-        cancel.setDisable(true);
-        refreshActions();
-    }
-
-    private void succeded(Action a, SystemTask t) {
-        a.onSucceeded(project, t);
-        unbind();
-        message.setText(a.getDescription() + " terminated with code " + t.getValue());
-        cancel.setDisable(true);
-        refreshActions();
-    }
-
-    private void unbind() {
-        progressBar.progressProperty().unbind();
-        progressBar.setProgress(0);
-        message.textProperty().unbind();
-        progressBar.setVisible(false);
-        cancel.setVisible(false);
     }
 
     @Override
     public void projectChanged(Project.PropertyName property) {
         refreshActions();
-    }
-
-    private FXMLLoader loadTaskView() {
-
-        return null;
     }
 
 }

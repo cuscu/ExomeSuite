@@ -37,18 +37,19 @@ import java.util.logging.Logger;
 public class Mist extends SystemTask {
 
     private final File input, output, ensembl;
-    private final int threshold;
+    private final int threshold, length;
     private final static int WINDOW_SIZE = 10;
     private final static String INSIDE = "inside";
     private final static String OVERLAP = "overlap";
     private final static String LEFT = "left";
     private final static String RIGHT = "right";
 
-    public Mist(String input, String output, String ensembl, int threshold) {
+    public Mist(String input, String output, String ensembl, int threshold, int length) {
         this.input = new File(input);
         this.output = new File(output);
         this.ensembl = new File(ensembl);
         this.threshold = threshold;
+        this.length = length;
     }
 
     /*
@@ -117,6 +118,11 @@ public class Mist extends SystemTask {
      */
     @Override
     protected Integer call() throws Exception {
+        println("MIST called with params:");
+        println("Input BAM = " + input.getAbsolutePath());
+        println("Threshold = " + threshold);
+        println("Length    = " + length);
+        println("Output    = " + output.getAbsolutePath());
         AtomicInteger iterations = new AtomicInteger(0);
         // Get contigs and their lengths from SAM header.
         Map<String, Integer> lengths = getChroms(input);
@@ -158,10 +164,10 @@ public class Mist extends SystemTask {
                     updateProgress(iterations.get(), lengths.size() + 1);
                 }
                 final int start = Integer.valueOf(row[3]);
-                final int length = row[9].length();
+                final int size = row[9].length();
                 try {
                     // Using genomic positions. Read NOTE at beginning.
-                    for (int i = start; i <= start + length; i++) {
+                    for (int i = start; i <= start + size; i++) {
                         depths[i]++;
                     }
                 } catch (ArrayIndexOutOfBoundsException ex) {
@@ -216,8 +222,8 @@ public class Mist extends SystemTask {
                 String[] row = line.split("\t");
                 if (row[0].startsWith("@SQ")) {
                     final String chr = row[1].substring(3);
-                    final int length = Integer.valueOf(row[2].substring(3));
-                    chroms.put(chr, length);
+                    final int size = Integer.valueOf(row[2].substring(3));
+                    chroms.put(chr, size);
                 }
             });
         } catch (IOException ex) {
@@ -236,30 +242,47 @@ public class Mist extends SystemTask {
      * @param output
      */
     private void storeChrom(String chr, int[] depths, File output) {
+        /*
+         We will read exons database and select only exons in the chromosome chr.
+         For each exon, we will put on WINDOW_SIZE positions below the start.
+         Then, we will start counting how many consecutive position fall under the threshold.
+         */
         try (BufferedReader in = new BufferedReader(new FileReader(ensembl))) {
             //Header out.
             fillEnsemblIndexes(in.readLine());
+            // Counts matches
             AtomicInteger c = new AtomicInteger(0);
+            // Counts exons affected
             AtomicInteger e = new AtomicInteger(0);
+            // Counts exons in the chromosome
             AtomicInteger et = new AtomicInteger(0);
-            boolean good;
+            boolean valid;
             int poor_start, poor_end;
             String line;
             while ((line = in.readLine()) != null) {
                 String[] exon = line.split("\t");
+                // If exon is in the same chromosome
                 if (exon[EXON_CHR].equals(chr)) {
                     et.incrementAndGet();
-                    final int start = Integer.valueOf(exon[EXON_START]) - WINDOW_SIZE;
+                    // We start WINDOW_SIZE positions over and below exon start and end
+                    int start = Integer.valueOf(exon[EXON_START]) - WINDOW_SIZE;
                     int end = Integer.valueOf(exon[EXON_END]) + WINDOW_SIZE;
+                    // Start must be crop to be positive
+                    if (start < 1) {
+                        start = 1;
+                    }
+                    // The end must be crop to not overflow chromosome
                     if (end >= depths.length) {
                         end = depths.length - 1;
                     }
                     int i = start;
-                    good = true;
+                    valid = true;
+                    // We start running through DPs vector
                     while (i <= end) {
                         if (depths[i] < threshold) {
-                            good = false;
-                            // Put start and end.
+                            // So we located the start of the poor region
+                            valid = false;
+                            // Put start and end
                             poor_start = i++;
                             try {
                                 while (depths[i] < threshold && i <= end) {
@@ -270,39 +293,44 @@ public class Mist extends SystemTask {
                                         "Some exons fall out of the chromosome %s (length=%d) %s",
                                         chr, depths.length, line));
                             }
+                            // i - 1, because i++ puts us on the next nucleotide
                             poor_end = i - 1;
-                            String[] outLine = new String[headers.length];
-                            outLine[OUT_CHR] = exon[EXON_CHR];
-                            outLine[OUT_EXON_START] = exon[EXON_START];
-                            outLine[OUT_EXON_END] = exon[EXON_END];
-                            outLine[OUT_POOR_START] = poor_start + "";
-                            outLine[OUT_POOR_END] = poor_end + "";
-                            outLine[OUT_EXON_ID] = exon[EXON_ID];
-                            outLine[OUT_EXON_NUMBER] = exon[EXON_N];
-                            outLine[OUT_GENE_ID] = exon[GENE_ID];
-                            outLine[OUT_GENE_NAME] = exon[GENE_NAME];
-                            outLine[OUT_GENE_BIO] = exon[GENE_BIO];
-                            outLine[OUT_TR_INFO] = exon[TRANS_INFO];
-                            outLine[OUT_TR_NAME] = exon[TRANS_NAME];
-                            boolean isLow = poor_start <= start + WINDOW_SIZE;
-                            boolean isHigh = poor_end >= end - WINDOW_SIZE;
-                            if (isHigh) {
-                                outLine[OUT_MATCH] = isLow ? OVERLAP : RIGHT;
-                            } else {
-                                outLine[OUT_MATCH] = isLow ? LEFT : INSIDE;
+                            // New condition: length
+                            if (poor_end + 1 - poor_start >= length) {
+                                String[] outLine = new String[headers.length];
+                                outLine[OUT_CHR] = exon[EXON_CHR];
+                                outLine[OUT_EXON_START] = exon[EXON_START];
+                                outLine[OUT_EXON_END] = exon[EXON_END];
+                                outLine[OUT_POOR_START] = poor_start + "";
+                                outLine[OUT_POOR_END] = poor_end + "";
+                                outLine[OUT_EXON_ID] = exon[EXON_ID];
+                                outLine[OUT_EXON_NUMBER] = exon[EXON_N];
+                                outLine[OUT_GENE_ID] = exon[GENE_ID];
+                                outLine[OUT_GENE_NAME] = exon[GENE_NAME];
+                                outLine[OUT_GENE_BIO] = exon[GENE_BIO];
+                                outLine[OUT_TR_INFO] = exon[TRANS_INFO];
+                                outLine[OUT_TR_NAME] = exon[TRANS_NAME];
+                                boolean isLow = poor_start <= start + WINDOW_SIZE;
+                                boolean isHigh = poor_end >= end - WINDOW_SIZE;
+                                if (isHigh) {
+                                    outLine[OUT_MATCH] = isLow ? OVERLAP : RIGHT;
+                                } else {
+                                    outLine[OUT_MATCH] = isLow ? LEFT : INSIDE;
+                                }
+                                writeLine(output, outLine);
+                                c.incrementAndGet();
                             }
-                            writeLine(output, outLine);
-                            c.incrementAndGet();
                         } else {
+                            // Everything is ok, no poor region for now
                             i++;
                         }
                     }
-                    if (!good) {
+                    if (!valid) {
                         e.incrementAndGet();
                     }
                 }
             }
-            println(String.format("%d matches in %d/%d exons.", c.get(), e.get(), et.get()));
+            println(String.format("%6d matches in %6d / %6d exons", c.get(), e.get(), et.get()));
 //            println(c.get() + " matches in " + e.get() + "/" + et.get() + " exons.");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);

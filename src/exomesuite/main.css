@@ -104,3 +104,7 @@
 .root {
     -fx-background-color: white;
 }
+
+.text-area {
+    -fx-font: 1em monospace;
+}
