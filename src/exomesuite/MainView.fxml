@@ -42,27 +42,19 @@
             <children>
                 <MenuBar xmlns:fx="http://javafx.com/fxml">
                     <menus>
-                        <Menu mnemonicParsing="false" text="Project">
+                        <Menu mnemonicParsing="true" text="_Menu">
                             <items>
                                 <MenuItem fx:id="openMenu" text="Open project" />
                                 <MenuItem fx:id="newMenu" text="New project" />
                                 <MenuItem fx:id="databaseMenu" text="Select databases" />
+                                <SeparatorMenuItem />
+                                <MenuItem fx:id="openFile" text="Open file" />
                             </items>
                         </Menu>
-                        <Menu text="TSV">
+                        <Menu text="_Operations" mnemonicParsing="true" >
                             <items>
-                                <MenuItem fx:id="openTSV" text="Open file" />
-                            </items>
-                        </Menu>
-                        <Menu text="VCF">
-                            <items>
-                                <MenuItem fx:id="openVCFMenu" text="Open VCF"/>
                                 <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>
-                            </items>
-                        </Menu>
-                        <Menu text="MIST">
-                            <items>
-                                <MenuItem fx:id="intersectMIST" text="Intersect"/>
+                                <MenuItem fx:id="intersectMIST" text="Combine MIST"/>
                             </items>
                         </Menu>
                     </menus>

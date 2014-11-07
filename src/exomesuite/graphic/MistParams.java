@@ -24,9 +24,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
 /**
- * FXML Controller class
+ * FXML Controller class. The controller of the windows with the parameters for the MIST call.
+ * Parameters are passed out using a Properties element with keys "threshold", "input" and "length".
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class MistParams {
 
@@ -45,8 +46,8 @@ public class MistParams {
      * Initializes the controller class.
      */
     public void initialize() {
-        bamFile.setOnValueChanged(e -> enableAccept());
         accept.setDisable(true);
+        bamFile.setOnValueChanged(e -> enableAccept());
         accept.setOnAction(e -> accept(e));
     }
 
@@ -70,6 +71,11 @@ public class MistParams {
         closeEvent = eventHandler;
     }
 
+    /**
+     * Get the parameters values in a Properties object. Keys are "threshold", "length" and "input".
+     *
+     * @return a Properties object with the parameters
+     */
     public Properties getProperties() {
         Properties properties = new Properties();
         properties.setProperty("threshold", threshold.getValue());

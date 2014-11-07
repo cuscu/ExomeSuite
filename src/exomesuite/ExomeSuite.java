@@ -25,8 +25,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 /**
- * Main launcher of the app. Creates the main window and launches it. It also manages the onClose
- * event for this window to prevent from closing without asking user.
+ * Main launcher of the app. Creates the main window and launches it.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -37,7 +36,6 @@ public class ExomeSuite extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         testVars();
-//        new TestMySQL().start();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
         Parent root = loader.load();
         MainViewController controller = loader.getController();
@@ -69,6 +67,9 @@ public class ExomeSuite extends Application {
         return mainStage;
     }
 
+    /**
+     * Prints System params
+     */
     private void testVars() {
         final String[] ps = new String[]{
             "java.class.path",

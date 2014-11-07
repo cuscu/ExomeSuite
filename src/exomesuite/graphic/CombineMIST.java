@@ -20,6 +20,7 @@ import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,9 +36,9 @@ import javafx.scene.control.ListView;
 import org.controlsfx.dialog.Dialogs;
 
 /**
- * FXML Controller class
+ * FXML Controller class. The window to intersect MIST files.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class CombineMIST {
 
@@ -46,109 +47,155 @@ public class CombineMIST {
     @FXML
     private FlatButton addButton;
     @FXML
-    private Parameter outputParam;
+    private Parameter output;
     @FXML
     private FlatButton startButton;
-    final int compareColumn = 8;
-    String[] header;
-    List<String[]> lines;
-    Set<String>[] inputKeys;
+
+    /**
+     * The field that contains the EXON_ID
+     */
+    private final int ID_COLUMN = 8;
+    /**
+     * The field that contains the start_poor
+     */
+    private final int START_POOR = 3;
+    /**
+     * The field that contains the end_poor
+     */
+    private final int END_POOR = 4;
+    /**
+     * The field that contains the match
+     */
+    private final int MATCH = 12;
+    /**
+     * Header line must not mutate
+     */
+    private final String[] HEADER = {"chrom", "exon_start", "exon_end", "poor_start", "poor_end",
+        "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "transcript_info",
+        "gene_biotype", "match"};
 
     /**
      * Initializes the controller class.
      */
     @FXML
     public void initialize() {
+        // The add Button can add multilpe files.
         addButton.setOnAction(e -> {
             List<File> f = FileManager.openFiles("Select MIST", FileManager.MIST_FILTER,
                     FileManager.ALL_FILTER);
-            fileList.getItems().addAll(f);
+            if (f != null) {
+                fileList.getItems().addAll(f);
+            }
         });
+        // The start Button is disable until user selects an output file.
         startButton.setDisable(true);
-        outputParam.setOnValueChanged(e -> startButton.setDisable(false));
-        startButton.setOnAction(e -> intersect());
+        output.setOnValueChanged(e -> startButton.setDisable(false));
+        startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getValue())));
     }
 
-    private void intersect() {
-        List<File> inputs = fileList.getItems();
-        File output = new File(outputParam.getValue());
-        AtomicInteger c = new AtomicInteger();
-        AtomicInteger m = new AtomicInteger();
+    /**
+     * The main method of the intersection. Reads each file and finds which lines contain the same
+     * exon for all of them.
+     */
+    private void intersect(List<File> inputs, File output) {
 
-        // Voy a ordenar los ficheros por exon_id y guardar ya la info minima
-        loadMaps(inputs);
+        // Let's count the matches so the user will see it in the 'Everything went OK' dialog.
+        final AtomicInteger m = new AtomicInteger();
+        // The firs file includes the lines with the exons info.
+        final List<String[]> refFile = readExons(inputs.get(0));
+        // For the rest of files only store the IDs.
+        final List<Set<String>> files = new ArrayList<>();
+        // Muahahaha, parallel reading of the rest of files.
+        inputs.subList(1, inputs.size()).parallelStream().forEach(f -> files.add(readExonsID(f)));
 
+        // Runs over refFile and checks if the exon_id is contained in the rest of files
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(output))) {
-            printLine(bw, header);
-            for (String[] row : lines) {
-                final String id = row[compareColumn];
+            printLine(bw, HEADER);
+            for (String[] row : refFile) {
+                // the NO-CONDITION algorithm. Look for someone who does not have it.
                 boolean match = true;
-                for (Set s : inputKeys) {
-                    if (!s.contains(id)) {
+                for (Set s : files) {
+                    if (!s.contains(row[ID_COLUMN])) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    row[3] = ".";
-                    row[4] = ".";
-                    row[12] = ".";
+                    // This fields are set to .
+                    row[START_POOR] = ".";
+                    row[END_POOR] = ".";
+                    row[MATCH] = ".";
                     printLine(bw, row);
                     m.incrementAndGet();
-
                 }
-//                if (c.incrementAndGet() % 1000 == 0) {
-//                    System.out.println(c + " lines (" + m + " matches)");
-//                }
             }
         } catch (Exception ex) {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Dialogs.create().title("Completed").message("File " + output + " generated").
-                showInformation();
+        Dialogs.create().title("Completed").message("File " + output + " generated. " + m
+                + " matches found in " + inputs.size() + " files.").showInformation();
     }
 
     /**
-     * Guarda en inputMaps los ficheros ordenados por compareColumn, sin repetidos (se guarda el
-     * último)
+     * Reads a MIST file a returns a <code>List<String[]></code> with all of the lines split by \t.
+     * Lines with the same exon are excluded.
      *
-     * @param input
+     * @param file The file to read
+     * @return a list with line.split("\t")
      */
-    private void loadMaps(List<File> input) {
-        inputKeys = new Set[input.size()];
-        lines = new ArrayList<>();
-        // Se lee cada ficehro de entrada
-        for (int i = 0; i < input.size(); i++) {
-            inputKeys[i] = new TreeSet<>();
-            final Set<String> set = inputKeys[i];
-            try (BufferedReader reader = new BufferedReader(new FileReader(input.get(i)))) {
-                if (i == 0) {
-                    header = reader.readLine().split("\t");
-                    reader.lines().forEach(line -> {
-                        String[] row = line.split("\t");
-                        String id = row[compareColumn];
-                        if (!set.contains(id)) {
-                            lines.add(row);
-                            set.add(id);
-                        }
-                    });
-                } else {
-                    reader.lines().forEach(line -> {
-                        String[] row = line.split("\t");
-                        String id = row[compareColumn];
-                        if (!set.contains(id)) {
-                            set.add(id);
-                        }
-                    });
-
+    private List<String[]> readExons(File file) {
+        final List<String[]> exons = new ArrayList<>();
+        final Set<String> ids = new TreeSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            // Skip HEADER
+            reader.readLine();
+            reader.lines().forEach(line -> {
+                final String[] row = line.split("\t");
+                final String id = row[ID_COLUMN];
+                // Put only genuine lines.
+                if (ids.add(id)) {
+                    exons.add(row);
                 }
-            } catch (Exception e) {
-                Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, e, null);
-            }
+            });
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return exons;
     }
 
+    /**
+     * Reads a MIST file and returns a Set<String> with all of the unique exon_ids that file
+     * contains.
+     *
+     * @param file the MIST file to read
+     * @return a Set with all unique identifiers
+     */
+    private Set<String> readExonsID(File file) {
+        final Set<String> ids = new TreeSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            // Skip HEADER
+            reader.readLine();
+            reader.lines().forEach(line -> ids.add(line.split("\t")[ID_COLUMN]));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ids;
+    }
+
+    /**
+     * Prints a String[] in a BufferedWriter, separating values by TAB (\t) and adds a line
+     * separator.
+     *
+     * @param bw The bufferedWriter to write. Often associated to a FileWriter.
+     * @param row The String [] to write.
+     * @throws IOException when problems with the BufferedWriter.
+     */
     private void printLine(BufferedWriter bw, String[] row) throws IOException {
+        // First field does not have \t prefix.
         bw.write(row[0]);
         for (int i = 1; i < row.length; i++) {
             bw.write("\t" + row[i]);

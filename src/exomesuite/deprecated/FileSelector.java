@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 uichuimi03
+ * Copyright (C) 2014 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.deprecated;
 
+import exomesuite.graphic.FlatButton;
 import exomesuite.utils.FileManager;
 import java.io.File;
 import java.io.IOException;
@@ -35,10 +36,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 /**
- * A GUI to open Files or Directories. It overrides an HBox, which contains a VBox which contains a
- * HBox which contains a TextField and a Button. A label can be
+ * A GUI to open Files or Directories. It overrides a VBox which contains a HBox which contains a
+ * TextField and a Button.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
+ * @deprecated (Use Parameter instead)
  */
 public class FileSelector extends VBox {
 
@@ -57,11 +59,6 @@ public class FileSelector extends VBox {
      */
     @FXML
     private FlatButton button;
-//    /**
-//     * A tricky VBox when the label is on top.
-//     */
-//    @FXML
-//    private VBox vBox;
     /**
      * A tricky HBox when the label is on the left.
      */

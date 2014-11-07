@@ -81,14 +81,6 @@ public class Project {
          */
         SEQUENCING_PLATFORM,
         /**
-         * The alignments file.
-         */
-        BAM_FILE,
-        /**
-         * File containing variants
-         */
-        VCF_FILE,
-        /**
          * Mist analysis threshold
          */
         THRESHOLD,
@@ -260,7 +252,10 @@ public class Project {
     }
 
     public boolean addListener(ProjectListener listener) {
-        return listeners.add(listener);
+        if (!listeners.contains(listener)) {
+            return listeners.add(listener);
+        }
+        return false;
     }
 
     public boolean removeListener(ProjectListener listener) {

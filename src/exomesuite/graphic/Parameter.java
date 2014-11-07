@@ -40,8 +40,9 @@ import javafx.stage.FileChooser;
 import org.controlsfx.dialog.Dialogs;
 
 /**
+ * My favourite monster. I do not know if I should create subclasses.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class Parameter extends VBox {
 

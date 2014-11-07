@@ -28,8 +28,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 
 /**
+ * A FlatButton is the standard Button in ExomeSuite. They are styled in the same way.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class FlatButton extends Button {
 
@@ -47,6 +48,12 @@ public class FlatButton extends Button {
         setBackground(Background.EMPTY);
     }
 
+    /**
+     * Creates a new FlatButton. iconName is the name of a file in the exomesuite/img Folder.
+     *
+     * @param iconName the icon from the exomesuite/img folder
+     * @param tooltip a text for the tooltip or null if no tooltip wanted
+     */
     public FlatButton(String iconName, String tooltip) {
         super(null, new ImageView("exomesuite/img/" + iconName));
         if (tooltip != null && !tooltip.isEmpty()) {
@@ -55,18 +62,30 @@ public class FlatButton extends Button {
         setBackground(Background.EMPTY);
     }
 
-//    public String getIcon() {
-//        return this.getGraphic().toString();
-//    }
+    /**
+     * Changes the icon of the button.
+     *
+     * @param iconName the icon from exomesuite/img
+     */
     public void setIcon(String iconName) {
         setGraphic(new ImageView("exomesuite/img/" + iconName));
         icon.set(iconName);
     }
 
+    /**
+     * Returns the property of the name of the icon.
+     *
+     * @return the property of the name of the icon.
+     */
     public StringProperty getIconProperty() {
         return icon;
     }
 
+    /**
+     * Gets the name of the icon.
+     *
+     * @return the name of the icon
+     */
     public String getIcon() {
         return icon.get();
     }

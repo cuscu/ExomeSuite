@@ -31,6 +31,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Paint;
 
 /**
+ * Horizontal line with a label in the center. Useful to separete things. It is like a separator but
+ * with a title.
  *
  * @author Pascual Lorente Arencibia
  */

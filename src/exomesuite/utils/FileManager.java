@@ -29,7 +29,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class FileManager {
+public final class FileManager {
 
     /**
      * Filters SAM or BAM files (.bam and .sam)
@@ -335,6 +335,31 @@ public class FileManager {
      */
     public static File getUserPath() {
         return USER_PATH;
+    }
+
+    /**
+     * Deletes this file/directory and, if recursive is true and it is a directory, everything
+     * inside it.
+     *
+     * @param file the file or directory to remove
+     * @param recursive
+     * @return
+     */
+    public static boolean delete(File file, boolean recursive) {
+        if (recursive) {
+            if (file.isDirectory()) {
+                for (File f : file.listFiles()) {
+                    if (!delete(f, recursive)) {
+                        return false;
+                    }
+                }
+                return file.delete();
+            } else {
+                return file.delete();
+            }
+        } else {
+            return file.delete();
+        }
     }
 
 }

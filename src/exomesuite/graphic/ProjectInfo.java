@@ -20,10 +20,8 @@ import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.SystemTask;
-import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
-import exomesuite.vcfreader.VCFTable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,17 +36,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Dialogs;
 
 /**
- * Shows properties of a project.
+ * Shows properties of a project. When a property is changed, changes it on the project.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class ProjectInfo extends VBox implements ProjectListener {
 
@@ -68,10 +64,6 @@ public class ProjectInfo extends VBox implements ProjectListener {
     private Parameter encoding;
     @FXML
     private Parameter genome;
-    @FXML
-    private Parameter alignments;
-    @FXML
-    private Parameter variants;
     @FXML
     private ListView<String> files;
     @FXML
@@ -112,16 +104,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
                 encoding.getValue()));
         genome.setOnValueChanged(event -> project.setProperty(Project.PropertyName.REFERENCE_GENOME,
                 genome.getValue()));
-//        alignments.addExtensionFilter(FileManager.SAM_FILTER);
-//        alignments.setOnValueChanged(event
-//                -> project.setProperty(Project.PropertyName.BAM_FILE, alignments.getValue()));
-//        variants.addExtensionFilter(FileManager.VCF_FILTER);
-//        variants.setOnValueChanged(event
-//                -> project.setProperty(Project.PropertyName.VCF_FILE, variants.getValue()));
-//        path.setDisable(true);
-
         files.setContextMenu(getFilesContextMenu());
-        // humm, with only one file I cannot listen to chagnes in selected item.
         files.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                 showFile();
@@ -148,9 +131,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
             encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING, ""));
             genome.setOptions(OS.getSupportedReferenceGenomes());
             genome.setValue(project.getProperty(Project.PropertyName.REFERENCE_GENOME, ""));
-//            alignments.setValue(project.getProperty(Project.PropertyName.BAM_FILE, ""));
-//            variants.setValue(project.getProperty(Project.PropertyName.VCF_FILE, ""));
             files.getItems().clear();
+            // Extra files are stored separated by ;
             String fs = project.getProperty(Project.PropertyName.FILES);
             if (fs != null && !fs.isEmpty()) {
                 files.getItems().setAll(Arrays.asList(fs.split(";")));
@@ -158,17 +140,19 @@ public class ProjectInfo extends VBox implements ProjectListener {
         }
     }
 
+    /**
+     * Opens a dialog to select a File and, if not null, adds it to the project.
+     */
     private void addFile() {
         File f = FileManager.openFile("Select a file", FileManager.ALL_FILTER);
-        if (f != null && !files.getItems().contains(f.getAbsolutePath())) {
-            files.getItems().add(f.getAbsolutePath());
-            // Add file to properties
-            String fils = project.getProperty(Project.PropertyName.FILES, "");
-            fils += f.getAbsolutePath() + ";";
-            project.setProperty(Project.PropertyName.FILES, fils);
+        if (f != null) {
+            project.addExtraFile(f.getAbsolutePath());
         }
     }
 
+    /**
+     * When user double clicks on a File, tries to open it in the working area.
+     */
     private void showFile() {
         String f = files.getSelectionModel().getSelectedItem();
         if (!SystemTask.tripleCheck(f)) {
@@ -177,27 +161,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
             return;
         }
         File file = new File(f);
-        TabPane wa = MainViewController.getWorkingArea();
-        // If it is already open, do not open another tab, do not be a spammer
-        for (Tab t : wa.getTabs()) {
-            if (t.getText().equals(file.getName())) {
-                wa.getSelectionModel().select(t);
-                return;
-            }
-        }
-        Tab t = new Tab(file.getName());
-        // Use TSV only on TSV files
-        if (f.endsWith(".tsv") || f.endsWith(".txt") || f.endsWith(".mist")) {
-            t.setContent(new TSVReader(file).get());
-        } else if (f.endsWith(".vcf")) {
-            VCFTable vCFTable = new VCFTable();
-            vCFTable.setFile(file);
-            t.setContent(vCFTable);
-        } else {
-            return;
-        }
-        MainViewController.getWorkingArea().getTabs().add(t);
-        MainViewController.getWorkingArea().getSelectionModel().select(t);
+        MainViewController.showFileContent(file);
     }
 
     private void removeFile() {
@@ -257,12 +221,6 @@ public class ProjectInfo extends VBox implements ProjectListener {
     public void projectChanged(Project.PropertyName property) {
         // Outside ProjectInfo, only a few properties can be changed.
         switch (property) {
-            case BAM_FILE:
-                alignments.setValue(project.getProperty(Project.PropertyName.BAM_FILE, ""));
-                break;
-            case VCF_FILE:
-                variants.setValue(project.getProperty(Project.PropertyName.VCF_FILE, ""));
-                break;
             case FILES:
                 files.getItems().clear();
                 String fs = project.getProperty(Project.PropertyName.FILES);

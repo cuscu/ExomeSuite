@@ -23,6 +23,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 
 /**
+ * Cell of the VCFReader.
  *
  * @author Pascual Lorente Arencibia
  */

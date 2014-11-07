@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -60,7 +59,8 @@ import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
 
 /**
- * Controller class for the main window. Manages projects, adds tabs to the
+ * Controller class for the main window. Manages projects (open, close, create, delete...), adds
+ * tabs to the rigth panel.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -75,18 +75,11 @@ public class MainViewController {
     @FXML
     private FlowPane toolBar;
     @FXML
-    private MenuItem openTSV;
-    @FXML
-    private MenuItem openVCFMenu;
+    private MenuItem openFile;
     @FXML
     private MenuItem combineVCFMenu;
     @FXML
     private MenuItem intersectMIST;
-    /**
-     * The table where all the opened projects are listed.
-     */
-//    @FXML
-//    private ProjectTable projectTable;
     @FXML
     private ProjectList projectList;
     /**
@@ -123,11 +116,6 @@ public class MainViewController {
         mainProgress = progress;
         infoLabel = info;
         staticWorkingArea = workingArea;
-//        FlatButton download = new FlatButton("download.png", "Download something");
-//        actionButtons.getChildren().add(download);
-//        download.setOnAction((ActionEvent event) -> {
-//            OS.downloadSomething(this);
-//        });
         // Open recently opened projects
         final String openedProjects = OS.getProperty("projects");
         if (openedProjects != null && !openedProjects.isEmpty()) {
@@ -178,34 +166,34 @@ public class MainViewController {
      */
     private void setMenus() {
         // Open menu
-        openMenu.setOnAction((ActionEvent event) -> openProject(FileManager.openFile("Config file",
+        openMenu.setOnAction(e -> openProject(FileManager.openFile("Config file",
                 FileManager.CONFIG_FILTER)));
         openMenu.setGraphic(new ImageView("exomesuite/img/open.png"));
         openMenu.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         // New menu
-        newMenu.setOnAction((ActionEvent event) -> showNewPane());
+        newMenu.setOnAction(e -> showNewPane());
         newMenu.setGraphic(new ImageView("exomesuite/img/add.png"));
         newMenu.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         // Databases menu
-        databaseMenu.setOnAction(event -> showDatabasesPane());
+        databaseMenu.setOnAction(e -> showDatabasesPane());
         databaseMenu.setGraphic(new ImageView("exomesuite/img/database.png"));
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         // Open TSV
-        openTSV.setOnAction((ActionEvent event) -> openTSV());
+        openFile.setOnAction(e -> openFile());
         // VCF menu
-        openVCFMenu.setOnAction((ActionEvent event) -> openVCF());
-        combineVCFMenu.setOnAction((ActionEvent event) -> combineVCF());
+        combineVCFMenu.setOnAction(e -> combineVCF());
+        // Mist Menu
         intersectMIST.setOnAction(e -> combineMIST());
     }
 
     private void setToolBar() {
         Button open = new ToolBarButton("open.png", "Open project... Ctrl+O", "Open");
-        open.setOnAction((ActionEvent event) -> openProject(FileManager.openFile("Config file",
+        open.setOnAction(e -> openProject(FileManager.openFile("Config file",
                 FileManager.CONFIG_FILTER)));
         Button newProject = new ToolBarButton("add.png", "New project... Ctrl+N", "New");
-        newProject.setOnAction((ActionEvent event) -> showNewPane());
+        newProject.setOnAction(e -> showNewPane());
         Button db = new ToolBarButton("database.png", "Select databases... Ctrl+D", "Databases");
-        db.setOnAction((ActionEvent event) -> showDatabasesPane());
+        db.setOnAction(e -> showDatabasesPane());
 
         toolBar.getChildren().addAll(open, newProject, db);
     }
@@ -264,6 +252,7 @@ public class MainViewController {
         stage.setWidth(800);
         stage.setHeight(400);
         stage.setScene(scene);
+        stage.centerOnScreen();
         stage.setTitle("Databases manager");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
@@ -274,22 +263,32 @@ public class MainViewController {
 
     }
 
-    private void openTSV() {
-        File f = FileManager.openFile("Choose any file", FileManager.MIST_FILTER,
-                FileManager.TSV_FILTER,
-                FileManager.ALL_FILTER);
-        if (f != null) {
-///            new TSVReader(f).show();
-            Tab t = new Tab(f.getName());
-            t.setContent(new TSVReader(f).get());
-            workingArea.getTabs().add(t);
-        }
+    private void openFile() {
+        File f = FileManager.openFile("Choose any file", FileManager.ALL_FILTER);
+        showFileContent(f);
     }
 
-    private void openVCF() {
-        File f = FileManager.openFile("Select a VCF file", FileManager.VCF_FILTER);
-        if (f != null) {
-            new VCFReader(f).show();
+    public static void showFileContent(File file) {
+        if (file != null) {
+            for (Tab t : staticWorkingArea.getTabs()) {
+                if (t.getText().equals(file.getName())) {
+                    staticWorkingArea.getSelectionModel().select(t);
+                    return;
+                }
+            }
+            Tab t = new Tab(file.getName());
+            if (file.getName().endsWith(".tsv") || file.getName().endsWith(".mist")) {
+                t.setContent(new TSVReader(file).get());
+            } else if (file.getName().endsWith(".vcf")) {
+                t.setContent(new VCFReader(file).getView());
+                //VCFTable vCFTable = new VCFTable();
+                //vCFTable.setFile(file);
+                //t.setContent(vCFTable);
+            } else {
+                return;
+            }
+            staticWorkingArea.getTabs().add(t);
+            staticWorkingArea.getSelectionModel().select(t);
         }
     }
 
@@ -308,8 +307,8 @@ public class MainViewController {
     void closeWindow() {
         String projects = "";
         projects = projectList.getItems().stream().
-                map((p) -> p.getConfigFile().getAbsolutePath() + ";").
-                reduce(projects, String::concat);
+                map((p) -> p.getConfigFile().getAbsolutePath() + ";").reduce(projects,
+                        String::concat);
         OS.setProperty("projects", projects);
     }
 

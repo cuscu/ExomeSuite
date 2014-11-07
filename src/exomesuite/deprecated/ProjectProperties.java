@@ -16,8 +16,6 @@
  */
 package exomesuite.deprecated;
 
-import exomesuite.graphic.ProjectTable;
-import exomesuite.graphic.PropertyCell;
 import exomesuite.project.Project;
 import exomesuite.project.Project.PropertyName;
 import java.io.IOException;

@@ -16,7 +16,6 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.graphic.FlatButton;
 import javafx.scene.control.ContentDisplay;
 
 /**

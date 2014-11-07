@@ -27,41 +27,6 @@
                 <Parameter name="Reference genome" fx:id="genome" type="OPTIONS" HBox.hgrow="ALWAYS"  />
             </children>
         </HBox>
-
-        <!--
-        <GridPane hgap="3" vgap="3" alignment="TOP_CENTER">
-            <columnConstraints>
-                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="SOMETIMES" />
-                <ColumnConstraints fillWidth="true" halignment="LEFT" hgrow="ALWAYS"  />
-            </columnConstraints>
-            <children>
-                <SectionTitle GridPane.rowIndex="0" GridPane.columnSpan="2"  title="General options" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" text="Code"/>
-                <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="code" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" text="Name" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="name" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" text="Path" />
-                <FileSelector GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="path" openPath="true" textPosition="LEFT"  />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" text="Description" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="description" />
-
-                <SectionTitle title="Original data" GridPane.rowIndex="5" GridPane.columnSpan="2"  />
-                <Label text="Forward sequences" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                <FileSelector fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="6" textPosition="LEFT" />
-                <Label text="Reverse sequences" GridPane.columnIndex="0" GridPane.rowIndex="7" />
-                <FileSelector fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="7" textPosition="LEFT" />
-                <Label text="Encoding" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
-                <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
-                <Label text="Genome" GridPane.columnIndex="0" GridPane.rowIndex="9"/>
-                <ComboBox fx:id="genome" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
-
-                <SectionTitle title="Processed data" GridPane.rowIndex="10" GridPane.columnSpan="2"  />
-                <Label text="Alignments" GridPane.columnIndex="0" GridPane.rowIndex="11" />
-                <FileSelector fx:id="alignments" textPosition="LEFT" GridPane.columnIndex="1" GridPane.rowIndex="11" promptText="Select SAM/BAM or run align." />
-                <Label text="Variants" GridPane.columnIndex="0" GridPane.rowIndex="12"/>
-                <FileSelector fx:id="variants" GridPane.columnIndex="1" GridPane.rowIndex="12" textPosition="LEFT" promptText="Select VCF file or run 'call variants'" />
-            </children>
-        </GridPane> -->
         <SectionTitle title="Processed data" />
         <Button fx:id="addButton" text="Add a file"/>
         <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />

@@ -49,7 +49,7 @@ public class RecalibrateAction extends Action {
         final String temp = OS.getTempDir();
         String name = project.getProperty(Project.PropertyName.CODE);
         // Input = path/code.vcf
-        final String input = project.getProperty(Project.PropertyName.VCF_FILE);
+        final String input = project.getProperty(Project.PropertyName.CODE) + ".vcf";
         // Output = path/recal/name.vcf
         output = project.getProperty(Project.PropertyName.PATH) + File.separator
                 + project.getProperty(Project.PropertyName.CODE) + "_recal.vcf";

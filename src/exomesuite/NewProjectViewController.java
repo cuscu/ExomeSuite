@@ -26,7 +26,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 
 /**
@@ -65,7 +64,8 @@ public class NewProjectViewController {
      */
     public void initialize() {
         root.getStylesheets().add("/exomesuite/main.css");
-        code.setOnKeyTyped((KeyEvent event) -> updateFolder());
+        // Updates the created folder name as user types the name
+        code.setOnKeyTyped(e -> updateFolder());
         forward.addExtensionFilter(FileManager.FASTQ_FILTER);
         reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
         path.setOnValueChanged((EventHandler) (Event event) -> updateFolder());

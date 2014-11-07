@@ -23,7 +23,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
 /**
- * FXML Controller class
+ * FXML Controller class. This is the windows when user wants to Call Variants in a project.
  *
  * @author Pascual Lorente Arencibia
  */

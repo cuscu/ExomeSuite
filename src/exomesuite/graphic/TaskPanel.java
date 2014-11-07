@@ -25,7 +25,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
 /**
- * FXML Controller class
+ * FXML Controller class. Node of a process in the working area.
  *
  * @author Pascual Lorente Arencibia {pasculorente@gmail.com}
  */

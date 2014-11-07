@@ -5,7 +5,5 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<fx:root type="javafx.scene.control.Button" xmlns:fx="http://javafx.com/fxml/1">
-    
-</fx:root>
+<!-- Needed in order to use it on other FXML documents -->
+<fx:root type="javafx.scene.control.Button" xmlns:fx="http://javafx.com/fxml/1"/>

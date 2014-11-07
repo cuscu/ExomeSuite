@@ -17,6 +17,7 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Project;
+import exomesuite.utils.FileManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -38,10 +39,13 @@ import org.controlsfx.dialog.Dialogs;
 
 /**
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class ProjectList extends ListView<Project> {
 
+    /**
+     * Custom control standard constructor
+     */
     public ProjectList() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectList.fxml"));
         loader.setController(this);
@@ -56,22 +60,33 @@ public class ProjectList extends ListView<Project> {
     @FXML
     private void initialize() {
         setPlaceholder(new Label("Open or create a project."));
+        // Context menu
         MenuItem close = new MenuItem("Close project", new ImageView("exomesuite/img/cancel4.png"));
         MenuItem delete = new MenuItem("Delete project", new ImageView("exomesuite/img/delete.png"));
+        close.setOnAction(event -> close(getSelectionModel().getSelectedItem()));
+        delete.setOnAction(event -> delete(getSelectionModel().getSelectedItem()));
         final ContextMenu contextMenu = new ContextMenu(close, delete);
         setContextMenu(contextMenu);
-        close.setOnAction(event -> closeProject());
-        delete.setOnAction(event -> deleteProject());
-        setCellFactory(param -> new MyCell());
+        // Cell factory
+        setCellFactory(p -> new MyCell());
         setEditable(false);
     }
 
-    void closeProject() {
-        getItems().remove(getSelectionModel().getSelectedIndex());
+    /**
+     * Removes from list the given project
+     *
+     * @param project the project to remove from list
+     */
+    private void close(Project project) {
+        getItems().remove(project);
     }
 
-    void deleteProject() {
-        Project project = getSelectionModel().getSelectedItem();
+    /**
+     * Deletes the selected project and asks user for removing the whole folder.
+     *
+     * @param project
+     */
+    private void delete(Project project) {
         if (project != null) {
             // Ask user to remove folder content
             File path = new File(project.getProperty(Project.PropertyName.PATH));
@@ -81,32 +96,18 @@ public class ProjectList extends ListView<Project> {
                     .showConfirm();
             if (showConfirm == Dialog.ACTION_NO) {
                 config.delete();
-                getItems().remove(getSelectionModel().getSelectedIndex());
+                getItems().remove(project);
             } else if (showConfirm == Dialog.ACTION_YES) {
                 config.delete();
-                delete(path, true);
-                getItems().remove(getSelectionModel().getSelectedIndex());
+                FileManager.delete(path, true);
+                getItems().remove(project);
             }
         }
     }
 
-    private boolean delete(File file, boolean recursive) {
-        if (recursive) {
-            if (file.isDirectory()) {
-                for (File f : file.listFiles()) {
-                    if (!delete(f, recursive)) {
-                        return false;
-                    }
-                }
-                return file.delete();
-            } else {
-                return file.delete();
-            }
-        } else {
-            return file.delete();
-        }
-    }
-
+    /**
+     * Cells for the list, they include buttons to delete or close the projects.
+     */
     private class MyCell extends ListCell<Project> {
 
         private final FlatButton delete = new FlatButton("delete.png", "Delete project");
@@ -119,9 +120,8 @@ public class ProjectList extends ListView<Project> {
             box.setAlignment(Pos.CENTER_RIGHT);
             box.setMaxWidth(Double.MAX_VALUE);
             setMaxWidth(Double.MAX_VALUE);
-            delete.setOnAction(event -> deleteProject());
-            close.setOnAction(event -> closeProject());
-
+            delete.setOnAction(event -> delete(project));
+            close.setOnAction(event -> close(project));
         }
 
         @Override

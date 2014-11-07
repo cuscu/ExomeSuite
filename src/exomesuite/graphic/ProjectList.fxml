@@ -6,6 +6,4 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root type="javafx.scene.control.ListView" xmlns:fx="http://javafx.com/fxml/1" styleClass="projectList" >
-
-</fx:root>
+<fx:root type="javafx.scene.control.ListView" xmlns:fx="http://javafx.com/fxml/1" styleClass="projectList"/>

@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author uichuimi03
+ * @author (duh)
  */
 public class TestMySQL {
 

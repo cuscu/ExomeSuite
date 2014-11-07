@@ -21,16 +21,15 @@ import exomesuite.utils.OS;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 
 /**
- * FXML Controller class
+ * FXML Controller class. Manages the databases windows. These databases are: the reference genomes,
+ * the Ensembl exons and some important VCFs with 1000G or other sites variants.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class Databases extends VBox {
 
@@ -83,58 +82,50 @@ public class Databases extends VBox {
             mills.setValue(OS.getProperty(MILLS));
         }
         mills.addExtensionFilter(FileManager.VCF_FILTER);
-        mills.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(MILLS, mills.getValue()));
+        mills.setOnValueChanged(e -> OS.setProperty(MILLS, mills.getValue()));
         // OMNI
         if (OS.containsKey(OMNI)) {
             omni.setValue(OS.getProperty(OMNI));
         }
         omni.addExtensionFilter(FileManager.VCF_FILTER);
-        omni.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(OMNI, omni.getValue()));
+        omni.setOnValueChanged(e -> OS.setProperty(OMNI, omni.getValue()));
         // dbSNP
         if (OS.containsKey(DBSNP)) {
             dbsnp.setValue(OS.getProperty(DBSNP));
         }
         dbsnp.addExtensionFilter(FileManager.VCF_FILTER);
-        dbsnp.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(DBSNP, dbsnp.getValue()));
+        dbsnp.setOnValueChanged(e -> OS.setProperty(DBSNP, dbsnp.getValue()));
         // Hapmap
         if (OS.containsKey(HAPMAP)) {
             hapmap.setValue(OS.getProperty(HAPMAP));
         }
         hapmap.addExtensionFilter(FileManager.VCF_FILTER);
-        hapmap.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(HAPMAP, hapmap.getValue()));
+        hapmap.setOnValueChanged(e -> OS.setProperty(HAPMAP, hapmap.getValue()));
         // Phase 1
         if (OS.containsKey(PHASE1)) {
             phase1.setValue(OS.getProperty(PHASE1));
         }
         phase1.addExtensionFilter(FileManager.VCF_FILTER);
-        phase1.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(PHASE1, phase1.getValue()));
+        phase1.setOnValueChanged(e -> OS.setProperty(PHASE1, phase1.getValue()));
         // Ensembl
         if (OS.containsKey(ENSMEBL)) {
             ensembl.setValue(OS.getProperty(ENSMEBL));
         }
         ensembl.addExtensionFilter(FileManager.TSV_FILTER);
         ensembl.addExtensionFilter(FileManager.ALL_FILTER);
-        ensembl.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(ENSMEBL, ensembl.getValue()));
+        ensembl.setOnValueChanged(e -> OS.setProperty(ENSMEBL, ensembl.getValue()));
         // Human genome GRCHv37
         if (OS.containsKey(GRCH37)) {
             grch37.setValue(OS.getProperty(GRCH37));
         }
         grch37.addExtensionFilter(FileManager.FASTA_FILTER);
-        grch37.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(GRCH37, grch37.getValue()));
+        grch37.setOnValueChanged(e -> OS.setProperty(GRCH37, grch37.getValue()));
         // Human genome GRCH38
         if (OS.containsKey(GRCH38)) {
             grch38.setValue(OS.getProperty(GRCH38));
         }
         grch38.addExtensionFilter(FileManager.FASTA_FILTER);
-        grch38.setOnValueChanged((EventHandler) (Event event)
-                -> OS.setProperty(GRCH38, grch38.getValue()));
+        grch38.setOnValueChanged(e -> OS.setProperty(GRCH38, grch38.getValue()));
     }
 
 }

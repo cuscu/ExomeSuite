@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 uichuimi03
+ * Copyright (C) 2014 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 
 /**
- * FXML Controller class
+ * FXML Controller class. Its a simple FXML document to put on right panel when application starts
  *
- * @author uichuimi03
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class WelcomeViewController {
 

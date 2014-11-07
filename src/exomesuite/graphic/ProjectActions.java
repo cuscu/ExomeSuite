@@ -33,7 +33,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -50,16 +49,12 @@ public class ProjectActions extends VBox implements ProjectListener {
 
     private Project project;
 
-//    @FXML
-//    private ProgressBar progressBar;
     @FXML
     private HBox buttons;
-//    @FXML
-//    private Label message;
-//    @FXML
-//    private FlatButton cancel;
 
-//    private SystemTask task;
+    /**
+     * The associated list of actions
+     */
     private final List<Action> actions = new ArrayList<>();
 
     public ProjectActions() {
@@ -84,6 +79,12 @@ public class ProjectActions extends VBox implements ProjectListener {
         actions.add(mist);
     }
 
+    /**
+     * Changes the project associated to the Actions, this will cause that some buttons become
+     * active or inactive.
+     *
+     * @param project
+     */
     public void setProject(Project project) {
         if (project != null) {
             this.project = project;
@@ -92,24 +93,31 @@ public class ProjectActions extends VBox implements ProjectListener {
         }
     }
 
+    /**
+     * Puts the list of buttons. Associates actions and enables or disables buttons
+     */
     private void refreshActions() {
         buttons.getChildren().clear();
-        actions.forEach((Action a) -> {
-            FlatButton fb = new FlatButton(a.getIcon(), a.isDisabled(project)
-                    ? a.getDisableDescription() : a.getDescription());
-            fb.setDisable(a.isDisabled(project));
-            fb.setOnAction((ActionEvent event) -> call(a));
+        actions.forEach(action -> {
+            FlatButton fb = new FlatButton(action.getIcon(), action.isDisabled(project)
+                    ? action.getDisableDescription() : action.getDescription());
+            fb.setDisable(action.isDisabled(project));
+            fb.setOnAction(e -> call(action));
             buttons.getChildren().add(fb);
         });
     }
 
+    /**
+     *
+     * @param a
+     */
     private void call(Action a) {
         // Get the task form the action, getTask must configure using project
         SystemTask task = a.getTask(project);
         if (task == null) {
             return;
         }
-        // Get the view
+        // Get a tab view
         FXMLLoader loader = new FXMLLoader(TaskPanel.class.getResource("TaskPanel.fxml"));
         try {
             loader.load();
@@ -119,7 +127,6 @@ public class ProjectActions extends VBox implements ProjectListener {
         }
         final TaskPanel taskPanel = loader.getController();
         // Message and progress are easy
-        //taskPanel.getTitle().textProperty().bind(task.titleProperty());
         taskPanel.getMessage().textProperty().bind(task.messageProperty());
         taskPanel.getProgress().progressProperty().bind(task.progressProperty());
         // PrintStream its a bit tricky
@@ -127,9 +134,7 @@ public class ProjectActions extends VBox implements ProjectListener {
 
             @Override
             public void write(int b) throws IOException {
-                Platform.runLater(() -> {
-                    taskPanel.getTextArea().appendText((char) b + "");
-                });
+                Platform.runLater(() -> taskPanel.getTextArea().appendText((char) b + ""));
             }
         }));
         // Title is binded to the tab
@@ -155,6 +160,11 @@ public class ProjectActions extends VBox implements ProjectListener {
         new Thread(task).start();
     }
 
+    /**
+     * When a project property is changed.
+     *
+     * @param property
+     */
     @Override
     public void projectChanged(Project.PropertyName property) {
         refreshActions();
