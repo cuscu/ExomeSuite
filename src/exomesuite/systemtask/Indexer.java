@@ -29,7 +29,7 @@ public class Indexer extends SystemTask {
 
     private String genome;
 
-    public Indexer(PrintStream printStream, String genome) {
+    public Indexer(String genome) {
         this.genome = genome;
     }
 
@@ -48,8 +48,9 @@ public class Indexer extends SystemTask {
         }
         updateMessage("Generating Picard index...");
         updateProgress(80, 100);
-        if ((ret = execute("java", "-jar", "software" + File.separator + "picard" + File.separator
-                + "CreateSequenceDictionary.jar", "R=" + genome,
+        final String createDictionary = "software" + File.separator + "picard" + File.separator
+                + "CreateSequenceDictionary.jar";
+        if ((ret = execute("java", "-jar", createDictionary, "R=" + genome,
                 "O=" + genome.replace(".fasta", ".fa").replace(".fa", ".dict"))) != 0) {
             return ret;
         }
@@ -58,9 +59,4 @@ public class Indexer extends SystemTask {
         return ret;
     }
 
-//    @Override
-//    public boolean configure(Config mainConfig, Config projectConfig) {
-//        genome = mainConfig.getProperty(Config.GENOME);
-//        return genome != null && !genome.isEmpty();
-//    }
 }

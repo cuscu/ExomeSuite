@@ -102,6 +102,17 @@ public final class FileManager {
      * Opens a Dialog to select a folder.
      *
      * @param title The title for the DirectoryChooser.
+     * @return A File or null if user canceled.
+     */
+    public static File openDirectory(String title) {
+        return openDirectory(title, lastPath);
+    }
+
+    /**
+     * Opens a Dialog to select a folder. If initDir is a valid directory, FileChooser will open
+     * there.
+     *
+     * @param title The title for the DirectoryChooser.
      * @param initDir the initial directory.
      * @return A File or null if user canceled.
      */
@@ -360,6 +371,17 @@ public final class FileManager {
         } else {
             return file.delete();
         }
+    }
+
+    /**
+     * Macro function that ckecks that String is not null, not empty and the file it represents
+     * exists.
+     *
+     * @param parameter a string that represents a File
+     * @return parameter != null && !parameter.isEmpty() && new File(parameter).exists()
+     */
+    public static boolean tripleCheck(String parameter) {
+        return parameter != null && !parameter.isEmpty() && new File(parameter).exists();
     }
 
 }

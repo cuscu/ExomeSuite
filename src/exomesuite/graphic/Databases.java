@@ -34,21 +34,21 @@ import javafx.scene.layout.VBox;
 public class Databases extends VBox {
 
     @FXML
-    private Parameter mills;
+    private FileParam mills;
     @FXML
-    private Parameter omni;
+    private FileParam omni;
     @FXML
-    private Parameter phase1;
+    private FileParam phase1;
     @FXML
-    private Parameter dbsnp;
+    private FileParam dbsnp;
     @FXML
-    private Parameter hapmap;
+    private FileParam hapmap;
     @FXML
-    private Parameter ensembl;
+    private FileParam ensembl;
     @FXML
-    private Parameter grch37;
+    private FileParam grch37;
     @FXML
-    private Parameter grch38;
+    private FileParam grch38;
 
     private final static String MILLS = "mills";
     private final static String DBSNP = "dbsnp";
@@ -81,50 +81,50 @@ public class Databases extends VBox {
         if (OS.containsKey(MILLS)) {
             mills.setValue(OS.getProperty(MILLS));
         }
-        mills.addExtensionFilter(FileManager.VCF_FILTER);
+        mills.addFilter(FileManager.VCF_FILTER);
         mills.setOnValueChanged(e -> OS.setProperty(MILLS, mills.getValue()));
         // OMNI
         if (OS.containsKey(OMNI)) {
             omni.setValue(OS.getProperty(OMNI));
         }
-        omni.addExtensionFilter(FileManager.VCF_FILTER);
+        omni.addFilter(FileManager.VCF_FILTER);
         omni.setOnValueChanged(e -> OS.setProperty(OMNI, omni.getValue()));
         // dbSNP
         if (OS.containsKey(DBSNP)) {
             dbsnp.setValue(OS.getProperty(DBSNP));
         }
-        dbsnp.addExtensionFilter(FileManager.VCF_FILTER);
+        dbsnp.addFilter(FileManager.VCF_FILTER);
         dbsnp.setOnValueChanged(e -> OS.setProperty(DBSNP, dbsnp.getValue()));
         // Hapmap
         if (OS.containsKey(HAPMAP)) {
             hapmap.setValue(OS.getProperty(HAPMAP));
         }
-        hapmap.addExtensionFilter(FileManager.VCF_FILTER);
+        hapmap.addFilter(FileManager.VCF_FILTER);
         hapmap.setOnValueChanged(e -> OS.setProperty(HAPMAP, hapmap.getValue()));
         // Phase 1
         if (OS.containsKey(PHASE1)) {
             phase1.setValue(OS.getProperty(PHASE1));
         }
-        phase1.addExtensionFilter(FileManager.VCF_FILTER);
+        phase1.addFilter(FileManager.VCF_FILTER);
         phase1.setOnValueChanged(e -> OS.setProperty(PHASE1, phase1.getValue()));
         // Ensembl
         if (OS.containsKey(ENSMEBL)) {
             ensembl.setValue(OS.getProperty(ENSMEBL));
         }
-        ensembl.addExtensionFilter(FileManager.TSV_FILTER);
-        ensembl.addExtensionFilter(FileManager.ALL_FILTER);
+        ensembl.addFilter(FileManager.TSV_FILTER);
+        ensembl.addFilter(FileManager.ALL_FILTER);
         ensembl.setOnValueChanged(e -> OS.setProperty(ENSMEBL, ensembl.getValue()));
         // Human genome GRCHv37
         if (OS.containsKey(GRCH37)) {
             grch37.setValue(OS.getProperty(GRCH37));
         }
-        grch37.addExtensionFilter(FileManager.FASTA_FILTER);
+        grch37.addFilter(FileManager.FASTA_FILTER);
         grch37.setOnValueChanged(e -> OS.setProperty(GRCH37, grch37.getValue()));
         // Human genome GRCH38
         if (OS.containsKey(GRCH38)) {
             grch38.setValue(OS.getProperty(GRCH38));
         }
-        grch38.addExtensionFilter(FileManager.FASTA_FILTER);
+        grch38.addFilter(FileManager.FASTA_FILTER);
         grch38.setOnValueChanged(e -> OS.setProperty(GRCH38, grch38.getValue()));
     }
 

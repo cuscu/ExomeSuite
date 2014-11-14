@@ -12,8 +12,8 @@
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
     <children>
-        <Parameter fx:id="bamFile" name="Alignments file" type="OPTIONS" value="Select a BAM file"/>
-        <Parameter fx:id="algorithm" name="Algorithm" type="OPTIONS" />
+        <ChoiceParam fx:id="bamFile" title="Alignments file" />
+        <ChoiceParam fx:id="algorithm" title="Algorithm"  />
         <Button text="Accept" fx:id="accept"/>
     </children>
     <padding>

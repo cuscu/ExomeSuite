@@ -9,23 +9,22 @@
 
 <fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1" >
     <children>
-        <TableView VBox.vgrow="SOMETIMES" fx:id="table" />
-        <VBox  spacing="5" >
-            <children>
-                <HBox>
-                    <children>
-                        <Parameter fx:id="coordinatesParameter" name="Coordinates" type="TEXT" editable="false" />
-                        <Parameter fx:id="variantParameter" name="Variant" type="TEXT" editable="false" />
-                        <Parameter fx:id="rsidParameter" name="Identifier" type="TEXT" editable="false"/>
-                        <Parameter fx:id="qualParameter" name="Quality" type="TEXT" editable="false"/>
-                        <Parameter fx:id="filterParameter" name="Filter" type="TEXT" editable="false"/>
-                    </children>
-                </HBox>
-                <HBox fx:id="infoBox" />
+        <SplitPane orientation="VERTICAL">
+            <items>
+                <TableView VBox.vgrow="ALWAYS" fx:id="table" maxHeight="9999" />
+                <VariantInfo fx:id="variantInfo" VBox.vgrow="NEVER"  />
                 <HBox fx:id="formatBox"/>
-                <VariantInfo fx:id="variantInfo"/>
-            </children>
-        </VBox>
+                <VariantExons fx:id="variantExons"/>
+
+            </items>
+        </SplitPane>
+        <!-- INFO -->
+        <SectionTitle title="INFO" />
+        <!-- GENOTYPE -->
+        <SectionTitle title="GENOTYPE" />
+        <!-- EXONS -->
+        <SectionTitle title="EXONS" />
+
     </children>
 
 </fx:root>

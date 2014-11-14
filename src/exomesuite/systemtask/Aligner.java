@@ -16,7 +16,8 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.OS;
+import exomesuite.utils.FileManager;
+import exomesuite.utils.GenomeIndexer;
 import java.io.File;
 
 /**
@@ -25,17 +26,14 @@ import java.io.File;
  */
 public class Aligner extends SystemTask {
 
-    String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
-    boolean illumina;
-    final int cores;
-    final String java7 = OS.scanJava7();
+    private String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
+    private boolean illumina;
+    private final int cores;
+    private final String java7 = "software/jre1.7.0_71/bin/java";
     private final File gatk = new File("software"
             + File.separator + "gatk"
             + File.separator + "GenomeAnalysisTK.jar");
 
-//    public Aligner() {
-//        cores = Runtime.getRuntime().availableProcessors();
-//    }
     public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
             String mills, String phase1, String output, String name, boolean illumina) {
         this.temp = temp;
@@ -52,8 +50,6 @@ public class Aligner extends SystemTask {
 
     }
 
-//    @Override
-//    public boolean configure(Config mainConfig, Config projectConfig) {
     @Override
     protected Integer call() throws Exception {
         System.out.println("Alingment parameters");
@@ -67,33 +63,29 @@ public class Aligner extends SystemTask {
         System.out.println("output=" + output);
         System.out.println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
-//        for (int i = 0; i < 10; i++) {
-//            updateProgress(i, 10);
-//            updateMessage(i + "/" + 10);
-//            Thread.sleep(1000);
-//        }
-//        updateProgress(1, 1);
-//        Thread.sleep(1000);
+        if (!GenomeIndexer.isIndexed(new File(genome))) {
+            GenomeIndexer.index(new File(genome));
+        }
         String msg = "";
-        if (!tripleCheck(dbsnp)) {
+        if (!FileManager.tripleCheck(dbsnp)) {
             msg += "dbSNP\n";
         }
-        if (mills == null || mills.isEmpty()) {
+        if (!FileManager.tripleCheck(mills)) {
             msg += "Mills database\n";
         }
-        if (phase1 == null || phase1.isEmpty()) {
+        if (!FileManager.tripleCheck(phase1)) {
             msg += "1000 genomes pahse 1 indels database\n";
         }
-        if (genome == null || genome.isEmpty()) {
+        if (!FileManager.tripleCheck(genome)) {
             msg += "Reference genome\n";
         }
-        if (forward == null || forward.isEmpty()) {
+        if (!FileManager.tripleCheck(forward)) {
             msg += "Forward sequences";
         }
-        if (reverse == null || reverse.isEmpty()) {
+        if (!FileManager.tripleCheck(reverse)) {
             msg += "Reverse sequences";
         }
-        if (temp == null || temp.isEmpty()) {
+        if (!FileManager.tripleCheck(temp)) {
             msg += "Temporary folder";
         }
         if (!msg.isEmpty()) {

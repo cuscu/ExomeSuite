@@ -1,8 +1,10 @@
-#Thu Sep 11 08:49:22 WEST 2014
-grch38=/media/DiscoInterno/ghrc38/genome.fasta
-phase1=/media/DiscoInterno/databases/1000G_phase1.indels.b37.vcf
-grch37=/home/uichuimi03/DNA_Sequencing/genome/human_g1k_v37.fasta
-omni=/media/DiscoInterno/databases/1000G_omni2.5.b37.sites.vcf
+#Fri Nov 14 13:03:16 WET 2014
 mills=/media/DiscoInterno/databases/Mills_and_1000G_gold_standard.indels.b37.sites.vcf
-dbsnp=/media/DiscoInterno/databases/dbsnp_135.b37.vcf
+ensembl=/home/unidad03/DNA_Sequencing/Databases/HomoSapiens_v75_protein_coding.tsv
+grch38=/home/unidad03/DNA_Sequencing/HomoSapiensGRCh38/genome.fasta
 hapmap=/media/DiscoInterno/databases/hapmap_3.3.b37.sites.vcf
+grch37=/home/unidad03/DNA_Sequencing/HomoSapiensGRCh37/human_g1k_v37.fasta
+projects=/home/unidad03/DNA_Sequencing/exomeSuite/n019/niv019.config;/home/unidad03/DNA_Sequencing/exomeSuite/n032/n032.config;
+dbsnp=/media/DiscoInterno/databases/dbsnp_135.b37.vcf
+phase1=/media/DiscoInterno/databases/1000G_phase1.indels.b37.vcf
+omni=/media/DiscoInterno/databases/1000G_omni2.5.b37.sites.vcf

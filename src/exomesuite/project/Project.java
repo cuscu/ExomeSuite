@@ -16,6 +16,8 @@
  */
 package exomesuite.project;
 
+import exomesuite.utils.FileManager;
+import exomesuite.utils.OS;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,66 +35,10 @@ import java.util.logging.Logger;
  *
  * @author Pascual Lorente Arencibia
  */
-public class Project {
+public final class Project {
 
     private final static String[] ENCODING_VALUES = {"phred+33", "phred+64"};
     private final static String[] REFERENCE_GENOMES = {"grch37", "grch38"};
-
-    public enum PropertyName {
-
-        /**
-         * Name of the project.
-         */
-        NAME,
-        /**
-         * Code of the project. This will be used inside files such as bam or vcf.
-         */
-        CODE,
-        /**
-         * Some nice description.
-         */
-        DESCRIPTION,
-        /**
-         * A folder where everything is created.
-         */
-        PATH,
-        /**
-         * i don't know why this is needed.
-         */
-        STATUS,
-        /**
-         * Reference genome. OK, now only hg19/hgrc37.
-         */
-        REFERENCE_GENOME,
-        /**
-         * The FASTQ file 1.
-         */
-        FORWARD_FASTQ,
-        /**
-         * The FASTQ file 2.
-         */
-        REVERSE_FASTQ,
-        /**
-         * Encoding used (phred33, phred64).
-         */
-        FASTQ_ENCODING,
-        /**
-         * Illumina, SOLiD. Jus joking. We only use Illumina.
-         */
-        SEQUENCING_PLATFORM,
-        /**
-         * Mist analysis threshold
-         */
-        THRESHOLD,
-        /**
-         * Variants file recalibrated
-         */
-        RECAL_VCF_FILE,
-        /**
-         * Other files list
-         */
-        FILES
-    }
 
     /**
      * The properties in memory.
@@ -156,8 +102,9 @@ public class Project {
             throw new IllegalArgumentException("File " + file.getAbsolutePath()
                     + " does not contain NAME");
         }
-        if (!properties.containsKey(PropertyName.PATH.toString())) {
-            throw new IllegalArgumentException("File " + file.getName() + " does not contain PATH");
+        String path = properties.getProperty(PropertyName.PATH.toString());
+        if (!file.getParentFile().equals(new File(path))) {
+            setProperty(PropertyName.PATH, file.getParent());
         }
     }
 
@@ -262,11 +209,100 @@ public class Project {
         return listeners.remove(listener);
     }
 
+    /**
+     * Adds an extra file to the project. File is added only if it exists and is not already in the
+     * list.
+     *
+     * @param file
+     */
     public void addExtraFile(String file) {
+        // Valid file?
+        if (!FileManager.tripleCheck(file)) {
+            return;
+        }
+        // Get the current list of files
         String files = getProperty(PropertyName.FILES, "");
-        if (!file.isEmpty()) {
-            files += file + ";";
-            setProperty(PropertyName.FILES, files);
+        List<String> fs = Arrays.asList(files.split(";"));
+        // Is the file already in the list?
+        if (fs.contains(file)) {
+            return;
+        }
+        // First file do not need separator
+        if (!files.isEmpty()) {
+            files += ";";
+        }
+        files += file;
+        setProperty(PropertyName.FILES, files);
+    }
+
+    /**
+     *
+     * @param file
+     */
+    public void removeExtraFile(String file) {
+        final String filesString = getProperty(PropertyName.FILES);
+        List<String> files = new ArrayList<>(Arrays.asList(filesString.split(";")));
+        if (files.remove(file)) {
+            String newFiles = OS.asString(";", files);
+            setProperty(PropertyName.FILES, newFiles);
+
         }
     }
+
+    public enum PropertyName {
+
+        /**
+         * Name of the project.
+         */
+        NAME,
+        /**
+         * Code of the project. This will be used inside files such as bam or vcf.
+         */
+        CODE,
+        /**
+         * Some nice description.
+         */
+        DESCRIPTION,
+        /**
+         * A folder where everything is created.
+         */
+        PATH,
+        /**
+         * i don't know why this is needed.
+         */
+        STATUS,
+        /**
+         * Reference genome. OK, now only hg19/hgrc37.
+         */
+        REFERENCE_GENOME,
+        /**
+         * The FASTQ file 1.
+         */
+        FORWARD_FASTQ,
+        /**
+         * The FASTQ file 2.
+         */
+        REVERSE_FASTQ,
+        /**
+         * Encoding used (phred33, phred64).
+         */
+        FASTQ_ENCODING,
+        /**
+         * Illumina, SOLiD. Jus joking. We only use Illumina.
+         */
+        SEQUENCING_PLATFORM,
+        /**
+         * Mist analysis threshold
+         */
+        THRESHOLD,
+        /**
+         * Variants file recalibrated
+         */
+        RECAL_VCF_FILE,
+        /**
+         * Other files list
+         */
+        FILES
+    }
+
 }

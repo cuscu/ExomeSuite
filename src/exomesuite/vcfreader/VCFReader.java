@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -64,7 +65,7 @@ public class VCFReader {
     private Label[] statsValues;
     private TextField[] filters;
     private Map<String, Integer>[] stats;
-    private final int MAX_ROWS = 100000;
+//    private final int MAX_ROWS = 100000;
     private int NUMBER_OF_COLUMNS;
     private Parent view;
 
@@ -145,13 +146,13 @@ public class VCFReader {
             }
             while (in.readLine().startsWith("##"));
             AtomicInteger valid = new AtomicInteger(0);
-            in.lines().forEachOrdered((String t) -> {
+            in.lines().forEachOrdered(t -> {
                 String[] row = t.split("\t");
                 if (filter(row)) {
                     updateStats(row);
-                    if (valid.getAndIncrement() < MAX_ROWS) {
-                        table.getItems().add(row);
-                    }
+                    valid.getAndIncrement();
+                    table.getItems().add(row);
+
                 }
             });
             for (int i = 0; i < statsValues.length; i++) {
@@ -177,9 +178,13 @@ public class VCFReader {
     }
 
     private void updateStats(String[] row) {
-        for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
-            Integer val = stats[i].get(row[i]);
-            stats[i].put(row[i], (val != null) ? val + 1 : 1);
+        try {
+            for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
+                Integer val = stats[i].get(row[i]);
+                stats[i].put(row[i], (val != null) ? val + 1 : 1);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println(Arrays.toString(row));
         }
     }
 

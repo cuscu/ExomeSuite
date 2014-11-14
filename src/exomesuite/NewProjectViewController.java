@@ -16,7 +16,10 @@
  */
 package exomesuite;
 
-import exomesuite.graphic.Parameter;
+import exomesuite.graphic.ChoiceParam;
+import exomesuite.graphic.FileParam;
+import exomesuite.graphic.PathParam;
+import exomesuite.graphic.TextParam;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -36,23 +39,23 @@ import javafx.scene.layout.VBox;
 public class NewProjectViewController {
 
     @FXML
-    private Parameter name;
+    private TextParam name;
     @FXML
-    private Parameter path;
+    private PathParam path;
     @FXML
     private Button acceptButton;
     @FXML
     private Label finalPath;
     @FXML
-    private Parameter forward;
+    private FileParam forward;
     @FXML
-    private Parameter reverse;
+    private FileParam reverse;
     @FXML
-    private Parameter code;
+    private TextParam code;
     @FXML
-    private Parameter genome;
+    private ChoiceParam genome;
     @FXML
-    private Parameter encoding;
+    private ChoiceParam encoding;
     @FXML
     private VBox root;
     private EventHandler handler;
@@ -66,8 +69,8 @@ public class NewProjectViewController {
         root.getStylesheets().add("/exomesuite/main.css");
         // Updates the created folder name as user types the name
         code.setOnKeyTyped(e -> updateFolder());
-        forward.addExtensionFilter(FileManager.FASTQ_FILTER);
-        reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
+        forward.addFilter(FileManager.FASTQ_FILTER);
+        reverse.addFilter(FileManager.FASTQ_FILTER);
         path.setOnValueChanged((EventHandler) (Event event) -> updateFolder());
         // Set genome
         genome.setOptions(OS.getSupportedReferenceGenomes());

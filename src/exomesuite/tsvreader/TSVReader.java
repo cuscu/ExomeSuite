@@ -50,7 +50,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -129,12 +129,12 @@ public class TSVReader {
                 FlatButton eye = new FlatButton("eye.png", "View");
                 eye.setOnAction((ActionEvent event) -> showColumn(index));
                 fb.setOnAction((ActionEvent event) -> updateTable());
-                StackPane sp = new StackPane(filter, fb);
-//                HBox hBox = new HBox(filter, fb);
-                sp.setAlignment(Pos.CENTER_RIGHT);
+                //StackPane sp = new StackPane(filter, fb);
+                HBox hBox = new HBox(filter, fb);
+                hBox.setAlignment(Pos.CENTER_RIGHT);
                 statsValues[index] = st;
                 filters[index] = filter;
-                VBox head = new VBox(2, title, st, sp);
+                VBox head = new VBox(2, title, st, hBox);
                 head.setAlignment(Pos.TOP_CENTER);
                 TableColumn<String[], String> tc = new TableColumn<>();
                 tc.setGraphic(head);
@@ -180,14 +180,15 @@ public class TSVReader {
             in.readLine(); // Skip header.
             AtomicInteger valid = new AtomicInteger(0);
             // Process all the lines
-            in.lines().forEachOrdered((String t) -> {
+            in.lines().forEachOrdered(t -> {
                 String[] row = t.split("\t");
                 if (filter(row)) {
                     updateStats(row);
-                    // There is a maximum number of lines to bw displayed
-                    if (valid.getAndIncrement() < MAX_ROWS) {
-                        table.getItems().add(row);
-                    }
+                    // There is a maximum number of lines to be displayed
+//                    if (valid.getAndIncrement() < MAX_ROWS) {
+                    table.getItems().add(row);
+                    valid.getAndIncrement();
+//                    }
                 }
             });
             // Print stats valuse

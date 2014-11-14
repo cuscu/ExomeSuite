@@ -30,9 +30,9 @@ import javafx.scene.control.Button;
 public class CallParams {
 
     @FXML
-    private Parameter bamFile;
+    private ChoiceParam bamFile;
     @FXML
-    private Parameter algorithm;
+    private ChoiceParam algorithm;
     @FXML
     private Button accept;
     private EventHandler acceptEvent;

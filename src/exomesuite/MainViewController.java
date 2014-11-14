@@ -16,6 +16,7 @@
  */
 package exomesuite;
 
+import exomesuite.graphic.About;
 import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.ProjectActions;
@@ -27,7 +28,7 @@ import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.vcfreader.CombineVariants;
-import exomesuite.vcfreader.VCFReader;
+import exomesuite.vcfreader.VCFTable;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -81,6 +82,8 @@ public class MainViewController {
     @FXML
     private MenuItem intersectMIST;
     @FXML
+    private MenuItem about;
+    @FXML
     private ProjectList projectList;
     /**
      * Current project properties.
@@ -110,9 +113,9 @@ public class MainViewController {
         projectList.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
                 -> {
-            projectActions.setProject(newValue);
-            projectInfo.setProject(newValue);
-        });
+                    projectActions.setProject(newValue);
+                    projectInfo.setProject(newValue);
+                });
         mainProgress = progress;
         infoLabel = info;
         staticWorkingArea = workingArea;
@@ -179,11 +182,16 @@ public class MainViewController {
         databaseMenu.setGraphic(new ImageView("exomesuite/img/database.png"));
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         // Open TSV
+        openFile.setGraphic(new ImageView("exomesuite/img/file.png"));
         openFile.setOnAction(e -> openFile());
         // VCF menu
         combineVCFMenu.setOnAction(e -> combineVCF());
+        combineVCFMenu.setGraphic(new ImageView("exomesuite/img/documents_vcf.png"));
         // Mist Menu
         intersectMIST.setOnAction(e -> combineMIST());
+        intersectMIST.setGraphic(new ImageView("exomesuite/img/documents_mist.png"));
+        // About
+        about.setOnAction(e -> showAbout());
     }
 
     private void setToolBar() {
@@ -246,19 +254,19 @@ public class MainViewController {
         db.setPadding(new Insets(5));
         pane.setFitToHeight(true);
         pane.setFitToWidth(true);
-//        Scene scene = new Scene(new ScrollPane(getDatabasesView()));
         Scene scene = new Scene(pane);
         Stage stage = new Stage();
         stage.setWidth(800);
         stage.setHeight(400);
         stage.setScene(scene);
         stage.centerOnScreen();
+        stage.setAlwaysOnTop(true);
         stage.setTitle("Databases manager");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
     }
 
-    public void combineVCF() {
+    private void combineVCF() {
         new CombineVariants().show();
 
     }
@@ -268,22 +276,31 @@ public class MainViewController {
         showFileContent(f);
     }
 
+    /**
+     * Tries to open the file in the editor. If the file is already opened, it just selects its tab.
+     * If the file does not exist does nothing. Depending on the extension of the file, it will use
+     * TSVReader or VCFReader.
+     *
+     * @param file the file to open
+     */
     public static void showFileContent(File file) {
         if (file != null) {
+            /* Check if the file is already opened */
             for (Tab t : staticWorkingArea.getTabs()) {
                 if (t.getText().equals(file.getName())) {
                     staticWorkingArea.getSelectionModel().select(t);
                     return;
                 }
             }
+            /* Select the class depending on the extension */
             Tab t = new Tab(file.getName());
             if (file.getName().endsWith(".tsv") || file.getName().endsWith(".mist")) {
                 t.setContent(new TSVReader(file).get());
             } else if (file.getName().endsWith(".vcf")) {
-                t.setContent(new VCFReader(file).getView());
-                //VCFTable vCFTable = new VCFTable();
-                //vCFTable.setFile(file);
-                //t.setContent(vCFTable);
+                VCFTable table = new VCFTable();
+                table.setFile(file);
+                t.setContent(table);
+                //t.setContent(new VCFReader(file).getView());
             } else {
                 return;
             }
@@ -325,6 +342,22 @@ public class MainViewController {
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void showAbout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(About.class.getResource("About.fxml"));
+            Parent p = loader.load();
+            Scene scene = new Scene(p);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.centerOnScreen();
+            stage.setAlwaysOnTop(true);
+            stage.initOwner(ExomeSuite.getMainStage());
+            stage.showAndWait();
+        } catch (IOException e) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 

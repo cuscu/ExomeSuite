@@ -21,6 +21,7 @@ import exomesuite.graphic.CallParams;
 import exomesuite.graphic.MistParams;
 import exomesuite.systemtask.Caller;
 import exomesuite.systemtask.SystemTask;
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class CallAction extends Action {
     public SystemTask getTask(Project project) {
         List<String> errors = new ArrayList<>();
         showParamsView(project);
-        if (!SystemTask.tripleCheck(inputBAM)) {
+        if (!FileManager.tripleCheck(inputBAM)) {
             errors.add("Alignments are missing");
         }
         String genome = project.getProperty(Project.PropertyName.REFERENCE_GENOME);

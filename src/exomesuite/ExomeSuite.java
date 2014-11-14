@@ -16,6 +16,7 @@
  */
 package exomesuite;
 
+import exomesuite.utils.Software;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -36,6 +37,7 @@ public class ExomeSuite extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         testVars();
+        testSoftware();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
         Parent root = loader.load();
         MainViewController controller = loader.getController();
@@ -90,6 +92,16 @@ public class ExomeSuite extends Application {
         for (String p : ps) {
             System.out.println(p + " = " + System.getProperty(p));
         }
+    }
+
+    private void testSoftware() {
+        System.out.print("Checking samtools... ");
+        System.out.println(Software.isSamtoolsInstalled());
+        System.out.print("Checking bwa... ");
+        System.out.println(Software.isSamtoolsInstalled());
+        System.out.print("Checking GATK... ");
+        System.out.println(Software.isGatkInstalled());
+//        GenomeIndexer.index(new File("/home/unidad03/DNA_Sequencing/HomoSapiensGRCh38/genome.fasta"));
     }
 
 }

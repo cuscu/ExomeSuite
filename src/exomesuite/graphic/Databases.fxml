@@ -9,20 +9,18 @@
 
 <fx:root type="javafx.scene.layout.VBox" spacing="5"  xmlns:fx="http://javafx.com/fxml/1" maxHeight="600" >
     <children>
-
         <!-- Standard databases -->
         <SectionTitle title="Variant databases"/>
-        <Parameter type="FILE" name="Mills and 1000G indels" fx:id="mills"/>
-        <Parameter type="FILE" name="1000G phase 1 indels" fx:id="phase1" />
-        <Parameter type="FILE" name="1000G OMNI" fx:id="omni" />
-        <Parameter type="FILE" name="Hapmap" fx:id="hapmap" />
-        <Parameter type="FILE" name="dbSNP" fx:id="dbsnp" />
-        <Parameter type="FILE" name="Ensembl exons" fx:id="ensembl"/>
-
+        <FileParam  title="Mills and 1000G indels" fx:id="mills"/>
+        <FileParam title="1000G phase 1 indels" fx:id="phase1" />
+        <FileParam title="1000G OMNI" fx:id="omni" />
+        <FileParam title="Hapmap" fx:id="hapmap" />
+        <FileParam title="dbSNP" fx:id="dbsnp" />
+        <FileParam title="Ensembl exons" fx:id="ensembl"/>
         <!-- Reference genomes -->
         <SectionTitle title="Reference genome" />
-        <Parameter type="FILE" name="GRCHv37 (hg19)" fx:id="grch37"/>
-        <Parameter type="FILE" name="GRCHv38" fx:id="grch38" />
+        <FileParam title="GRCHv37 (hg19)" fx:id="grch37"/>
+        <FileParam title="GRCHv38" fx:id="grch38" />
 
     </children>
 </fx:root>

@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 
@@ -37,13 +38,13 @@ public class Caller extends SystemTask {
     @Override
     protected Integer call() throws Exception {
         String msg = "";
-        if (!tripleCheck(genome)) {
+        if (!FileManager.tripleCheck(genome)) {
             msg += "Reference genome\n";
         }
-        if (!tripleCheck(input)) {
+        if (!FileManager.tripleCheck(input)) {
             msg += "Alignments\n";
         }
-        if (!tripleCheck(dbsnp)) {
+        if (!FileManager.tripleCheck(dbsnp)) {
             msg += "dbSNP\n";
         }
         if (!msg.isEmpty()) {

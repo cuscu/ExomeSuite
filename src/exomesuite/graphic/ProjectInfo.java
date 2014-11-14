@@ -19,7 +19,6 @@ package exomesuite.graphic;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
-import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -34,8 +33,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
@@ -49,21 +50,21 @@ import org.controlsfx.dialog.Dialogs;
 public class ProjectInfo extends VBox implements ProjectListener {
 
     @FXML
-    private Parameter forward;
+    private FileParam forward;
     @FXML
-    private Parameter reverse;
+    private FileParam reverse;
     @FXML
-    private Parameter name;
+    private TextParam name;
     @FXML
-    private Parameter code;
+    private TextParam code;
     @FXML
-    private Parameter description;
+    private TextParam description;
     @FXML
-    private Parameter path;
+    private PathParam path;
     @FXML
-    private Parameter encoding;
+    private ChoiceParam encoding;
     @FXML
-    private Parameter genome;
+    private ChoiceParam genome;
     @FXML
     private ListView<String> files;
     @FXML
@@ -87,8 +88,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
         // By default, this panel is hidden
         setVisible(false);
 
-        forward.addExtensionFilter(FileManager.FASTQ_FILTER);
-        reverse.addExtensionFilter(FileManager.FASTQ_FILTER);
+        forward.addFilter(FileManager.FASTQ_FILTER);
+        reverse.addFilter(FileManager.FASTQ_FILTER);
         // Add listeners to each property change, so every time a property is changed,
         // it is reflected in project.getProperties()
         forward.setOnValueChanged(event
@@ -105,6 +106,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
         genome.setOnValueChanged(event -> project.setProperty(Project.PropertyName.REFERENCE_GENOME,
                 genome.getValue()));
         files.setContextMenu(getFilesContextMenu());
+        files.setCellFactory((ListView<String> param) -> new PlainCell());
         files.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                 showFile();
@@ -121,16 +123,17 @@ public class ProjectInfo extends VBox implements ProjectListener {
         } else {
             setVisible(true);
             this.project = project;
-            forward.setValue(project.getProperty(Project.PropertyName.FORWARD_FASTQ, ""));
-            reverse.setValue(project.getProperty(Project.PropertyName.REVERSE_FASTQ, ""));
-            name.setValue(project.getProperty(Project.PropertyName.NAME, ""));
-            code.setValue(project.getProperty(Project.PropertyName.CODE, ""));
-            description.setValue(project.getProperty(Project.PropertyName.DESCRIPTION, ""));
-            path.setValue(project.getProperty(Project.PropertyName.PATH, ""));
+            project.addListener(this);
+            forward.setValue(project.getProperty(Project.PropertyName.FORWARD_FASTQ));
+            reverse.setValue(project.getProperty(Project.PropertyName.REVERSE_FASTQ));
+            name.setValue(project.getProperty(Project.PropertyName.NAME));
+            code.setValue(project.getProperty(Project.PropertyName.CODE));
+            description.setValue(project.getProperty(Project.PropertyName.DESCRIPTION));
+            path.setValue(project.getProperty(Project.PropertyName.PATH));
             encoding.setOptions(OS.getSupportedEncodings());
-            encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING, ""));
+            encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING));
             genome.setOptions(OS.getSupportedReferenceGenomes());
-            genome.setValue(project.getProperty(Project.PropertyName.REFERENCE_GENOME, ""));
+            genome.setValue(project.getProperty(Project.PropertyName.REFERENCE_GENOME));
             files.getItems().clear();
             // Extra files are stored separated by ;
             String fs = project.getProperty(Project.PropertyName.FILES);
@@ -155,7 +158,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
      */
     private void showFile() {
         String f = files.getSelectionModel().getSelectedItem();
-        if (!SystemTask.tripleCheck(f)) {
+        if (!FileManager.tripleCheck(f)) {
             Dialogs.create().title("File does not exist").message("File " + f + " does not exist.").
                     showError();
             return;
@@ -164,15 +167,12 @@ public class ProjectInfo extends VBox implements ProjectListener {
         MainViewController.showFileContent(file);
     }
 
+    /**
+     * Removes the selected file.
+     */
     private void removeFile() {
         String file = files.getSelectionModel().getSelectedItem();
-        int index = files.getSelectionModel().getSelectedIndex();
-        // Remove file from properties
-        String fils = project.getProperty(Project.PropertyName.FILES, "");
-        fils = fils.replace(file + ";", "");
-        project.setProperty(Project.PropertyName.FILES, fils);
-//            new File(file).delete(); NOO, don't delete the file. Or at least ask the user for
-        files.getItems().remove(index);
+        project.removeExtraFile(file);
     }
 
     private void changePath() {
@@ -236,6 +236,22 @@ public class ProjectInfo extends VBox implements ProjectListener {
         MenuItem delete = new MenuItem("Delete", new ImageView("exomesuite/img/cancel4.png"));
         delete.setOnAction(event -> removeFile());
         return new ContextMenu(delete);
+    }
+
+    private static class PlainCell extends ListCell<String> {
+
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (!empty) {
+                setText(new File(item).getName());
+                setTooltip(new Tooltip(item));
+            } else {
+                setText(null);
+                setTooltip(null);
+            }
+        }
+
     }
 
 }

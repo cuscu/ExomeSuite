@@ -6,7 +6,7 @@
     -fx-background-color: transparent;
 }
 
- .flow-pane {
+.flow-pane {
     -fx-background-color: white;
 }
 
@@ -107,4 +107,16 @@
 
 .text-area {
     -fx-font: 1em monospace;
+}
+
+.pass {
+    -fx-background-color: palegreen;
+}
+
+.no-pass {
+    -fx-background-color: papayawhip;
+}
+
+.pass:selected {
+    -fx-background-color: transparent;
 }

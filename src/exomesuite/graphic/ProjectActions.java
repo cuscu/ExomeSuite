@@ -39,6 +39,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.controlsfx.dialog.Dialogs;
 
 /**
  * An hbox which contains buttons that perform actions.
@@ -157,7 +158,11 @@ public class ProjectActions extends VBox implements ProjectListener {
         MainViewController.getWorkingArea().getTabs().add(t);
         MainViewController.getWorkingArea().getSelectionModel().select(t);
         // Launch the task
-        new Thread(task).start();
+        try {
+            new Thread(task).start();
+        } catch (Exception e) {
+            Dialogs.create().title("Error").showException(e);
+        }
     }
 
     /**

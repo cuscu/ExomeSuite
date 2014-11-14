@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Calculates the poor regions of a bam file.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -44,6 +45,15 @@ public class Mist extends SystemTask {
     private final static String LEFT = "left";
     private final static String RIGHT = "right";
 
+    /**
+     * Parameters are not checked inside MIST, please, be sure all of them are legal.
+     *
+     * @param input the input BAM
+     * @param output the output MIST
+     * @param ensembl the ensembl database
+     * @param threshold the DP threshold
+     * @param length the minimum length
+     */
     public Mist(String input, String output, String ensembl, int threshold, int length) {
         this.input = new File(input);
         this.output = new File(output);
@@ -77,6 +87,9 @@ public class Mist extends SystemTask {
     /*
      LAST UPDATE: forget everything, int static are the best non-headache solution.
      */
+    /*
+     Exons columns are detected dinamically
+     */
     private static int EXON_CHR;
     private static int EXON_START;
     private static int EXON_END;
@@ -88,6 +101,9 @@ public class Mist extends SystemTask {
     private static int TRANS_INFO;
     private static int GENE_BIO;
 
+    /*
+     MIST output column order is knwon
+     */
     private static final int OUT_CHR = 0;
     private static final int OUT_EXON_START = 1;
     private static final int OUT_EXON_END = 2;
@@ -178,12 +194,12 @@ public class Mist extends SystemTask {
                 }
 
             });
-            println("Done");
-            // If there are mot misaligned lines, the algorithm reaches the end of the file with a
+            // If there are not misaligned lines, the algorithm reaches the end of the file with a
             // pending chromosome.
             if (chromosome != null && !chromosome.equals("*")) {
                 storeChrom(chromosome, depths, output);
             }
+            println("Done");
         } catch (IOException | NumberFormatException ex) {
             Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -193,7 +209,8 @@ public class Mist extends SystemTask {
     }
 
     /**
-     * Executes a command and returns the output as a BufferedReader.
+     * Executes a command and returns the output as a BufferedReader. errOut is redirected to
+     * stdOut, so the returning BufferedReader will contain both.
      *
      * @param input A sam/bam file.
      * @return a BufferedReader that can be read Line by line.

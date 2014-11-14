@@ -12,19 +12,19 @@
         <SectionTitle title="Properties"  />
         <HBox maxWidth="9999" >
             <children>
-                <Parameter name="Name" fx:id="name" type="TEXT"  HBox.hgrow="ALWAYS" />
-                <Parameter name="Code" fx:id="code" type="TEXT" HBox.hgrow="ALWAYS"  />
+                <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />
+                <TextParam title="Code" fx:id="code" HBox.hgrow="ALWAYS"  />
             </children>
         </HBox>
-        <Parameter name="Path" fx:id="path" type="DIRECTORY" />
-        <Parameter name="Description"  fx:id="description" type="TEXT" />
+        <PathParam title="Path" fx:id="path" />
+        <TextParam title="Description" fx:id="description" />
         <SectionTitle title="Original data"  />
-        <Parameter name="Forward sequences" fx:id="forward" type="FILE"/>
-        <Parameter name="Reverse sequences" fx:id="reverse" type="FILE"/>
+        <FileParam title="Forward sequences" fx:id="forward" promptText="Forward sequences" />
+        <FileParam title="Reverse sequences" fx:id="reverse" promptText="Reverse sequences" />
         <HBox maxWidth="9999">
             <children>
-                <Parameter name="Base encoding" fx:id="encoding" type="OPTIONS" HBox.hgrow="ALWAYS"  />
-                <Parameter name="Reference genome" fx:id="genome" type="OPTIONS" HBox.hgrow="ALWAYS"  />
+                <ChoiceParam title="Base encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
+                <ChoiceParam title="Reference genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
             </children>
         </HBox>
         <SectionTitle title="Processed data" />

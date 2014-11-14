@@ -19,7 +19,9 @@ package exomesuite.project;
 import exomesuite.systemtask.SystemTask;
 
 /**
- *
+ * Class that describes an action in the Actions Panel. An Action is represented by an icon, a
+ * description an a disabledDescription. The icon will be represented
+  *
  * @author Pascual Lorente Arencibia
  */
 public abstract class Action {

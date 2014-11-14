@@ -156,6 +156,12 @@ public class OS {
         return properties;
     }
 
+    /**
+     * Get the property value or null if it does not exist.
+     *
+     * @param key the key of the property
+     * @return the property value if contained, null otherwise
+     */
     public static String getProperty(String key) {
         return getProperties().getProperty(key.toLowerCase());
     }

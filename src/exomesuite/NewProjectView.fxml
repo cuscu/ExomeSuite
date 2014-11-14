@@ -9,36 +9,18 @@
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
     <children>
         <SectionTitle title="Required"/>
-        <Parameter name="Project name" fx:id="name" type="TEXT"  prefWidth="400"  />
-        <Parameter name="Code" type="TEXT" fx:id="code" />
-        <Parameter name="Project path" type="DIRECTORY" fx:id="path"/>
-        <!--
-        <GridPane hgap="5.0" vgap="5.0" xmlns:fx="http://javafx.com/fxml">
-            <columnConstraints>
-                <ColumnConstraints />
-                <ColumnConstraints hgrow="SOMETIMES" />
-            </columnConstraints>
-            <children>
-                <Label text="Project name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <Label text="Code" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <Label text="Root path" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField fx:id="nameP" prefWidth="400" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Name"  />
-                <TextField fx:id="code" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Code" />
-                <FileSelector fx:id="path" GridPane.columnIndex="1" GridPane.rowIndex="2" openPath="true" textPosition="LEFT"  />
-            </children>
-            <VBox.margin>
-                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </VBox.margin>
-        </GridPane>
-        -->
+        <TextParam title="Project name" fx:id="name" prefWidth="400"  />
+        <TextParam title="Code" fx:id="code" />
+        <PathParam title="Project path" fx:id="path"/>
+
         <Label fx:id="finalPath" />
         <SectionTitle title="Additional information" hLine="true" />
-        <Parameter fx:id="forward" type="FILE" name="Forward sequences" value="Select forward sequences" />
-        <Parameter fx:id="reverse" type="FILE" name="Reverse sequences" value="Select reverse sequences" />
+        <FileParam fx:id="forward" title="Forward sequences" promtText="Select forward sequences" />
+        <FileParam fx:id="reverse" title="Reverse sequences" promtText="Select reverse sequences" />
         <HBox maxWidth="9999">
             <children>
-                <Parameter HBox.hgrow="ALWAYS" fx:id="genome" type="OPTIONS" name="Reference genome" value="Select a reference genome" />
-                <Parameter HBox.hgrow="ALWAYS" fx:id="encoding" type="OPTIONS" name="Base encoding" value="Select a base encoding" />
+                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="genome" title="Reference genome" promtText="Select a reference genome" />
+                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="encoding" title="Base encoding" promtText="Select a base encoding" />
             </children>
         </HBox>
         <Button fx:id="acceptButton" text="Create" />

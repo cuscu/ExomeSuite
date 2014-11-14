@@ -47,7 +47,7 @@ public class CombineMIST {
     @FXML
     private FlatButton addButton;
     @FXML
-    private Parameter output;
+    private FileParam output;
     @FXML
     private FlatButton startButton;
 

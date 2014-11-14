@@ -32,11 +32,11 @@ import javafx.scene.control.Button;
 public class MistParams {
 
     @FXML
-    private Parameter bamFile;
+    private ChoiceParam bamFile;
     @FXML
-    private Parameter threshold;
+    private TextParam threshold;
     @FXML
-    private Parameter length;
+    private TextParam length;
     @FXML
     private Button accept;
 
@@ -53,6 +53,7 @@ public class MistParams {
 
     public void setBamOptions(List<String> options) {
         bamFile.setOptions(options);
+        accept.setDisable(false);
     }
 
     public void enableAccept() {

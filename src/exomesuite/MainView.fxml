@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
+            xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
             <items>
@@ -16,7 +17,6 @@
                         <VBox alignment="TOP_CENTER" >
                             <children>
                                 <SectionTitle  title="Projects"/>
-                                <!--<ProjectTable fx:id="projectTable"/>-->
                                 <ProjectList fx:id="projectList" />
                             </children>
                         </VBox>
@@ -55,6 +55,11 @@
                             <items>
                                 <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>
                                 <MenuItem fx:id="intersectMIST" text="Combine MIST"/>
+                            </items>
+                        </Menu>
+                        <Menu text="_Help" mnemonicParsing="true">
+                            <items>
+                                <MenuItem fx:id="about" text="About" />
                             </items>
                         </Menu>
                     </menus>

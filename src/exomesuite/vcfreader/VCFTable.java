@@ -16,7 +16,8 @@
  */
 package exomesuite.vcfreader;
 
-import exomesuite.graphic.Parameter;
+import exomesuite.graphic.Param;
+import exomesuite.graphic.VariantExons;
 import exomesuite.graphic.VariantInfo;
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +34,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -48,23 +48,11 @@ public class VCFTable extends VBox {
     @FXML
     private TableView<Variant2> table;
     @FXML
-    private Parameter coordinatesParameter;
-    @FXML
-    private Parameter variantParameter;
-    @FXML
-    private Parameter rsidParameter;
-    @FXML
-    private Parameter qualParameter;
-    @FXML
-    private Parameter filterParameter;
-    @FXML
-    private HBox infoBox;
-    @FXML
     private HBox formatBox;
     @FXML
+    private VariantExons variantExons;
+    @FXML
     private VariantInfo variantInfo;
-
-    private TextField[] filterTexts;
 
     private File vcfFile;
 
@@ -75,7 +63,7 @@ public class VCFTable extends VBox {
     private final TableColumn<Variant2, String> rsId = new TableColumn<>("ID");
     private final TableColumn<Variant2, String> qual = new TableColumn<>("Qual");
     private final TableColumn<Variant2, String> filter = new TableColumn<>("Filter");
-    private final TableColumn<Variant2, String> info = new TableColumn<>("Info");
+//    private final TableColumn<Variant2, String> info = new TableColumn<>("Info");
     private final List<VariantListener> listeners = new ArrayList<>();
 
     public VCFTable() {
@@ -94,10 +82,9 @@ public class VCFTable extends VBox {
      */
     @FXML
     public void initialize() {
-        filterTexts = new TextField[7];
         table.setSortPolicy((TableView<Variant2> param) -> false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.getColumns().addAll(lineNumber, chrom, position, rsId, variant, qual, filter, info);
+        table.getColumns().addAll(lineNumber, chrom, position, rsId, variant, qual, filter);
 
         chrom.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
                 -> new SimpleStringProperty(param.getValue().getChrom()));
@@ -110,8 +97,8 @@ public class VCFTable extends VBox {
                 -> new SimpleStringProperty(param.getValue().getId()));
         filter.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
                 -> new SimpleStringProperty(param.getValue().getFilter()));
-        info.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
-                -> new SimpleStringProperty(param.getValue().getInfo()));
+//        info.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
+//                -> new SimpleStringProperty(param.getValue().getInfo()));
         qual.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
                 -> new SimpleStringProperty(param.getValue().getQual() + ""));
         lineNumber.setCellFactory(param -> new IndexCell());
@@ -120,17 +107,18 @@ public class VCFTable extends VBox {
         variant.setCellFactory(new StyledCell());
         rsId.setCellFactory(new StyledCell());
         filter.setCellFactory(new StyledCell());
-        info.setCellFactory(new StyledCell());
+//        info.setCellFactory(new StyledCell());
         qual.setCellFactory(new StyledCell());
-
         table.getSelectionModel().selectedItemProperty().addListener(e -> updateVariant());
         addListener(variantInfo);
+        addListener(variantExons);
     }
 
     public void setFile(File vcfFile) {
         this.vcfFile = vcfFile;
+        table.getItems().clear();
         try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
-            in.lines().forEachOrdered((String t) -> {
+            in.lines().forEachOrdered(t -> {
                 if (!t.startsWith("#")) {
                     table.getItems().add(toVariant(t));
                 }
@@ -148,47 +136,37 @@ public class VCFTable extends VBox {
         return new Variant2(t);
     }
 
+    /**
+     * Fills the bottom table.
+     */
     private void updateVariant() {
-        // First column
         Variant2 v = table.getSelectionModel().getSelectedItem();
-        coordinatesParameter.setValue(v.getChrom() + ":" + v.getPos());
-        filterParameter.setValue(v.getFilter());
-        qualParameter.setValue(v.getQual() + "");
-        rsidParameter.setValue(v.getId());
-        variantParameter.setValue(v.getRef() + "->" + v.getAlt());
-        infoBox.getChildren().clear();
         // Second column (INFO)
-        String[] infos = v.getInfo().split(";");
-        for (String inf : infos) {
-            Parameter p = new Parameter();
-            String[] pair = inf.split("=");
-            p.setEditable(false);
-            p.setName(pair[0]);
-            if (pair.length > 1) {
-                p.setPosition(Parameter.Position.LEFT);
-                p.setType(Parameter.Type.TEXT);
-                p.setValue(pair[1]);
-            }
-            infoBox.getChildren().add(p);
-        }
+//        infoBox.getChildren().clear();
+//        String[] infos = v.getInfo().split(";");
+//        for (String inf : infos) {
+//            Param p = new Param();
+//            String[] pair = inf.split("=");
+//            p.setTitle(pair[0]);
+//            if (pair.length > 1) {
+//                p.setValue(pair[1]);
+//            }
+//            infoBox.getChildren().add(p);
+//        }
         //Third column (FORMAT)
         if (v.getFormat() != null) {
             formatBox.getChildren().clear();
             String[] formats = v.getFormat().split(":");
             String[] values = v.getSamples()[0].split(":");
             for (int i = 0; i < formats.length; i++) {
-                Parameter p = new Parameter();
-                p.setName(formats[i]);
+                Param p = new Param();
+                p.setTitle(formats[i]);
                 p.setValue(values[i]);
-                p.setEditable(false);
-                p.setPosition(Parameter.Position.LEFT);
-                p.setType(Parameter.Type.TEXT);
                 formatBox.getChildren().add(p);
             }
         }
         // Call listeners
         listeners.forEach(t -> t.variantChanged(v));
-
     }
 
     /**
@@ -205,15 +183,13 @@ public class VCFTable extends VBox {
 
         @Override
         protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
             if (empty) {
                 setText(null);
             } else {
                 String style;
                 getStyleClass().remove(PASS);
                 getStyleClass().remove(NO_PASS);
-                if (empty) {
-                    return;
-                }
                 if (getTableRow() == null) {
                     return;
                 }
@@ -234,12 +210,16 @@ public class VCFTable extends VBox {
 
     }
 
+    public void addListener(VariantListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void removeListener(VariantListener listener) {
+        this.listeners.remove(listener);
+    }
+
     private static class StyledCell implements
             Callback<TableColumn<Variant2, String>, TableCell<Variant2, String>> {
-
-        private final static String PASS = "pass";
-        private final static String NO_PASS = "no-pass";
-        private final static String LOW_QUAL = "lowqual";
 
         public StyledCell() {
         }
@@ -251,37 +231,11 @@ public class VCFTable extends VBox {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
-                    String style;
-                    getStyleClass().remove(PASS);
-                    getStyleClass().remove(NO_PASS);
-                    if (empty) {
-                        return;
-                    }
-                    if (getTableRow() == null) {
-                        return;
-                    }
-                    Variant2 v = (Variant2) getTableRow().getItem();
-                    if (v == null) {
-                        return;
-                    }
-                    if (v.getQual() < 20) {
-                        style = NO_PASS;
-                    } else {
-                        style = PASS;
-                    }
-                    getStyleClass().add(style);
-                    setText(item);
+                    setText(empty ? null : item);
                 }
 
             };
         }
     }
 
-    public void addListener(VariantListener listener) {
-        this.listeners.add(listener);
-    }
-
-    public void removeListener(VariantListener listener) {
-        this.listeners.remove(listener);
-    }
 }

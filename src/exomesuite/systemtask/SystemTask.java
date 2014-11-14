@@ -164,7 +164,4 @@ public abstract class SystemTask extends Task<Integer> {
         System.out.println(message);
     }
 
-    public static boolean tripleCheck(String parameter) {
-        return parameter != null && !parameter.isEmpty() && new File(parameter).exists();
-    }
 }
