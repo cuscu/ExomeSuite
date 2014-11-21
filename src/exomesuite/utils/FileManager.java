@@ -249,6 +249,19 @@ public final class FileManager {
      * @return the selected file or null
      */
     public static File saveFile(String title, ExtensionFilter... filters) {
+        return saveFile(title, null, Arrays.asList(filters));
+    }
+
+    /**
+     * Opens a dialog for the user to create a file. File system file is not created in this method.
+     * If the user do not write the file extension, the default will be the first of the selected
+     * ExtensionFilter.
+     *
+     * @param title dialog title
+     * @param filters any number of ExtensionFilters
+     * @return the selected file or null
+     */
+    public static File saveFile(String title, List<ExtensionFilter> filters) {
         return saveFile(title, null, filters);
     }
 
@@ -262,7 +275,7 @@ public final class FileManager {
      * @param filters any number of ExtensionFilters
      * @return the selected file or null
      */
-    public static File saveFile(String title, File initDir, ExtensionFilter... filters) {
+    public static File saveFile(String title, File initDir, List<ExtensionFilter> filters) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle(title);
         chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
@@ -309,7 +322,7 @@ public final class FileManager {
      */
     public static File saveFile(TextField textField, String title, File initDir,
             ExtensionFilter... filters) {
-        File f = saveFile(title, initDir, filters);
+        File f = saveFile(title, initDir, Arrays.asList(filters));
         if (f != null) {
             textField.setText(f.getAbsolutePath());
         }

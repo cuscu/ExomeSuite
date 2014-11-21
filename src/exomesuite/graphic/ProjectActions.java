@@ -144,11 +144,11 @@ public class ProjectActions extends VBox implements ProjectListener {
                 String oldValue, String newValue) -> t.setText(newValue));
         // When closed, process is killed
         t.setOnCloseRequest(e -> {
-            System.err.println("Trying to cancel task");
+//            System.err.println("Trying to cancel task");
             task.cancel();
         });
         taskPanel.getCancelButton().setOnAction(e -> {
-            System.err.println("Trying to cancel task");
+//            System.err.println("Trying to cancel task");
             task.cancel();
         });
         // Fill the tab

@@ -14,10 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcfreader;
+package exomesuite.vcf;
 
-import exomesuite.graphic.Param;
+import exomesuite.vcf.VCFFilter;
+import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.VCFFilterPane;
 import exomesuite.graphic.VariantExons;
+import exomesuite.graphic.VariantGenotype;
 import exomesuite.graphic.VariantInfo;
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,16 +28,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.HBox;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -48,13 +54,21 @@ public class VCFTable extends VBox {
     @FXML
     private TableView<Variant2> table;
     @FXML
-    private HBox formatBox;
+    private VariantGenotype formatBox;
     @FXML
     private VariantExons variantExons;
     @FXML
     private VariantInfo variantInfo;
+    @FXML
+    private VBox filtersPane;
+    @FXML
+    private FlatButton addFilter;
+    @FXML
+    private Label infoLabel;
 
     private File vcfFile;
+    private final AtomicInteger totalLines = new AtomicInteger();
+    private final AtomicInteger lines = new AtomicInteger();
 
     private final TableColumn<Variant2, String> lineNumber = new TableColumn<>();
     private final TableColumn<Variant2, String> chrom = new TableColumn<>("Chrom");
@@ -63,7 +77,6 @@ public class VCFTable extends VBox {
     private final TableColumn<Variant2, String> rsId = new TableColumn<>("ID");
     private final TableColumn<Variant2, String> qual = new TableColumn<>("Qual");
     private final TableColumn<Variant2, String> filter = new TableColumn<>("Filter");
-//    private final TableColumn<Variant2, String> info = new TableColumn<>("Info");
     private final List<VariantListener> listeners = new ArrayList<>();
 
     public VCFTable() {
@@ -82,6 +95,8 @@ public class VCFTable extends VBox {
      */
     @FXML
     public void initialize() {
+        addFilter.setGraphic(new ImageView("/exomesuite/img/more.png"));
+        addFilter.setOnAction(e -> addFilter());
         table.setSortPolicy((TableView<Variant2> param) -> false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().addAll(lineNumber, chrom, position, rsId, variant, qual, filter);
@@ -112,20 +127,26 @@ public class VCFTable extends VBox {
         table.getSelectionModel().selectedItemProperty().addListener(e -> updateVariant());
         addListener(variantInfo);
         addListener(variantExons);
+        addListener(formatBox);
+
     }
 
     public void setFile(File vcfFile) {
         this.vcfFile = vcfFile;
         table.getItems().clear();
+        totalLines.set(0);
         try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
-            in.lines().forEachOrdered(t -> {
-                if (!t.startsWith("#")) {
-                    table.getItems().add(toVariant(t));
+            in.lines().forEachOrdered(line -> {
+                if (!line.startsWith("#")) {
+                    table.getItems().add(toVariant(line));
+                    totalLines.incrementAndGet();
                 }
             });
         } catch (Exception ex) {
             Logger.getLogger(VCFTable.class.getName()).log(Level.SEVERE, null, ex);
         }
+        lines.set(totalLines.get());
+        updateInfo();
     }
 
     public File getFile() {
@@ -141,32 +162,109 @@ public class VCFTable extends VBox {
      */
     private void updateVariant() {
         Variant2 v = table.getSelectionModel().getSelectedItem();
-        // Second column (INFO)
-//        infoBox.getChildren().clear();
-//        String[] infos = v.getInfo().split(";");
-//        for (String inf : infos) {
-//            Param p = new Param();
-//            String[] pair = inf.split("=");
-//            p.setTitle(pair[0]);
-//            if (pair.length > 1) {
-//                p.setValue(pair[1]);
-//            }
-//            infoBox.getChildren().add(p);
-//        }
-        //Third column (FORMAT)
-        if (v.getFormat() != null) {
-            formatBox.getChildren().clear();
-            String[] formats = v.getFormat().split(":");
-            String[] values = v.getSamples()[0].split(":");
-            for (int i = 0; i < formats.length; i++) {
-                Param p = new Param();
-                p.setTitle(formats[i]);
-                p.setValue(values[i]);
-                formatBox.getChildren().add(p);
-            }
-        }
         // Call listeners
         listeners.forEach(t -> t.variantChanged(v));
+    }
+
+    public void addListener(VariantListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void removeListener(VariantListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    private void addFilter() {
+        VCFFilterPane filterPane = new VCFFilterPane();
+        filterPane.setOnAccept(e -> filter());
+        filterPane.setOnDelete(e -> {
+            filtersPane.getChildren().remove(filterPane);
+            filter();
+        });
+        filtersPane.getChildren().add(filterPane);
+
+    }
+
+    /**
+     * Runs across the variants filtering them.
+     */
+    private void filter() {
+        table.getItems().clear();
+        lines.set(0);
+        try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
+            in.lines().forEachOrdered(line -> {
+                if (!line.startsWith("#")) {
+                    final Variant2 v = toVariant(line);
+                    if (filter(v)) {
+                        table.getItems().add(v);
+                        lines.incrementAndGet();
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            Logger.getLogger(VCFTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        updateInfo();
+    }
+
+    /**
+     *
+     * @param variant
+     * @return true if variant pass all filters.
+     */
+    private boolean filter(Variant2 variant) {
+        boolean pass = true;
+        for (Node pane : filtersPane.getChildren()) {
+            VCFFilter f = ((VCFFilterPane) pane).getFilter();
+            if (!f.filter(variant)) {
+                pass = false;
+                break;
+            }
+        }
+        return pass;
+    }
+
+    private void updateInfo() {
+        final double percentage = lines.get() * 100.0 / totalLines.get();
+        infoLabel.setText(String.format("%,d/%,d (%.2f%%)", lines.get(), totalLines.get(),
+                percentage));
+
+    }
+
+    private static class StyledCell implements
+            Callback<TableColumn<Variant2, String>, TableCell<Variant2, String>> {
+
+        private final static String PASS = "pass";
+        private final static String NO_PASS = "no-pass";
+
+        FilterClass filter;
+
+        @Override
+        public TableCell<Variant2, String> call(TableColumn<Variant2, String> param) {
+            return new TableCell<Variant2, String>() {
+
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setText(null);
+                    } else {
+                        getStyleClass().remove(PASS);
+                        getStyleClass().remove(NO_PASS);
+//                        switch (filter) {
+//                            case PASS:
+//                                getStyleClass().add(PASS);
+//                                break;
+//                            case NO_PASS:
+//                                getStyleClass().add(NO_PASS);
+//                        }
+                        setAlignment(Pos.CENTER_RIGHT);
+                        setText(item);
+                    }
+                }
+
+            };
+        }
     }
 
     /**
@@ -176,6 +274,8 @@ public class VCFTable extends VBox {
 
         private final static String PASS = "pass";
         private final static String NO_PASS = "no-pass";
+
+        FilterClass filter;
 
         public IndexCell() {
             getStyleClass().add("index-cell");
@@ -187,22 +287,15 @@ public class VCFTable extends VBox {
             if (empty) {
                 setText(null);
             } else {
-                String style;
                 getStyleClass().remove(PASS);
                 getStyleClass().remove(NO_PASS);
-                if (getTableRow() == null) {
-                    return;
-                }
-                Variant2 v = (Variant2) getTableRow().getItem();
-                if (v == null) {
-                    return;
-                }
-                if (v.getQual() < 20) {
-                    style = NO_PASS;
-                } else {
-                    style = PASS;
-                }
-                getStyleClass().add(style);
+//                switch (filter) {
+//                    case PASS:
+//                        getStyleClass().add(PASS);
+//                        break;
+//                    case NO_PASS:
+//                        getStyleClass().add(NO_PASS);
+//                }
                 setAlignment(Pos.CENTER_RIGHT);
                 setText((1 + getIndex()) + "");
             }
@@ -210,32 +303,9 @@ public class VCFTable extends VBox {
 
     }
 
-    public void addListener(VariantListener listener) {
-        this.listeners.add(listener);
-    }
+    private enum FilterClass {
 
-    public void removeListener(VariantListener listener) {
-        this.listeners.remove(listener);
-    }
-
-    private static class StyledCell implements
-            Callback<TableColumn<Variant2, String>, TableCell<Variant2, String>> {
-
-        public StyledCell() {
-        }
-
-        @Override
-        public TableCell<Variant2, String> call(TableColumn<Variant2, String> param) {
-            return new TableCell<Variant2, String>() {
-
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-
-            };
-        }
+        PASS, NO_PASS
     }
 
 }

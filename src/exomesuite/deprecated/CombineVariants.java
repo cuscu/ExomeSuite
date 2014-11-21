@@ -14,8 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcfreader;
+package exomesuite.deprecated;
 
+import exomesuite.deprecated.MISTReader;
+import exomesuite.deprecated.VariantCallFormat;
+import exomesuite.deprecated.Variant;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

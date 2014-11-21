@@ -46,6 +46,7 @@
                             <items>
                                 <MenuItem fx:id="openMenu" text="Open project" />
                                 <MenuItem fx:id="newMenu" text="New project" />
+                                <SeparatorMenuItem />
                                 <MenuItem fx:id="databaseMenu" text="Select databases" />
                                 <SeparatorMenuItem />
                                 <MenuItem fx:id="openFile" text="Open file" />

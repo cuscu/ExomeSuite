@@ -14,20 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.bam;
 
-import javafx.scene.control.ContentDisplay;
+import javafx.scene.paint.Color;
 
 /**
  *
  * @author Pascual Lorente Arencibia
  */
-public class ToolBarButton extends FlatButton {
+public class BamAxisLayer extends BamLayer {
 
-    public ToolBarButton(String iconName, String tooltip, String name) {
-        super(iconName, tooltip);
-        setText(name);
-        setContentDisplay(ContentDisplay.TOP);
+    public BamAxisLayer() {
+        getGraphicsContext2D().setStroke(Color.BLACK);
+    }
+
+    @Override
+    protected void draw(double width, double height) {
+        // Y axis
+        getGraphicsContext2D().strokeLine(getAxisMargin(), getAxisMargin(),
+                getAxisMargin(), height - (getAxisMargin() - getTickLength()));
+        // X axis
+        getGraphicsContext2D().strokeLine(getAxisMargin() - getTickLength(), height - getAxisMargin(),
+                width - getAxisMargin(), height - getAxisMargin());
     }
 
 }

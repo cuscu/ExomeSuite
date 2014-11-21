@@ -17,7 +17,6 @@
 package exomesuite.systemtask;
 
 import java.io.File;
-import java.io.PrintStream;
 
 /**
  * This class will create the proper indexes for bwa, samtools and picard in the same directory
@@ -27,7 +26,9 @@ import java.io.PrintStream;
  */
 public class Indexer extends SystemTask {
 
-    private String genome;
+    private final static String[] extensions = {".pac", ".sa", ".amb", ".ann", ".bwt", ".fai"};
+
+    private final String genome;
 
     public Indexer(String genome) {
         this.genome = genome;
@@ -59,4 +60,14 @@ public class Indexer extends SystemTask {
         return ret;
     }
 
+    public static boolean isIndexed(File file) {
+        boolean isIndexed = true;
+        for (String extension : extensions) {
+            if (!new File(file.getAbsolutePath() + extension).exists()) {
+                isIndexed = false;
+                break;
+            }
+        }
+        return isIndexed;
+    }
 }

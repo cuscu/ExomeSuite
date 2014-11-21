@@ -17,8 +17,8 @@
 package exomesuite.graphic;
 
 import exomesuite.utils.OS;
-import exomesuite.vcfreader.Variant2;
-import exomesuite.vcfreader.VariantListener;
+import exomesuite.vcf.Variant2;
+import exomesuite.vcf.VariantListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -68,7 +68,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
         exonid.setCellValueFactory((TableColumn.CellDataFeatures<String[], String> param)
                 -> new SimpleStringProperty(param.getValue()[6]));
         getColumns().add(exonid);
-        TableColumn<String[], String> exonName = new TableColumn<>("Exon name");
+        TableColumn<String[], String> exonName = new TableColumn<>("Transcript");
         exonName.setCellValueFactory((TableColumn.CellDataFeatures<String[], String> param)
                 -> new SimpleStringProperty(param.getValue()[7]));
         getColumns().add(exonName);
@@ -82,6 +82,9 @@ public class VariantExons extends TableView<String[]> implements VariantListener
     @Override
     public void variantChanged(Variant2 variant) {
         getItems().clear();
+        if (variant == null) {
+            return;
+        }
         if (Ensembl.chromosomes.containsKey(variant.getChrom())) {
             List<Exon> list = new ArrayList<>(Ensembl.chromosomes.get(variant.getChrom()));
             for (Exon e : list) {
@@ -92,12 +95,17 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                 }
             }
         } else {
-            String[] empty = new String[9];
-            Arrays.setAll(empty, i -> "loading...");
-            getItems().add(empty);
+            final String[] loading = {"loading...", "", "", "loading...", "loading...", "", "loading...",
+                "loading...", "loading...", ""};
+            final String[] empty = {"no data", "", "", "no data", "no data", "", "no data",
+                "no data", "no data", ""};
+            getItems().setAll(Ensembl.ready ? empty : loading);
         }
     }
 
+    /**
+     * Class that loads the Ensembl exons.
+     */
     private static class Ensembl {
 
         static File file;
@@ -138,7 +146,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                                 // Try to insert in a previous position
                                 boolean inserted = false;
                                 for (int i = 0; i < exons.size(); i++) {
-                                    // If there is an exons whit a hiher start, insert before
+                                    // If there is an exons with a higher start, insert before
                                     if (exons.get(i).start > exon.start) {
                                         exons.add(i, exon);
                                         inserted = true;
@@ -157,6 +165,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                                 }
                             }
                         });
+                        System.out.println("Done");
                     } catch (Exception e) {
                         Dialogs.create().showException(e);
                     }
@@ -174,20 +183,23 @@ public class VariantExons extends TableView<String[]> implements VariantListener
         static void print() {
             File exit = new File("/home/unidad03/exons.txt");
             exit.delete();
-            chromosomes.entrySet().stream().forEach((entrySet) -> {
-                String chr = entrySet.getKey();
-                List<Exon> exons = entrySet.getValue();
-                exons.stream().forEach((exon) -> {
+            chromosomes.entrySet().stream().forEach(chromosome -> {
+//                String chr = chromosome.getKey();
+                chromosome.getValue().stream().forEach(exon -> {
                     try (BufferedWriter out = new BufferedWriter(new FileWriter(exit, true))) {
                         out.write(Arrays.toString(exon.line));
                         out.newLine();
                     } catch (Exception e) {
+                        Dialogs.create().showException(e);
                     }
                 });
             });
         }
     }
 
+    /**
+     * Keeps info about an exon line.
+     */
     private static class Exon {
 
         String chr;

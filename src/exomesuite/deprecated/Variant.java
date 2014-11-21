@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcfreader;
+package exomesuite.deprecated;
 
 import exomesuite.utils.OS;
+import exomesuite.vcfreader.VariantCallFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

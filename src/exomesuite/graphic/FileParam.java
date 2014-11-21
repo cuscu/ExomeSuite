@@ -30,6 +30,7 @@ public class FileParam extends Param {
 
     private final List<FileChooser.ExtensionFilter> filters = new ArrayList<>();
     private boolean showFullPath = false;
+    private Behaviour behaviour = Behaviour.OPEN;
 
     @Override
     protected String editPassive() {
@@ -38,12 +39,23 @@ public class FileParam extends Param {
             parent = new File(getValue()).getParentFile();
         }
         File file;
-        if (parent != null) {
-            file = FileManager.openFile("Select " + getTitle(), parent, filters);
-        } else {
-            file = FileManager.openFile("Select " + getTitle(), filters);
+        switch (behaviour) {
+            case OPEN:
+                if (parent != null) {
+                    file = FileManager.openFile("Select " + getTitle(), parent, filters);
+                } else {
+                    file = FileManager.openFile("Select " + getTitle(), filters);
+                }
+                return (file == null) ? null : file.getAbsolutePath();
+            case SAVE:
+                if (parent != null) {
+                    file = FileManager.saveFile("Select " + getTitle(), parent, filters);
+                } else {
+                    file = FileManager.saveFile("Select " + getTitle(), filters);
+                }
+                return (file == null) ? null : file.getAbsolutePath();
         }
-        return (file == null) ? null : file.getAbsolutePath();
+        return null;
     }
 
     @Override
@@ -66,4 +78,16 @@ public class FileParam extends Param {
         return showFullPath;
     }
 
+    public Behaviour getBehaviour() {
+        return behaviour;
+    }
+
+    public void setBehaviour(Behaviour behaviour) {
+        this.behaviour = behaviour;
+    }
+
+    public enum Behaviour {
+
+        OPEN, SAVE
+    }
 }

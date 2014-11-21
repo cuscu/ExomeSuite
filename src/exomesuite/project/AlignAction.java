@@ -49,7 +49,7 @@ public class AlignAction extends Action {
         final String name = project.getProperty(Project.PropertyName.CODE);
         final String forward = project.getProperty(Project.PropertyName.FORWARD_FASTQ);
         final String reverse = project.getProperty(Project.PropertyName.REVERSE_FASTQ);
-
+        String dbsnp = null, mills = null, phase1 = null;
         final boolean illumina = project.
                 getProperty(Project.PropertyName.FASTQ_ENCODING).equals("phred+64");
         final String temp = OS.getTempDir();
@@ -63,17 +63,20 @@ public class AlignAction extends Action {
         if (!FileManager.tripleCheck(genome)) {
             errors.add("Genome " + genomeVersion + " is not in databases.");
         }
-        final String dbsnp = OS.getProperty("dbsnp");
-        if (!FileManager.tripleCheck(dbsnp)) {
-            errors.add("Not dbSNP specified.");
-        }
-        final String mills = OS.getProperty("mills");
-        if (!FileManager.tripleCheck(mills)) {
-            errors.add("Not MILLS database specified.");
-        }
-        final String phase1 = OS.getProperty("phase1");
-        if (!FileManager.tripleCheck(phase1)) {
-            errors.add("Not Phase 1 database specified.");
+        final boolean gatkRefine = genomeVersion != null && genomeVersion.equalsIgnoreCase("grch37");
+        if (gatkRefine) {
+            dbsnp = OS.getProperty("dbsnp");
+            if (!FileManager.tripleCheck(dbsnp)) {
+                errors.add("Not dbSNP specified.");
+            }
+            mills = OS.getProperty("mills");
+            if (!FileManager.tripleCheck(mills)) {
+                errors.add("Not MILLS database specified.");
+            }
+            phase1 = OS.getProperty("phase1");
+            if (!FileManager.tripleCheck(phase1)) {
+                errors.add("Not Phase 1 database specified.");
+            }
         }
         final String path = project.getProperty(Project.PropertyName.PATH);
         if (!FileManager.tripleCheck(path)) {
@@ -91,7 +94,7 @@ public class AlignAction extends Action {
         }
         if (errors.isEmpty()) {
             Aligner aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
-                    output, name, illumina);
+                    output, name, illumina, gatkRefine);
             aligner.setOnSucceeded(e -> {
                 if (aligner.getValue() == 0) {
                     project.addExtraFile(output);

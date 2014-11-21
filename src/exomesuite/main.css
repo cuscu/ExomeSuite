@@ -110,13 +110,19 @@
 }
 
 .pass {
-    -fx-background-color: palegreen;
-}
-
-.no-pass {
-    -fx-background-color: papayawhip;
+    -fx-font-weight: bold;
+    -fx-text-fill: lightgreen;
 }
 
 .pass:selected {
-    -fx-background-color: transparent;
+    -fx-text-fill: palegreen;
+}
+
+.no-pass {
+    -fx-font-weight: bold;
+    -fx-text-fill: orange;
+}
+
+.no-pass:selected {
+    -fx-text-fill: papayawhip;
 }

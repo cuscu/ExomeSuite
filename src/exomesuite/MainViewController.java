@@ -16,19 +16,20 @@
  */
 package exomesuite;
 
+import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
 import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
+import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
-import exomesuite.graphic.ToolBarButton;
 import exomesuite.project.Project;
 import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
-import exomesuite.vcfreader.CombineVariants;
-import exomesuite.vcfreader.VCFTable;
+import exomesuite.vcf.CombineVariants;
+import exomesuite.vcf.VCFTable;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -39,13 +40,14 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.ImageView;
@@ -194,18 +196,27 @@ public class MainViewController {
         about.setOnAction(e -> showAbout());
     }
 
+    /**
+     * Fills the top toolbar with quick access buttons.
+     */
     private void setToolBar() {
-        Button open = new ToolBarButton("open.png", "Open project... Ctrl+O", "Open");
+        FlatButton open = new FlatButton("open.png", "Open project... Ctrl+O");
         open.setOnAction(e -> openProject(FileManager.openFile("Config file",
                 FileManager.CONFIG_FILTER)));
-        Button newProject = new ToolBarButton("add.png", "New project... Ctrl+N", "New");
+        FlatButton newProject = new FlatButton("add.png", "New project... Ctrl+N");
         newProject.setOnAction(e -> showNewPane());
-        Button db = new ToolBarButton("database.png", "Select databases... Ctrl+D", "Databases");
+        FlatButton db = new FlatButton("database.png", "Select databases... Ctrl+D");
         db.setOnAction(e -> showDatabasesPane());
-
-        toolBar.getChildren().addAll(open, newProject, db);
+        FlatButton fileOpen = new FlatButton("file.png", "Open file");
+        fileOpen.setOnAction(e -> openFile());
+        Separator s = new Separator(Orientation.VERTICAL);
+        Separator s2 = new Separator(Orientation.VERTICAL);
+        toolBar.getChildren().addAll(fileOpen, s, open, newProject, s2, db);
     }
 
+    /**
+     * Opens dialog to create a new project.
+     */
     private void showNewPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"));
@@ -248,6 +259,9 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Opens dialog to set databases selection.
+     */
     private void showDatabasesPane() {
         Databases db = new Databases();
         ScrollPane pane = new ScrollPane(db);
@@ -266,14 +280,9 @@ public class MainViewController {
         stage.showAndWait();
     }
 
-    private void combineVCF() {
-        new CombineVariants().show();
-
-    }
-
     private void openFile() {
         File f = FileManager.openFile("Choose any file", FileManager.ALL_FILTER);
-        showFileContent(f);
+        showFileContent(f, null);
     }
 
     /**
@@ -282,8 +291,9 @@ public class MainViewController {
      * TSVReader or VCFReader.
      *
      * @param file the file to open
+     * @param secondary a second file if needed
      */
-    public static void showFileContent(File file) {
+    public static void showFileContent(File file, File secondary) {
         if (file != null) {
             /* Check if the file is already opened */
             for (Tab t : staticWorkingArea.getTabs()) {
@@ -301,6 +311,8 @@ public class MainViewController {
                 table.setFile(file);
                 t.setContent(table);
                 //t.setContent(new VCFReader(file).getView());
+            } else if (file.getName().endsWith(".bam")) {
+                t.setContent(new BamReader(file, secondary));
             } else {
                 return;
             }
@@ -338,7 +350,27 @@ public class MainViewController {
             scene.getStylesheets().add("/exomesuite/main.css");
             stage.setScene(scene);
             stage.centerOnScreen();
+            stage.initOwner(ExomeSuite.getMainStage());
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Intersect MIST files");
+            stage.showAndWait();
+        } catch (IOException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void combineVCF() {
+        try {
+            FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"));
+            Parent p = loader.load();
+            Scene scene = new Scene(p);
+            Stage stage = new Stage();
+            scene.getStylesheets().add("/exomesuite/main.css");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+            stage.initOwner(ExomeSuite.getMainStage());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Intersect VCF files");
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);

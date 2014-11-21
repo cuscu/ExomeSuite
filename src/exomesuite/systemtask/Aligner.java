@@ -17,7 +17,6 @@
 package exomesuite.systemtask;
 
 import exomesuite.utils.FileManager;
-import exomesuite.utils.GenomeIndexer;
 import java.io.File;
 
 /**
@@ -26,8 +25,8 @@ import java.io.File;
  */
 public class Aligner extends SystemTask {
 
-    private String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
-    private boolean illumina;
+    private final String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
+    private final boolean illumina, gatkRefine;
     private final int cores;
     private final String java7 = "software/jre1.7.0_71/bin/java";
     private final File gatk = new File("software"
@@ -35,7 +34,8 @@ public class Aligner extends SystemTask {
             + File.separator + "GenomeAnalysisTK.jar");
 
     public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
-            String mills, String phase1, String output, String name, boolean illumina) {
+            String mills, String phase1, String output, String name, boolean illumina,
+            boolean gatkRefine) {
         this.temp = temp;
         this.forward = forward;
         this.reverse = reverse;
@@ -46,6 +46,7 @@ public class Aligner extends SystemTask {
         this.output = output;
         this.name = name;
         this.illumina = illumina;
+        this.gatkRefine = gatkRefine;
         this.cores = Runtime.getRuntime().availableProcessors();
 
     }
@@ -63,18 +64,25 @@ public class Aligner extends SystemTask {
         System.out.println("output=" + output);
         System.out.println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
-        if (!GenomeIndexer.isIndexed(new File(genome))) {
-            GenomeIndexer.index(new File(genome));
+        // Check if genome is already indexed.
+        if (!Indexer.isIndexed(new File(genome))) {
+            updateMessage("Indexing genome");
+            Indexer index = new Indexer(genome);
+            index.setPrintStream(printStream);
+            index.call();
         }
+        // Check that parameters are ok.
         String msg = "";
-        if (!FileManager.tripleCheck(dbsnp)) {
-            msg += "dbSNP\n";
-        }
-        if (!FileManager.tripleCheck(mills)) {
-            msg += "Mills database\n";
-        }
-        if (!FileManager.tripleCheck(phase1)) {
-            msg += "1000 genomes pahse 1 indels database\n";
+        if (gatkRefine) {
+            if (!FileManager.tripleCheck(dbsnp)) {
+                msg += "dbSNP\n";
+            }
+            if (!FileManager.tripleCheck(mills)) {
+                msg += "Mills database\n";
+            }
+            if (!FileManager.tripleCheck(phase1)) {
+                msg += "1000 genomes pahse 1 indels database\n";
+            }
         }
         if (!FileManager.tripleCheck(genome)) {
             msg += "Reference genome\n";
@@ -92,18 +100,25 @@ public class Aligner extends SystemTask {
             System.err.println("There is one or more arguments not specifierd:\n" + msg);
             return 1;
         }
+        // Align using bwa
         int ret;
         if ((ret = firstAlignment()) != 0) {
             return ret;
         }
-        if ((ret = refineBAM()) != 0) {
+        // Clean, sort and remove duplicates
+        if ((ret = refineBAM(gatkRefine)) != 0) {
             return ret;
         }
-        if ((ret = realignBAM()) != 0) {
-            return ret;
-        }
-        if ((ret = recalibrateBAM()) != 0) {
-            return ret;
+        // Only for GRCh37
+        if (gatkRefine) {
+            // Realign
+            if ((ret = realignBAM()) != 0) {
+                return ret;
+            }
+            // Recalibrate
+            if ((ret = recalibrateBAM()) != 0) {
+                return ret;
+            }
         }
         updateMessage("Done");
         updateProgress(1, 1);
@@ -132,15 +147,29 @@ public class Aligner extends SystemTask {
         int ret;
         updateMessage(new File(forward).getName() + "...");
         updateProgress(2, 100);
-        if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), (illumina ? "-I" : ""),
-                genome, forward, "-f", seq1)) != 0) {
-            return ret;
+        if (illumina) {
+            if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), "-I",
+                    genome, forward, "-f", seq1)) != 0) {
+                return ret;
+            }
+        } else {
+            if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores),
+                    genome, forward, "-f", seq1)) != 0) {
+                return ret;
+            }
         }
         updateMessage(new File(reverse).getName() + "...");
         updateProgress(12, 100);
-        if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), (illumina ? "-I" : ""),
-                genome, reverse, "-f", seq2)) != 0) {
-            return ret;
+        if (illumina) {
+            if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), "-I",
+                    genome, forward, "-f", seq2)) != 0) {
+                return ret;
+            }
+        } else {
+            if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores),
+                    genome, forward, "-f", seq2)) != 0) {
+                return ret;
+            }
         }
         updateMessage("Matching pairs...");
         updateProgress(20, 100);
@@ -176,13 +205,13 @@ public class Aligner extends SystemTask {
      * 8: BAM Index
      *   Generates an Index of the BAM file (.bai)
      */
-    private int refineBAM() {
+    private int refineBAM(boolean gatkRefine) {
         String bwa = new File(temp, name + "_bwa.sam").getAbsolutePath();
         String picard = "software" + File.separator + "picard" + File.separator;
         String picard1 = new File(temp, name + "_picard1.bam").getAbsolutePath();
         String picard2 = new File(temp, name + "_picard2.bam").getAbsolutePath();
         String picard3 = new File(temp, name + "_picard3.bam").getAbsolutePath();
-        String picard4 = new File(temp, name + "_picard4.bam").getAbsolutePath();
+        String picard4 = gatkRefine ? new File(temp, name + "_picard4.bam").getAbsolutePath() : output;
         String metrics = new File(temp, name + "_dedup.metrics").getAbsolutePath();
         int ret;
         updateMessage("Cleaning...");

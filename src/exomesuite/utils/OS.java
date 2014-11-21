@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ public class OS {
 
     private static List<String> referenceGenomes;
     private static List<String> encodings;
+    private static List<String> standardChromosomes;
 
     /**
      * Takes a byte value and convert it to the corresponding human readable unit.
@@ -136,7 +138,7 @@ public class OS {
     }
 
     public static String getGenome(String property) {
-        return getProperties().getProperty(property);
+        return getProperties().getProperty(property.toLowerCase());
     }
 
     private static Properties getProperties() {
@@ -224,5 +226,14 @@ public class OS {
                     }
                 };
         new Thread(genome).start();
+    }
+
+    public static List<String> getStandardChromosomes() {
+        if (standardChromosomes == null) {
+            final String[] chrs = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+                "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
+            standardChromosomes = Arrays.asList(chrs);
+        }
+        return standardChromosomes;
     }
 }

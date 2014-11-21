@@ -143,7 +143,9 @@ public class Param extends VBox {
     protected final void endEdit(boolean accept, String value) {
         if (accept) {
             setValue(value);
-            handler.handle(new ActionEvent());
+            if (handler != null) {
+                handler.handle(new ActionEvent());
+            }
         }
         showPassive();
     }

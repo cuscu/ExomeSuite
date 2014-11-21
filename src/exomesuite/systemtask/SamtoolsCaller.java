@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,52 +43,59 @@ public class SamtoolsCaller extends SystemTask {
 
     @Override
     protected Integer call() throws Exception {
+        final String temp = OS.getTempDir();
         updateTitle("samtools call " + new File(input).getName());
-        // Command 1
-        // samtools mpileup -u -f DNA_Sequencing/genome/human_g1k_v37.fasta DNA_Sequencing/niv_19_2013.bam | bcftools view -bvcg - > var.raw.bcf
-//        ProcessBuilder pb1 = new ProcessBuilder("samtools", "mpileup", "-u", "-f", genome, input);
-//        ProcessBuilder pb2 = new ProcessBuilder("bcftools", "view", "-bvcg", "-");
-        File pipe2 = new File("pipe2.bcf");
-//        pipe2.delete();
-//        pb2.redirectOutput(pipe2);
-//        updateMessage("Piling up");
-//        updateProgress(0.2, 1);
-//        p1 = pb1.start();
-//        p2 = pb2.start();
-//        // Pipe
-//        new PipeUtil(p1.getInputStream(), p2.getOutputStream()).start();
-//        // Outputs
-//        new PipeUtil(p1.getErrorStream(), printStream).start();
-//        new PipeUtil(p2.getErrorStream(), printStream).start();
-//        p1.waitFor();
-//        updateMessage("view 1");
-//        updateProgress(0.4, 1);
-//        p2.waitFor();
-        updateMessage("view 2");
-        updateProgress(0.6, 1);
 
-        // Part 2
-        // bcftools view var.raw.bcf | /usr/bin/vcfutils.pl varFilter -D100 > var.flt.vcf
-        ProcessBuilder pb3 = new ProcessBuilder("bcftools", "view", pipe2.getAbsolutePath());
-        ProcessBuilder pb4 = new ProcessBuilder("/usr/bin/vcfutils.pl", "varFilter", "-D100");
-//        pb3.redirectInput(pipe2);
+        final File samtools1 = new File(temp, "samtools_1.bcf");
+        final File samtools2 = new File(temp, "samtools_2.bcf");
+        final File samtools3 = new File(temp, "samtools_3.vcf");
+
+        // samtools mpileup -u -f input.bam > samtools1.bcf
+        ProcessBuilder pb1 = new ProcessBuilder("samtools", "mpileup", "-u", "-f", genome, input);
+        pb1.redirectOutput(samtools1);
+        updateMessage("Piling up 1/2");
+        updateProgress(0.2, 1);
+        p1 = pb1.start();
+        new PipeUtil(p1.getErrorStream(), printStream).start();
+
+        p1.waitFor();
+        updateMessage("Piling up 2/2");
+        updateProgress(0.4, 1);
+
+        // bcftools view -vcg samtools_1.bcf > samtools_2.vcf
+        ProcessBuilder pb2 = new ProcessBuilder("bcftools", "view", "-vcg", samtools1.getAbsolutePath());
+        pb2.redirectOutput(samtools2);
+        p2 = pb2.start();
+        new PipeUtil(p2.getErrorStream(), printStream).start();
+
+        p2.waitFor();
+        updateMessage("Calling variants");
+        updateProgress(0.6, 1);
+        samtools1.delete();
+//
+//        // bcftools view samtools_2.bcf > samtools_3.vcf
+//        ProcessBuilder pb3 = new ProcessBuilder("bcftools", "view", samtools2.getAbsolutePath());
+//        pb3.redirectOutput(samtools3);
+//        p3 = pb3.start();
+//        new PipeUtil(p3.getErrorStream(), printStream).start();
+//
+//        p3.waitFor();
+//        updateMessage("Filtering");
+//        updateProgress(0.80, 1);
+//        samtools2.delete();
+
+        // /usr/bin/vcfutils.pl varFilter -D100 samtools_2.vcf > output.vcf
+        ProcessBuilder pb4 = new ProcessBuilder("/usr/share/samtools/vcfutils.pl",
+                "varFilter", "-D100", samtools2.getAbsolutePath());
         pb4.redirectOutput(new File(output));
-        p3 = pb3.start();
         p4 = pb4.start();
-        // Pipe
-        new PipeUtil(p3.getInputStream(), p4.getOutputStream()).start();
-        // Outputs
-        new PipeUtil(p3.getErrorStream(), printStream).start();
         new PipeUtil(p4.getErrorStream(), printStream).start();
-        p3.waitFor();
-        p3.getErrorStream().close();
-        updateMessage("Search");
-        updateProgress(0.60, 1);
+
         p4.waitFor();
         updateMessage("Done");
         updateProgress(1, 1);
 
-        pipe2.delete();
+        samtools2.delete();
         return 0;
 
     }
@@ -115,10 +123,9 @@ public class SamtoolsCaller extends SystemTask {
 
         @Override
         public void run() {
-            int c;
             try {
                 byte[] b = new byte[512];
-                while ((c = input.read(b)) != -1) {
+                while (input.read(b) != -1) {
                     output.write(b);
                 }
             } catch (IOException ex) {

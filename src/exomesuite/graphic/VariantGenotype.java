@@ -20,25 +20,32 @@ import exomesuite.vcf.Variant2;
 import exomesuite.vcf.VariantListener;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
 /**
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class VariantInfo extends FlowPane implements VariantListener {
-
-    public VariantInfo() {
-    }
+public class VariantGenotype extends VBox implements VariantListener {
 
     @Override
     public void variantChanged(Variant2 variant) {
+        // format       genotype[]
+        // GT:PL:GQ	0/1:41,0,5:10
         getChildren().clear();
-        if (variant != null) {
-            for (String info : variant.getInfo().split(";")) {
-                Label label = new Label(info);
-                label.getStyleClass().add("parameter");
-                getChildren().add(label);
+        if (variant == null) {
+            return;
+        }
+        final String[] format = variant.getFormat().split(":");
+        for (String g : variant.getSamples()) {
+            FlowPane box = new FlowPane();
+            final String[] genotype = g.split(":");
+            for (int i = 0; i < genotype.length; i++) {
+                Label l = new Label(format[i] + "=" + genotype[i]);
+                l.getStyleClass().add("parameter");
+                box.getChildren().add(l);
             }
+            getChildren().add(box);
         }
     }
 

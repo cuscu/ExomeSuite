@@ -16,30 +16,41 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.vcf.Variant2;
-import exomesuite.vcf.VariantListener;
-import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.canvas.Canvas;
 
 /**
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class VariantInfo extends FlowPane implements VariantListener {
+public abstract class ResizableCanvas extends Canvas {
 
-    public VariantInfo() {
+    public ResizableCanvas() {
+        widthProperty().addListener(e -> repaint());
+        heightProperty().addListener(e -> repaint());
     }
 
     @Override
-    public void variantChanged(Variant2 variant) {
-        getChildren().clear();
-        if (variant != null) {
-            for (String info : variant.getInfo().split(";")) {
-                Label label = new Label(info);
-                label.getStyleClass().add("parameter");
-                getChildren().add(label);
-            }
-        }
+    public boolean isResizable() {
+        return true;
     }
 
+    @Override
+    public double prefHeight(double width) {
+        return getHeight();
+    }
+
+    @Override
+    public double prefWidth(double height) {
+        return getWidth();
+    }
+
+    protected abstract void draw(double width, double height);
+
+    /**
+     * Clears layer and repaints it.
+     */
+    protected void repaint() {
+        getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
+        draw(getWidth(), getHeight());
+    }
 }

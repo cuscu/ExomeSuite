@@ -32,14 +32,13 @@ public class ChoiceParam extends Param {
     private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
 
     public ChoiceParam() {
-        // Accept by button
         accept.setOnAction(e -> endEdit(true, options.getValue()));
-        // Cancel by button
         cancel.setOnAction(e -> endEdit(false, null));
     }
 
     @Override
     protected Node getEditingPane() {
+        options.getSelectionModel().select(getValue());
         return new HBox(options, accept, cancel);
     }
 

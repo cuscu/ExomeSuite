@@ -14,31 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.bam;
 
-import exomesuite.vcf.Variant2;
-import exomesuite.vcf.VariantListener;
-import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.paint.Color;
 
 /**
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class VariantInfo extends FlowPane implements VariantListener {
+public class BamTicksLayer extends BamLayer {
 
-    public VariantInfo() {
+    public BamTicksLayer() {
+        getGraphicsContext2D().setStroke(Color.GRAY);
     }
 
     @Override
-    public void variantChanged(Variant2 variant) {
-        getChildren().clear();
-        if (variant != null) {
-            for (String info : variant.getInfo().split(";")) {
-                Label label = new Label(info);
-                label.getStyleClass().add("parameter");
-                getChildren().add(label);
-            }
+    protected void draw(double width, double height) {
+        // X axis
+        for (double i = getAxisMargin() + getBaseWidth(); i < width - getAxisMargin(); i += getBaseWidth()) {
+            getGraphicsContext2D().strokeLine(i, getAxisMargin(),
+                    i, height - (getAxisMargin() - getTickLength()));
         }
     }
 

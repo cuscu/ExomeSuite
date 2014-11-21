@@ -77,7 +77,9 @@ public class MistAction extends Action {
 
         // Ask user for params
         Properties params = showParamsView(bamfiles);
-
+        if (params.isEmpty()) {
+            return null;
+        }
         // Assert threshold is an integer
         final int threshold;
         try {

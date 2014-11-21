@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600.0" alignment="TOP_CENTER"
+      fx:controller="exomesuite.vcf.CombineVariants">
+    <children>
+        <SectionTitle title="Select files"/>
+        <ListView fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
+        <FlatButton fx:id="addInclude" text="Add" icon="addFile.png" />
+        <SectionTitle title="Select files"/>
+        <ListView fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
+        <FlatButton fx:id="addExclude" text="Add" icon="addFile.png" />
+        <FileParam fx:id="output" title="Output" behaviour="SAVE" />
+        <FlatButton fx:id="startButton" text="Start" icon="start.png"/>
+    </children>
+
+</VBox>
+

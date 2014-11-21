@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcfreader;
+package exomesuite.vcf;
 
 /**
  * Stores a variant.
@@ -92,6 +92,14 @@ public class Variant2 {
         return qual;
     }
 
+    /**
+     * Returns a String array. Each element contains genotype info about one sample in the vcf. For
+     * instance, if vcf contains variants of one sample, the size of the array will be 1. If 3
+     * samples are stored in the file, the size will be 3.
+     *
+     * @return an array with the genotype info of each sample, or null if no genotype info in the
+     * file.
+     */
     public String[] getSamples() {
         return samples;
     }

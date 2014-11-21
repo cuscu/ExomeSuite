@@ -164,7 +164,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
             return;
         }
         File file = new File(f);
-        MainViewController.showFileContent(file);
+        String grch = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
+        MainViewController.showFileContent(file, new File(OS.getGenome(grch)));
     }
 
     /**

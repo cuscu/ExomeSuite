@@ -16,10 +16,10 @@
  */
 package exomesuite.project;
 
-import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.graphic.CallParams;
 import exomesuite.graphic.MistParams;
 import exomesuite.systemtask.Caller;
+import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
@@ -108,7 +108,6 @@ public class CallAction extends Action {
 
     private void showParamsView(Project project) {
         String[] files = project.getProperty(Project.PropertyName.FILES, "").split(";");
-        //String input = project.getProperty(Project.PropertyName.BAM_FILE);
         // Look for the first bam file
         List<String> bams = new ArrayList<>();
         for (String s : files) {

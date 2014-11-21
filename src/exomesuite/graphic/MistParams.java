@@ -36,7 +36,7 @@ public class MistParams {
     @FXML
     private TextParam threshold;
     @FXML
-    private TextParam length;
+    private NumberParam length;
     @FXML
     private Button accept;
 
