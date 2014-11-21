@@ -26,26 +26,54 @@ import javafx.scene.text.TextAlignment;
  */
 public class BamTickLabelLayer extends BamLayer {
 
-    public BamTickLabelLayer() {
-        getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
+    public BamTickLabelLayer(GraphParameters parameters) {
+        super(parameters);
+        getGraphicsContext2D().setTextAlign(TextAlignment.LEFT);
         getGraphicsContext2D().setTextBaseline(VPos.CENTER);
-        getGenomicPosition().addListener((ObservableValue<? extends Number> obs, Number o, Number n) -> {
-            repaint();
-        });
+        parameters.getGenomicPosition().addListener((ObservableValue<? extends Number> obs,
+                Number o, Number n) -> repaint());
+        parameters.getMaxYValue().addListener((ObservableValue<? extends Number> obs,
+                Number o, Number n) -> repaint());
     }
 
     @Override
     protected void draw(double width, double height) {
+        int position = parameters.getGenomicPosition().get();
+        final double baseWidth = parameters.getBaseWidth().get();
+        final double margin = parameters.getAxisMargin().get();
+        final double textMargin = parameters.getTextMargin().get();
+        final double tickLength = parameters.getTickLength().get();
+        final double maxValue = parameters.getPercentageUnits().get()
+                ? 100.0 : parameters.getMaxYValue().get();
+        final int yTicks = parameters.getyTicks().get();
+
         // X axis
-        int i = getGenomicPosition().get();
-        double x = getAxisMargin() + getBaseWidth() * 0.5;
-        final double y = height - 0.5 * (getAxisMargin() - getTickLength());
-        final double textWidth = getBaseWidth() - 0.5 * getTextMargin();
-        while (x < width - getAxisMargin()) {
+        double x = margin;
+        final double h = height - 0.5 * (margin - tickLength);
+        final double textWidth = margin - 2 * textMargin;
+        while (x < width - margin) {
             // Only 2 digits
-            final int cropPos = i++ % 100;
-            getGraphicsContext2D().fillText(String.valueOf(cropPos), x, y, textWidth);
-            x += getBaseWidth();
+            final int cropPos = position++ % 100;
+            getGraphicsContext2D().fillText(String.valueOf(cropPos), x, h, textWidth);
+            x += baseWidth;
+        }
+
+        // Y axis
+        final double graphHeight = (height - 2 * margin);
+        final double divisions = maxValue / yTicks;
+        final double step = graphHeight / divisions;
+        double y = height - margin;
+        int i = 0;
+        while (y > margin) {
+            if (parameters.getPercentageUnits().get()) {
+                final double percentage = i * yTicks;
+                getGraphicsContext2D().fillText(String.format("%3.0f%%", percentage), 0, y, textWidth);
+            } else {
+                final double value = i * yTicks;
+                getGraphicsContext2D().fillText(String.format("%5.2f", value), 0, y, textWidth);
+            }
+            y -= step;
+            i++;
         }
     }
 

@@ -19,6 +19,7 @@ package exomesuite.bam;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -52,6 +53,22 @@ public class GraphParameters {
      * Selected index. -1 i nothing selected.
      */
     private final SimpleIntegerProperty selectedIndex = new SimpleIntegerProperty(-1);
+    /**
+     * Number of divisions of y axis.
+     */
+    private final SimpleIntegerProperty yTicks = new SimpleIntegerProperty(5);
+    /**
+     * Y axis as percentage.
+     */
+    private final SimpleBooleanProperty percentageUnits = new SimpleBooleanProperty(true);
+    /**
+     * Activate colors per base.
+     */
+    private final SimpleBooleanProperty baseColors = new SimpleBooleanProperty(true);
+    /**
+     * Y max value.
+     */
+    private final SimpleDoubleProperty maxYValue = new SimpleDoubleProperty();
     /**
      * List of reference bases. First character must be nucleotide on genomicPosition.
      */
@@ -113,6 +130,42 @@ public class GraphParameters {
      */
     public SimpleIntegerProperty getSelectedIndex() {
         return selectedIndex;
+    }
+
+    /**
+     * Number of divisions of y axis.
+     *
+     * @return the yTicks
+     */
+    public SimpleIntegerProperty getyTicks() {
+        return yTicks;
+    }
+
+    /**
+     * Show Y axis as percentage.
+     *
+     * @return the percentageUnits
+     */
+    public SimpleBooleanProperty getPercentageUnits() {
+        return percentageUnits;
+    }
+
+    /**
+     * Activate base colors.
+     *
+     * @return true if base colors activated.
+     */
+    public SimpleBooleanProperty getBaseColors() {
+        return baseColors;
+    }
+
+    /**
+     * Max Y value.
+     *
+     * @return the maxYvalue
+     */
+    public SimpleDoubleProperty getMaxYValue() {
+        return maxYValue;
     }
 
     /**
@@ -188,6 +241,33 @@ public class GraphParameters {
     }
 
     /**
+     * Number of divisions of y axis.
+     *
+     * @param ticks the ticks to set
+     */
+    public void setYTicks(int ticks) {
+        yTicks.set(ticks);
+    }
+
+    /**
+     * Show Y axis as percentage.
+     *
+     * @param percentage true if percentage units, false if absolute.
+     */
+    public void setPercentageUnits(boolean percentage) {
+        percentageUnits.set(percentage);
+    }
+
+    /**
+     * Max Y value.
+     *
+     * @param value the new value
+     */
+    public void setMaxYValue(double value) {
+        maxYValue.set(value);
+    }
+
+    /**
      * List of reference bases. First character must be nucleotide on genomicPosition.
      *
      * @param reference the reference to set
@@ -203,6 +283,20 @@ public class GraphParameters {
      */
     public void setValues(List<Map<Character, Integer>> values) {
         this.values = values;
+        maxYValue.set(1);
+        values.forEach((Map<Character, Integer> position) -> {
+            if (position != null) {
+                position.forEach((Character base, Integer dp) -> {
+                    if (dp > maxYValue.get()) {
+                        maxYValue.set(dp);
+                    }
+                });
+            }
+        });
+    }
+
+    public void setBaseColors(boolean activate) {
+        baseColors.set(activate);
     }
 
 }

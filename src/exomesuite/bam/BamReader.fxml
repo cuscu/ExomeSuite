@@ -14,14 +14,9 @@
             <children>
                 <ChoiceParam fx:id="chromosome" title="Chromosome"  />
                 <TextParam fx:id="position" title="Position" />
-            </children>
-        </HBox>
-        <Label fx:id="info"/>
-        <HBox >
-            <children>
-                <Label text="Zoom"/>
                 <NumberParam fx:id="zoom" title="Zoom" min="20" max="100" value="20" />
             </children>
         </HBox>
+        <Label fx:id="info"/>
     </children>
 </fx:root>

@@ -25,21 +25,24 @@ import javafx.scene.paint.Color;
  */
 public class BamSelectLayer extends BamLayer {
 
-    public BamSelectLayer() {
+    public BamSelectLayer(GraphParameters parameters) {
+        super(parameters);
         getGraphicsContext2D().setFill(Color.LIGHTCYAN);
-        getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            repaint();
-        });
+        parameters.getSelectedIndex().addListener((ObservableValue<? extends Number> observable,
+                Number oldValue, Number newValue) -> repaint());
     }
 
     @Override
     protected void draw(double width, double height) {
-        int index = getSelectedIndex().get();
-        if (0 <= index && index < getValues().size()) {
-            final double barHeight = getHeight() - 2 * getAxisMargin();
-            final double barwidth = getBaseWidth();
-            final double pos = getAxisMargin() + index * getBaseWidth();
-            final double h = getHeight() - getAxisMargin() - barHeight;
+        final int index = parameters.getSelectedIndex().get();
+        final double baseWidth = parameters.getBaseWidth().get();
+        final double margin = parameters.getAxisMargin().get();
+
+        if (0 <= index && index < parameters.getReference().size()) {
+            final double barHeight = getHeight() - 2 * margin;
+            final double barwidth = baseWidth;
+            final double pos = margin + index * baseWidth;
+            final double h = getHeight() - margin - barHeight;
             getGraphicsContext2D().fillRect(pos, h, barwidth, barHeight);
         }
     }

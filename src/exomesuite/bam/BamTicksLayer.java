@@ -24,16 +24,32 @@ import javafx.scene.paint.Color;
  */
 public class BamTicksLayer extends BamLayer {
 
-    public BamTicksLayer() {
+    public BamTicksLayer(GraphParameters parameters) {
+        super(parameters);
         getGraphicsContext2D().setStroke(Color.GRAY);
     }
 
     @Override
     protected void draw(double width, double height) {
+        final double margin = parameters.getAxisMargin().get();
+        final double baseWidth = parameters.getBaseWidth().get();
+        final double tickLength = parameters.getTickLength().get();
+        final double maxValue = parameters.getPercentageUnits().get()
+                ? 100.0 : parameters.getMaxYValue().get();
+        final int yTicks = parameters.getyTicks().get();
         // X axis
-        for (double i = getAxisMargin() + getBaseWidth(); i < width - getAxisMargin(); i += getBaseWidth()) {
-            getGraphicsContext2D().strokeLine(i, getAxisMargin(),
-                    i, height - (getAxisMargin() - getTickLength()));
+        for (double x = margin + baseWidth; x < width - margin; x += baseWidth) {
+            getGraphicsContext2D().strokeLine(x, margin, x, height - (margin - tickLength));
+        }
+
+        // Y axis
+        final double graphHeight = (height - 2 * margin);
+        final double divisions = maxValue / yTicks;
+        final double step = graphHeight / divisions;
+        double y = height - margin;
+        while (y > margin) {
+            getGraphicsContext2D().strokeLine(margin - tickLength, y, width - (margin - tickLength), y);
+            y -= step;
         }
     }
 

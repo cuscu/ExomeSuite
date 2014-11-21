@@ -16,45 +16,55 @@
  */
 package exomesuite.bam;
 
+import java.util.List;
+
 /**
+ * Draws a colored bar on each base, ocuppying the whole surface.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamBaseBackgroundLayer extends BamLayer {
 
+    /**
+     * The opacity of background areas.
+     */
+    final static double opacity = 0.1;
+
+    public BamBaseBackgroundLayer(GraphParameters parameters) {
+        super(parameters);
+    }
+
     @Override
     protected void draw(double width, double height) {
-        final double barwidth = getBaseWidth();
-        final double barHeight = height - 2 * getAxisMargin();
-        final double y = height - getAxisMargin() - barHeight;
-        final double opacity = 0.1;
+        final double baseWidth = parameters.getBaseWidth().get();
+        final double margin = parameters.getAxisMargin().get();
+        final List<Character> reference = parameters.getReference();
+        final double barwidth = baseWidth;
+        final double barHeight = height - 2 * margin;
+        final double y = height - margin - barHeight;
         int i = 0;
-        double x = getAxisMargin();
-        while (i < getReference().size() && x < width - getAxisMargin()) {
-            switch (getReference().get(i)) {
+        double x = margin;
+        while (i < reference.size() && x < width - margin) {
+            switch (reference.get(i)) {
                 case 'A':
-//                    getGraphicsContext2D().setFill(Color.PALEGREEN);
                     getGraphicsContext2D().setFill(A_COLOR.deriveColor(0, 1, 1, opacity));
                     getGraphicsContext2D().fillRect(x, y, barwidth, barHeight);
                     break;
                 case 'C':
-//                    getGraphicsContext2D().setFill(Color.LIGHTCYAN);
                     getGraphicsContext2D().setFill(C_COLOR.deriveColor(0, 1, 1, opacity));
                     getGraphicsContext2D().fillRect(x, y, barwidth, barHeight);
                     break;
                 case 'T':
-//                    getGraphicsContext2D().setFill(Color.LIGHTPINK);
                     getGraphicsContext2D().setFill(T_COLOR.deriveColor(0, 1, 1, opacity));
                     getGraphicsContext2D().fillRect(x, y, barwidth, barHeight);
                     break;
                 case 'G':
                     getGraphicsContext2D().setFill(G_COLOR.deriveColor(0, 1, 1, opacity));
-//                    getGraphicsContext2D().setFill(Color.LIGHTGRAY);
                     getGraphicsContext2D().fillRect(x, y, barwidth, barHeight);
                     break;
             }
             i++;
-            x += getBaseWidth();
+            x += baseWidth;
         }
     }
 

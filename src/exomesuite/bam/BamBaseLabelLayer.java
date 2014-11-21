@@ -16,6 +16,7 @@
  */
 package exomesuite.bam;
 
+import java.util.List;
 import javafx.geometry.VPos;
 import javafx.scene.text.TextAlignment;
 
@@ -23,21 +24,26 @@ import javafx.scene.text.TextAlignment;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class BamReferencelabelLayer extends BamLayer {
+public class BamBaseLabelLayer extends BamLayer {
 
-    public BamReferencelabelLayer() {
+    public BamBaseLabelLayer(GraphParameters parameters) {
+        super(parameters);
         getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
         getGraphicsContext2D().setTextBaseline(VPos.BOTTOM);
     }
 
     @Override
     protected void draw(double width, double height) {
-        final double textWidth = getBaseWidth() - 2 * getTextMargin();
+        final double margin = parameters.getAxisMargin().get();
+        final double baseWidth = parameters.getBaseWidth().get();
+        final double textMargin = parameters.getTextMargin().get();
+        final List<Character> reference = parameters.getReference();
+        final double textWidth = baseWidth - 2 * textMargin;
 
         int i = 0;
-        double pos = getAxisMargin() + getBaseWidth() * 0.5;
-        while (i < getReference().size() && pos < width - getAxisMargin()) {
-            String nucleotide = String.valueOf(getReference().get(i++));
+        double x = margin + baseWidth * 0.5;
+        while (i < reference.size() && x < width - margin) {
+            String nucleotide = String.valueOf(reference.get(i++));
             switch (nucleotide) {
                 case "A":
                     getGraphicsContext2D().setFill(A_COLOR);
@@ -52,8 +58,8 @@ public class BamReferencelabelLayer extends BamLayer {
                     getGraphicsContext2D().setFill(C_COLOR);
                     break;
             }
-            getGraphicsContext2D().fillText(nucleotide, pos, getAxisMargin(), textWidth);
-            pos += getBaseWidth();
+            getGraphicsContext2D().fillText(nucleotide, x, margin, textWidth);
+            x += baseWidth;
         }
     }
 

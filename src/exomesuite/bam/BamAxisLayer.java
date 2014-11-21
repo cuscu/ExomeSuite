@@ -24,18 +24,20 @@ import javafx.scene.paint.Color;
  */
 public class BamAxisLayer extends BamLayer {
 
-    public BamAxisLayer() {
+    public BamAxisLayer(GraphParameters parameters) {
+        super(parameters);
         getGraphicsContext2D().setStroke(Color.BLACK);
     }
 
     @Override
     protected void draw(double width, double height) {
         // Y axis
-        getGraphicsContext2D().strokeLine(getAxisMargin(), getAxisMargin(),
-                getAxisMargin(), height - (getAxisMargin() - getTickLength()));
+        final double margin = parameters.getAxisMargin().get();
+        final double tickLength = parameters.getTickLength().get();
+        getGraphicsContext2D().strokeLine(margin, margin, margin, height - (margin - tickLength));
         // X axis
-        getGraphicsContext2D().strokeLine(getAxisMargin() - getTickLength(), height - getAxisMargin(),
-                width - getAxisMargin(), height - getAxisMargin());
+        getGraphicsContext2D().strokeLine(margin - tickLength, height - margin,
+                width - margin, height - margin);
     }
 
 }

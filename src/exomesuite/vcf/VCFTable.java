@@ -16,7 +16,6 @@
  */
 package exomesuite.vcf;
 
-import exomesuite.vcf.VCFFilter;
 import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.VCFFilterPane;
 import exomesuite.graphic.VariantExons;
@@ -34,15 +33,18 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 
 /**
  * FXML Controller class
@@ -100,7 +102,7 @@ public class VCFTable extends VBox {
         table.setSortPolicy((TableView<Variant2> param) -> false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().addAll(lineNumber, chrom, position, rsId, variant, qual, filter);
-
+        table.setEditable(true);
         chrom.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
                 -> new SimpleStringProperty(param.getValue().getChrom()));
         position.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
@@ -117,13 +119,13 @@ public class VCFTable extends VBox {
         qual.setCellValueFactory((TableColumn.CellDataFeatures<Variant2, String> param)
                 -> new SimpleStringProperty(param.getValue().getQual() + ""));
         lineNumber.setCellFactory(param -> new IndexCell());
-        chrom.setCellFactory(new StyledCell());
-        position.setCellFactory(new StyledCell());
-        variant.setCellFactory(new StyledCell());
-        rsId.setCellFactory(new StyledCell());
-        filter.setCellFactory(new StyledCell());
-//        info.setCellFactory(new StyledCell());
-        qual.setCellFactory(new StyledCell());
+        chrom.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+        position.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+        variant.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+        rsId.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+        filter.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+        qual.setCellFactory((TableColumn<Variant2, String> param) -> new StyledCell());
+
         table.getSelectionModel().selectedItemProperty().addListener(e -> updateVariant());
         addListener(variantInfo);
         addListener(variantExons);
@@ -231,40 +233,48 @@ public class VCFTable extends VBox {
 
     }
 
-    private static class StyledCell implements
-            Callback<TableColumn<Variant2, String>, TableCell<Variant2, String>> {
+    private static class StyledCell extends TableCell<Variant2, String> {
 
-        private final static String PASS = "pass";
-        private final static String NO_PASS = "no-pass";
+        private TextField textField;
 
-        FilterClass filter;
+        public StyledCell() {
+            textField = new TextField();
+            textField.setEditable(false);
+            textField.setBackground(Background.EMPTY);
+            textField.setPadding(new Insets(1));
+            textField.setOnMouseClicked(e -> textField.selectAll());
+            textField.setTooltip(new Tooltip());
+        }
 
         @Override
-        public TableCell<Variant2, String> call(TableColumn<Variant2, String> param) {
-            return new TableCell<Variant2, String>() {
-
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty) {
-                        setText(null);
-                    } else {
-                        getStyleClass().remove(PASS);
-                        getStyleClass().remove(NO_PASS);
-//                        switch (filter) {
-//                            case PASS:
-//                                getStyleClass().add(PASS);
-//                                break;
-//                            case NO_PASS:
-//                                getStyleClass().add(NO_PASS);
-//                        }
-                        setAlignment(Pos.CENTER_RIGHT);
-                        setText(item);
-                    }
-                }
-
-            };
+        public void startEdit() {
+            textField.setText(getItem());
+            setGraphic(textField);
         }
+
+        @Override
+        protected void updateItem(String t, boolean bln) {
+            super.updateItem(t, bln);
+            textField.setText(getItem());
+            setGraphic(null);
+            setText(t);
+            setTooltip(new Tooltip(t));
+        }
+
+        @Override
+        public void cancelEdit() {
+            super.cancelEdit();
+            setGraphic(null);
+            setText(getItem());
+        }
+
+        @Override
+        public void commitEdit(String newValue) {
+            super.commitEdit(newValue);
+            setGraphic(null);
+            setText(newValue);
+        }
+
     }
 
     /**

@@ -63,6 +63,14 @@ public class BamReader extends VBox {
 
     private final File bamFile;
     private final File genome;
+    private GraphParameters parameters;
+    private BamBaseBackgroundLayer backgroundLayer;
+    private BamAxisLayer axisLayer;
+    private BamBarsLayer barsLayer;
+    private BamSelectLayer selectLayer;
+    private BamTickLabelLayer tickLabelLayer;
+    private BamTicksLayer ticksLayer;
+    private BamBaseLabelLayer baseLabelLayer;
 
     public BamReader(File bamFile, File genome) {
         this.bamFile = bamFile;
@@ -77,7 +85,6 @@ public class BamReader extends VBox {
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
-
     }
 
     @FXML
@@ -85,26 +92,36 @@ public class BamReader extends VBox {
         canvas.setPrefSize(9999, 9999);
         canvas.setMinSize(1, 1);
         canvas.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        addlayer(new BamBaseBackgroundLayer());
-        addlayer(new BamAxisLayer());
-        addlayer(new BamTicksLayer());
-        addlayer(new BamTickLabelLayer());
-        addlayer(new BamReferencelabelLayer());
-        addlayer(new BamSelectLayer());
-        addlayer(new BamBarsLayer());
-        BamLayer.setGenomicPosition(1);
-        BamLayer.setReference(getReferenceSequence("1", 1, 100));
-        BamLayer.getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            Map m = BamLayer.getValues().get(newValue.intValue());
-            if (m != null) {
-                info.setText((newValue.intValue() + BamLayer.getGenomicPosition().intValue()) + ":" + m.toString());
+        parameters = new GraphParameters();
+        backgroundLayer = new BamBaseBackgroundLayer(parameters);
+        axisLayer = new BamAxisLayer(parameters);
+        barsLayer = new BamBarsLayer(parameters);
+        selectLayer = new BamSelectLayer(parameters);
+        tickLabelLayer = new BamTickLabelLayer(parameters);
+        baseLabelLayer = new BamBaseLabelLayer(parameters);
+        ticksLayer = new BamTicksLayer(parameters);
+        addlayer(backgroundLayer);
+        addlayer(selectLayer);
+        addlayer(barsLayer);
+        addlayer(axisLayer);
+        addlayer(ticksLayer);
+        addlayer(tickLabelLayer);
+        addlayer(baseLabelLayer);
+        backgroundLayer.setDisable(true);
+        parameters.setPercentageUnits(false);
+        parameters.setBaseColors(false);
+        parameters.setGenomicPosition(1);
+        parameters.setReference(getReferenceSequence("1", 1, 100));
+        parameters.getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            if (parameters.getValues().size() > newValue.intValue()) {
+                info.setText((newValue.intValue() + parameters.getGenomicPosition().intValue())
+                        + ":" + parameters.getValues().get(parameters.getSelectedIndex().get()).toString());
             }
         });
         chromosome.setOptions(OS.getStandardChromosomes());
-        position.setOnValueChanged(e -> {
-            setPosition(chromosome.getValue(), Integer.valueOf(position.getValue()));
-        });
-        zoom.setOnValueChanged(e -> BamLayer.setBaseWidth(Double.valueOf(zoom.getValue())));
+        position.setOnValueChanged(event
+                -> setPosition(chromosome.getValue(), Integer.valueOf(position.getValue())));
+        zoom.setOnValueChanged(e -> parameters.setBaseWidth(Double.valueOf(zoom.getValue())));
     }
 
     private void addlayer(BamLayer layer) {
@@ -114,12 +131,13 @@ public class BamReader extends VBox {
     }
 
     private void setPosition(String chr, int position) {
-        final int elements = (int) Math.floor((canvas.getWidth() - BamLayer.getAxisMargin())
-                / BamLayer.getBaseWidth());
+        final int elements = (int) Math.floor((canvas.getWidth() - parameters.getAxisMargin().get())
+                / parameters.getBaseWidth().get());
+        System.out.println(elements);
         // Get reference sequence
-        BamLayer.setReference(getReferenceSequence(chr, position, position + elements));
-        BamLayer.setGenomicPosition(position);
-        BamLayer.setValues(getDepthValues(chr, position, position + elements));
+        parameters.setReference(getReferenceSequence(chr, position, position + elements));
+        parameters.setGenomicPosition(position);
+        parameters.setValues(getDepthValues(chr, position, position + elements));
     }
 
     /**
@@ -139,9 +157,11 @@ public class BamReader extends VBox {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 // Skip echo
                 reader.readLine();
-                String line = reader.readLine();
-                for (char c : line.toCharArray()) {
-                    list.add(c);
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    for (char c : line.toCharArray()) {
+                        list.add(c);
+                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);

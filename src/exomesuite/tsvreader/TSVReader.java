@@ -102,7 +102,7 @@ public class TSVReader {
         table.setSortPolicy((TableView<String[]> param) -> false);
         viewController.getFile().setText(file.getAbsolutePath());
         viewController.getSize().setText(OS.humanReadableByteCount(file.length(), false));
-        viewController.getExport().setOnAction((ActionEvent event) -> exportResults());
+        viewController.getExport().setOnAction(event -> exportResults());
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             // Store headers in a list.
             headers = Arrays.asList(in.readLine().split("\t"));
@@ -124,7 +124,7 @@ public class TSVReader {
                 filter.setBackground(new Background(new BackgroundFill(Color.WHITE,
                         CornerRadii.EMPTY, new Insets(2))));
                 filter.setPromptText("Filter me");
-                filter.setOnAction((ActionEvent event) -> updateTable());
+                filter.setOnAction(event -> updateTable());
                 FlatButton fb = new FlatButton("zoom.png", "Search");
                 FlatButton eye = new FlatButton("eye.png", "View");
                 eye.setOnAction((ActionEvent event) -> showColumn(index));
