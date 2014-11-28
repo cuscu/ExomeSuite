@@ -16,7 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.utils.OS;
 import java.io.File;
 import java.io.FileFilter;
 import java.text.SimpleDateFormat;
@@ -45,7 +44,7 @@ public class Recalibrator extends SystemTask {
     @Override
     protected Integer call() throws Exception {
         String gatk = "software" + File.separator + "gatk" + File.separator + "GenomeAnalysisTK.jar";
-        String java7 = OS.scanJava7();
+        String java7 = "/home/unidad03/NetBeansProjects/ExomeSuite/software/jre1.7.0_71/bin/java";
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss_");
         final String timestamp = "recal_" + df.format(new Date());
         File snpTemp = new File(temp, timestamp + "snp.vcf");

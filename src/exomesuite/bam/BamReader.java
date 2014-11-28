@@ -16,32 +16,26 @@
  */
 package exomesuite.bam;
 
+import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.NumberParam;
 import exomesuite.graphic.TextParam;
+import exomesuite.utils.Ensembl;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 /**
  * The super graph.
@@ -51,8 +45,6 @@ import javafx.scene.paint.Color;
 public class BamReader extends VBox {
 
     @FXML
-    private StackPane canvas;
-    @FXML
     private ChoiceParam chromosome;
     @FXML
     private TextParam position;
@@ -60,23 +52,32 @@ public class BamReader extends VBox {
     private Label info;
     @FXML
     private NumberParam zoom;
-
+    @FXML
+    private CheckBox showNucleotideColor;
+    @FXML
+    private CheckBox showBackgroundColor;
+    @FXML
+    private CheckBox showAxisX;
+    @FXML
+    private CheckBox showAxisY;
+    @FXML
+    private CheckBox showLabelsX;
+    @FXML
+    private CheckBox showLabelsY;
+    @FXML
+    private CheckBox showPercentageDP;
+    @FXML
+    private CheckBox showAlleles;
     private final File bamFile;
     private final File genome;
-    private GraphParameters parameters;
-    private BamBaseBackgroundLayer backgroundLayer;
-    private BamAxisLayer axisLayer;
-    private BamBarsLayer barsLayer;
-    private BamSelectLayer selectLayer;
-    private BamTickLabelLayer tickLabelLayer;
-    private BamTicksLayer ticksLayer;
-    private BamBaseLabelLayer baseLabelLayer;
+
+    @FXML
+    private BamCanvas bamCanvas;
 
     public BamReader(File bamFile, File genome) {
+        Ensembl.setFile(new File(OS.getProperty("ensembl")));
         this.bamFile = bamFile;
         this.genome = genome;
-        System.out.println(bamFile.getAbsolutePath());
-        System.out.println(genome.getAbsolutePath());
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("BamReader.fxml"));
             loader.setRoot(this);
@@ -89,121 +90,239 @@ public class BamReader extends VBox {
 
     @FXML
     private void initialize() {
-        canvas.setPrefSize(9999, 9999);
-        canvas.setMinSize(1, 1);
-        canvas.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        parameters = new GraphParameters();
-        backgroundLayer = new BamBaseBackgroundLayer(parameters);
-        axisLayer = new BamAxisLayer(parameters);
-        barsLayer = new BamBarsLayer(parameters);
-        selectLayer = new BamSelectLayer(parameters);
-        tickLabelLayer = new BamTickLabelLayer(parameters);
-        baseLabelLayer = new BamBaseLabelLayer(parameters);
-        ticksLayer = new BamTicksLayer(parameters);
-        addlayer(backgroundLayer);
-        addlayer(selectLayer);
-        addlayer(barsLayer);
-        addlayer(axisLayer);
-        addlayer(ticksLayer);
-        addlayer(tickLabelLayer);
-        addlayer(baseLabelLayer);
-        backgroundLayer.setDisable(true);
-        parameters.setPercentageUnits(false);
-        parameters.setBaseColors(false);
-        parameters.setGenomicPosition(1);
-        parameters.setReference(getReferenceSequence("1", 1, 100));
-        parameters.getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            if (parameters.getValues().size() > newValue.intValue()) {
-                info.setText((newValue.intValue() + parameters.getGenomicPosition().intValue())
-                        + ":" + parameters.getValues().get(parameters.getSelectedIndex().get()).toString());
+        // Canvas options (force max and min size)
+        bamCanvas.setPrefSize(9999, 9999);
+        bamCanvas.setMinSize(1, 1);
+//        bamCanvas.widthProperty().addListener(object -> updatePosition());
+        initializeBamCanvas();
+        initializeOptionsPanel();
+        // Fill chromosomes with standard (can be replace with a samtools view -H)
+        chromosome.setOptions(OS.getStandardChromosomes());
+        chromosome.setOnValueChanged(event -> updatePosition());
+        // Jump to new position
+        position.setOnValueChanged(event -> updatePosition());
+        zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(Double.valueOf(zoom.getValue())));
+    }
+
+    private void initializeOptionsPanel() {
+        // Layer show/hide
+        showBackgroundColor.setSelected(true);
+        showAxisY.setSelected(true);
+        showLabelsX.setSelected(true);
+        showLabelsY.setSelected(true);
+        showNucleotideColor.setSelected(bamCanvas.getBaseColors().get());
+        showPercentageDP.setSelected(bamCanvas.getPercentageUnits().get());
+        showBackgroundColor.setOnAction(e -> bamCanvas.setShowBackground(showBackgroundColor.isSelected()));
+        showAxisX.setOnAction(e -> bamCanvas.setShowAxisX(showAxisX.isSelected()));
+        showAxisY.setOnAction(e -> bamCanvas.setShowAxisY(showAxisY.isSelected()));
+        // Ohter options
+        showNucleotideColor.setOnAction(e -> bamCanvas.setBaseColors(showNucleotideColor.isSelected()));
+        showPercentageDP.setOnAction(e -> bamCanvas.setPercentageUnits(showPercentageDP.isSelected()));
+        showLabelsX.setOnAction(e -> bamCanvas.setShowLabelsX(showLabelsX.isSelected()));
+        showLabelsY.setOnAction(e -> bamCanvas.setShowLabelsY(showLabelsY.isSelected()));
+        showAlleles.setOnAction(e -> bamCanvas.setShowAlleles(showAlleles.isSelected()));
+        // By default, deactivate x axis
+        showAxisX.setSelected(false);
+        bamCanvas.setShowAxisX(false);
+    }
+
+    private void initializeBamCanvas() {
+        bamCanvas.setPercentageUnits(false);
+        bamCanvas.setBaseColors(false);
+        // When user clicks on a certain position
+        bamCanvas.getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            final int clickedPos = newValue.intValue();
+            final int genomicStartPosition = bamCanvas.getGenomicPosition().get();
+            if (clickedPos >= 0 && bamCanvas.getAlignments().size() > clickedPos) {
+                // Count reference ·
+                int emptySpaces = 0;
+                for (int j = 0; j < clickedPos; j++) {
+                    if (bamCanvas.getAlignments().get(j).getReference() == '*') {
+                        emptySpaces++;
+                    }
+                }
+                final int pos = newValue.intValue() + genomicStartPosition - emptySpaces;
+                PileUp pu = bamCanvas.getAlignments().get(clickedPos);
+                if (pu != null) {
+                    info.setText(pos + ":" + pu);
+                }
             }
         });
-        chromosome.setOptions(OS.getStandardChromosomes());
-        position.setOnValueChanged(event
-                -> setPosition(chromosome.getValue(), Integer.valueOf(position.getValue())));
-        zoom.setOnValueChanged(e -> parameters.setBaseWidth(Double.valueOf(zoom.getValue())));
-    }
-
-    private void addlayer(BamLayer layer) {
-        layer.widthProperty().bind(canvas.widthProperty());
-        layer.heightProperty().bind(canvas.heightProperty());
-        canvas.getChildren().add(layer);
-    }
-
-    private void setPosition(String chr, int position) {
-        final int elements = (int) Math.floor((canvas.getWidth() - parameters.getAxisMargin().get())
-                / parameters.getBaseWidth().get());
-        System.out.println(elements);
-        // Get reference sequence
-        parameters.setReference(getReferenceSequence(chr, position, position + elements));
-        parameters.setGenomicPosition(position);
-        parameters.setValues(getDepthValues(chr, position, position + elements));
     }
 
     /**
-     * Gets a list with the bases of the reference.
-     *
-     * @param chr
-     * @param from
-     * @param to
-     * @return
+     * Computes chr and position and calls changePosition if it is a valid position.
      */
-    private List<Character> getReferenceSequence(String chr, int from, int to) {
-        List<Character> list = new ArrayList<>();
-        ProcessBuilder pb = new ProcessBuilder("samtools", "faidx", genome.getAbsolutePath(),
-                chr + ":" + from + "-" + to);
-        try {
-            Process p = pb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                // Skip echo
-                reader.readLine();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    for (char c : line.toCharArray()) {
-                        list.add(c);
-                    }
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+    private void updatePosition() {
+        final String chr = chromosome.getValue();
+        if (chr != null && !chr.isEmpty()) {
+            try {
+                final int index = Integer.valueOf(position.getValue());
+                changePosition(chr, index);
+            } catch (NumberFormatException ex) {
+                MainViewController.printMessage("Bad position: " + position.getValue(), "error");
+                System.err.println("Set a good position (" + position.getValue() + ")");
             }
-        } catch (IOException ex) {
-            Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+        } else {
+            MainViewController.printMessage("No chromosome selected", "error");
+            System.err.println("Select a chromosome");
         }
-        return list;
     }
 
-    private List<Map<Character, Integer>> getDepthValues(String chr, int from, int to) {
-        Map<Character, Integer>[] array = new Map[to - from + 1];
-        ProcessBuilder pb = new ProcessBuilder("samtools", "view", bamFile.getAbsolutePath(),
-                chr + ":" + from + "-" + to);
+    /**
+     *
+     * @param chr
+     * @param index
+     */
+    private void changePosition(String chr, int index) {
+        // Lets determine the length of the graph.
+        final int elements = (int) Math.floor((bamCanvas.getWidth()
+                - 2 * bamCanvas.getAxisMargin().get())
+                / bamCanvas.getBaseWidth().get()) + 1;
+        int start = index - elements / 2;
+        int end = index + elements / 2;
+        if (start < 1) {
+            end += (1 - start);
+            start = 1;
+        }
+        final List<PileUp> alignments = new ArrayList<>();
+        // The variant is centered on screen.
+        ProcessBuilder pb = new ProcessBuilder("samtools", "mpileup", "-f", genome.getAbsolutePath(),
+                "-r", chr + ":" + start + "-" + end, bamFile.getAbsolutePath());
+        System.out.println(pb.command());
+        String errorLine = "";
         try {
-            Process p = pb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                reader.lines().forEach(line -> {
-                    String[] row = line.split("\t");
-                    String seq = row[9];
-                    int pos = Integer.valueOf(row[3]);
-                    int i = pos < from ? 0 : pos - from;
-                    int j = pos < from ? from - pos : 0;
-                    while (i < array.length && i + from < to && j < seq.length()) {
-                        if (array[i] == null) {
-                            array[i] = new TreeMap<>();
-                            array[i].put(seq.charAt(j), 1);
-                        } else {
-                            Map<Character, Integer> map = array[i];
-                            int dp = map.getOrDefault(seq.charAt(j), 0);
-                            map.put(seq.charAt(j), dp + 1);
-                        }
-                        i++;
-                        j++;
-                    }
-                });
+            final Process p = pb.start();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+                // [mpileup] 1 samples in 1 input files
+                // <mpileup> Set max per-file depth to 8000
+                reader.lines().forEachOrdered(line -> alignments.addAll(decodePileUp(line)));
+                String eLine;
+                while ((eLine = error.readLine()) != null) {
+                    errorLine += "\n" + eLine;
+                }
+//                error.lines().map(t -> t + ". ").reduce(errorLine, String::concat);
             } catch (IOException ex) {
                 Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
             }
+            int ret = p.waitFor();
+            if (ret != 0) {
+                MainViewController.printMessage("Problems loading alignments: " + errorLine, "error");
+            }
         } catch (IOException ex) {
             Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return Arrays.asList(array);
+        bamCanvas.setAlignments(alignments);
+        //System.out.println(alignments);
+        bamCanvas.setGenomicPosition(start);
+    }
+
+    /**
+     * Returns one or more pileups, if there is an insertion, this list will grown up.
+     *
+     * @param line
+     * @return
+     */
+    private List<PileUp> decodePileUp(String line) {
+        /*
+         * In the pileup format (without -u or -g), each line represents a genomic position,
+         * consisting of chromosome name, 1-based coordinate, reference base, the number of reads
+         * covering the site, read bases, base qualities and alignment mapping qualities.
+         * Information on match, mismatch, indel, strand, mapping quality and start and end of a
+         * read are all encoded at the read base column.
+         * At this column:
+         * (.) a dot stands for a match to the reference base on the forward strand.
+         * (,) a comma for a match on the reverse strand.
+         * (<>) a '>' or '<' for a reference skip.
+         * (ACGTN) for a mismatch on the forward strand.
+         * (acgtn) for a mismatch on the reverse strand.
+         * ("\\+[0-9]+[ACGTNacgtn]+") indicates there is an insertion between this reference
+         * position and the next reference position. The length of the insertion is given by the
+         * integer in the pattern, followed by the inserted sequence.
+         * ("-[0-9]+[ACGTNacgtn]+") represents a deletion from the reference. The deleted bases
+         * will be presented as `*' in the following lines.
+         * (^) marks the start of a read. The ASCII of the character following (^) minus 33 gives
+         * the mapping quality.
+         * ($) marks the end of a read segment.
+         */
+        List<PileUp> pileUps = new ArrayList<>();
+        final String[] row = line.split("\t");
+        final char ref = row[2].charAt(0);
+        pileUps.add(new PileUp(ref));
+        char[] reads = row[4].replace('.', ref).replace(',', Character.toLowerCase(ref)).toCharArray();
+        for (int i = 0; i < reads.length; i++) {
+            char base = reads[i];
+            switch (base) {
+                case 'c':
+                case 'C':
+                case 'a':
+                case 'A':
+                case 't':
+                case 'T':
+                case 'g':
+                case 'G':
+                    pileUps.get(0).incrementDepth(base);
+                    break;
+                case '+':
+                    int j = i + 1;
+                    while (Character.isDigit(reads[j])) {
+                        j++;
+                    }
+                    // +1A
+                    // i j (length=1)
+                    // +10ACTACGTACG
+                    // i  j (length=10)
+                    int length = 0;
+                    try {
+                        length = Integer.valueOf(row[4].substring(i + 1, j));
+                    } catch (Exception ex) {
+                        Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    for (int k = 0; k < length; k++) {
+                        PileUp pu;
+                        if (pileUps.size() < k + 2) {
+                            pu = new PileUp(PileUp.EMPTY);
+                            pileUps.add(pu);
+                        } else {
+                            pu = pileUps.get(k + 1);
+                        }
+                        pu.incrementDepth(reads[j + k]);
+                        i = j + length - 1;
+                        break;
+                    }
+                    break;
+                case '-':
+                    // Deletions just need to be supressed
+                    j = i + 1;
+                    while (Character.isDigit(reads[j])) {
+                        j++;
+                    }
+                    // -1A
+                    // i j (length=1)
+                    // -10ACTACGTACG
+                    // i  j (length=10)
+                    length = Integer.valueOf(row[4].substring(i + 1, j));
+                    i = j + length - 1;
+                    break;
+                case '$':
+                    // nothing to do
+                    break;
+                case '^':
+                    // skip quality value
+                    i++;
+                    break;
+                case '*':
+                    // nothing to do
+                    break;
+                case '>':
+                case '<':
+                // What to do?
+            }
+
+        }
+        return pileUps;
     }
 }

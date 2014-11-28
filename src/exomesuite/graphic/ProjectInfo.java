@@ -40,7 +40,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  * Shows properties of a project. When a property is changed, changes it on the project.
@@ -159,8 +158,9 @@ public class ProjectInfo extends VBox implements ProjectListener {
     private void showFile() {
         String f = files.getSelectionModel().getSelectedItem();
         if (!FileManager.tripleCheck(f)) {
-            Dialogs.create().title("File does not exist").message("File " + f + " does not exist.").
-                    showError();
+            MainViewController.printMessage("File " + f + " is not accesible", "warning");
+//            Dialogs.create().title("File does not exist").message("File " + f + " does not exist.").
+//                    showError();
             return;
         }
         File file = new File(f);
@@ -203,7 +203,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
                     Files.copy(source, target, COPY_ATTRIBUTES);
                     f.delete();
                 } catch (IOException ex) {
-                    Dialogs.create().showException(ex);
+//                    Dialogs.create().showException(ex);
+                    MainViewController.showException(ex);
                     Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
                 }
 

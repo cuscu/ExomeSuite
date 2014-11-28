@@ -16,32 +16,32 @@
  */
 package exomesuite.bam;
 
-import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 
 /**
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class BamSelectLayer extends BamLayer {
+public class BamAxisXLayer extends BamLayer {
 
-    public BamSelectLayer() {
-        getGraphicsContext2D().setFill(Color.LIGHTCYAN);
+    public BamAxisXLayer() {
+        getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
     }
 
     @Override
     protected void draw(BamCanvas bamCanvas) {
-        final double height = bamCanvas.getHeight();
-        final int index = bamCanvas.getSelectedIndex().get();
-        final double baseWidth = bamCanvas.getBaseWidth().get();
         final double margin = bamCanvas.getAxisMargin().get();
-
-        if (0 <= index && index < bamCanvas.getAlignments().size()) {
-            final double barHeight = height - 2 * margin;
-            final double barwidth = baseWidth;
-            final double pos = margin + index * baseWidth;
-            final double h = height - margin - barHeight;
-            getGraphicsContext2D().fillRect(pos, h, barwidth, barHeight);
+        final double baseWidth = bamCanvas.getBaseWidth().get();
+        final double tickLength = bamCanvas.getTickLength().get();
+        final double height = bamCanvas.getHeight();
+        final double width = bamCanvas.getWidth();
+        final boolean showAlleles = bamCanvas.getShowAlleles().get();
+        for (double x = margin + baseWidth; x < width - margin; x += baseWidth) {
+            if (showAlleles) {
+                getGraphicsContext2D().strokeLine(x, margin, x, height - margin);
+            } else {
+                getGraphicsContext2D().strokeLine(x, margin, x, height - (margin - tickLength));
+            }
         }
     }
-
 }

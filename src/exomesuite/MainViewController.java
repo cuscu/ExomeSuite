@@ -32,8 +32,12 @@ import exomesuite.vcf.CombineVariants;
 import exomesuite.vcf.VCFTable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -43,29 +47,29 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  * Controller class for the main window. Manages projects (open, close, create, delete...), adds
  * tabs to the rigth panel.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class MainViewController {
 
@@ -93,7 +97,7 @@ public class MainViewController {
     @FXML
     private Label info;
     @FXML
-    private ProgressBar progress;
+    private HBox infoBox;
     @FXML
     private ProjectActions projectActions;
     @FXML
@@ -103,7 +107,9 @@ public class MainViewController {
 
     private static TabPane staticWorkingArea;
     private static Label infoLabel;
-    private static ProgressBar mainProgress;
+    private static HBox infoHBox;
+    @FXML
+    private BorderPane root;
 
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
@@ -111,16 +117,15 @@ public class MainViewController {
     public void initialize() {
         setMenus();
         setToolBar();
-        progress.setProgress(0);
         projectList.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
                 -> {
                     projectActions.setProject(newValue);
                     projectInfo.setProject(newValue);
                 });
-        mainProgress = progress;
         infoLabel = info;
         staticWorkingArea = workingArea;
+        infoHBox = infoBox;
         // Open recently opened projects
         final String openedProjects = OS.getProperty("projects");
         if (openedProjects != null && !openedProjects.isEmpty()) {
@@ -144,26 +149,35 @@ public class MainViewController {
             projectList.getItems().add(project);
             projectList.getSelectionModel().select(project);
         }
+        printMessage("Project " + project.getProperty(Project.PropertyName.NAME) + " opened", "INFO");
     }
 
     /**
      * Checks if all projects can be close. Iterates over projectList, if any of the projects
      * couldn't be closed, returns false.
      *
-     * @return true if all projects can be closed, false otherwise.
      */
-    boolean canClose() {
-        Action showConfirm
-                = Dialogs.create().title("We will miss you")
-                .message("Are you sure you want to exit?").showConfirm();
-        return showConfirm == Dialog.ACTION_YES;
-//        AtomicBoolean exit = new AtomicBoolean(true);
-//        projectList.forEach((Project project) -> {
-//            if (!project.close()) {
-//                exit.set(false);
-//            }
-//        });
-//        return true;
+    public void exitApplication() {
+        Button exit = new Button("Exit", new ImageView("exomesuite/img/exit.png"));
+        Button cont = new Button("Continue", new ImageView("exomesuite/img/cancel.png"));
+        infoBox.getChildren().setAll(infoLabel, exit, cont);
+        printMessage("Are you sure you want to exit?", "info");
+        root.getTop().setDisable(true);
+        root.getCenter().setDisable(true);
+        exit.setOnAction(e -> {
+            String projects = "";
+            projects = projectList.getItems().stream().
+                    map((p) -> p.getConfigFile().getAbsolutePath() + ";").reduce(projects,
+                            String::concat);
+            OS.setProperty("projects", projects);
+            ExomeSuite.getMainStage().close();
+        });
+        cont.setOnAction(e -> {
+            infoBox.getChildren().setAll(infoLabel);
+            printMessage("Good, keep working", "success");
+            root.getTop().setDisable(false);
+            root.getCenter().setDisable(false);
+        });
     }
 
     /**
@@ -255,6 +269,7 @@ public class MainViewController {
             });
             stage.showAndWait();
         } catch (IOException ex) {
+            printMessage("Problem loading new project pane", "error");
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -312,8 +327,12 @@ public class MainViewController {
                 t.setContent(table);
                 //t.setContent(new VCFReader(file).getView());
             } else if (file.getName().endsWith(".bam")) {
+                if (secondary == null) {
+                    secondary = FileManager.openFile("Select reference genome", FileManager.FASTA_FILTER);
+                }
                 t.setContent(new BamReader(file, secondary));
             } else {
+                printMessage("File extension not compatible (" + file.getName() + ")", "warning");
                 return;
             }
             staticWorkingArea.getTabs().add(t);
@@ -327,18 +346,6 @@ public class MainViewController {
 
     public static Label getInfo() {
         return infoLabel;
-    }
-
-    public ProgressBar getProgress() {
-        return mainProgress;
-    }
-
-    void closeWindow() {
-        String projects = "";
-        projects = projectList.getItems().stream().
-                map((p) -> p.getConfigFile().getAbsolutePath() + ";").reduce(projects,
-                        String::concat);
-        OS.setProperty("projects", projects);
     }
 
     private void combineMIST() {
@@ -360,6 +367,11 @@ public class MainViewController {
     }
 
     private void combineVCF() {
+        try {
+            Double.valueOf("e");
+        } catch (NumberFormatException e) {
+            showException(e);
+        }
         try {
             FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"));
             Parent p = loader.load();
@@ -389,8 +401,58 @@ public class MainViewController {
             stage.initOwner(ExomeSuite.getMainStage());
             stage.showAndWait();
         } catch (IOException e) {
+            showException(e);
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    /**
+     * Type must be one of INFO, ERROR, WARNING, SUCCESS, info, error, success and warning.
+     *
+     * @param message
+     * @param type
+     */
+    public static void printMessage(String message, String type) {
+        infoLabel.setText(message);
+        infoLabel.getStyleClass().clear();
+        infoHBox.getStyleClass().clear();
+        infoLabel.getStyleClass().add(type.toLowerCase() + "-label");
+        infoHBox.getStyleClass().add(type.toLowerCase() + "-box");
+        if (type.equals("error")) {
+            System.err.println(message);
+        } else {
+            System.out.println(message);
+        }
+    }
+
+    public static void showException(Exception e) {
+        infoLabel.setText(e.getClass() + " " + e.getMessage());
+        infoLabel.getStyleClass().clear();
+        infoHBox.getStyleClass().clear();
+        infoLabel.getStyleClass().add("error-label");
+        infoHBox.getStyleClass().add("error-box");
+        TextArea area = new TextArea();
+        area.getStyleClass().add("error-label");
+        e.printStackTrace(new PrintStream(new OutputStream() {
+
+            @Override
+            public void write(int b) throws IOException {
+                byte[] c = {(byte) b};
+                final String character = new String(c, Charset.defaultCharset());
+                Platform.runLater(() -> {
+                    area.appendText(character);
+                });
+            }
+        }));
+        Button view = new Button("View details");
+        view.setOnAction(event -> {
+            Stage stage = new Stage();
+            Scene scene = new Scene(area);
+            stage.centerOnScreen();
+            stage.setScene(scene);
+            stage.showAndWait();
+        });
+        infoHBox.getChildren().setAll(infoLabel, view);
     }
 
 }

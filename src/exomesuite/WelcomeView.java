@@ -14,54 +14,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.deprecated;
+package exomesuite;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.VBox;
 
 /**
- * FXML Controller class
+ * FXML Controller class. Its a simple FXML document to put on right panel when application starts
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class VCFReaderController {
+public class WelcomeView extends VBox {
 
     @FXML
-    private Label file;
-    @FXML
-    private Label size;
-    @FXML
-    private Label lines;
-    @FXML
-    private Label currentLines;
-    @FXML
-    private TableView<?> table;
+    private VBox settings;
+
+    public WelcomeView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeView.fxml"));
+            loader.setRoot(this);
+            loader.setController(this);
+            loader.load();
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
+        }
+    }
 
     /**
      * Initializes the controller class.
      */
+    @FXML
     public void initialize() {
     }
 
-    public Label getFile() {
-        return file;
-    }
-
-    public Label getSize() {
-        return size;
-    }
-
-    public Label getLines() {
-        return lines;
-    }
-
-    public Label getCurrentLines() {
-        return currentLines;
-    }
-
-    public TableView<?> getTable() {
-        return table;
+    public VBox getSettings() {
+        return settings;
     }
 
 }

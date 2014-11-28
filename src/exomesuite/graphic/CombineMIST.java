@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.MainViewController;
 import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -33,7 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  * FXML Controller class. The window to intersect MIST files.
@@ -90,6 +90,7 @@ public class CombineMIST {
         // The start Button is disable until user selects an output file.
         startButton.setDisable(true);
         output.setOnValueChanged(e -> startButton.setDisable(false));
+        output.addFilter(FileManager.MIST_FILTER);
         startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getValue())));
     }
 
@@ -132,8 +133,10 @@ public class CombineMIST {
         } catch (Exception ex) {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Dialogs.create().title("Completed").message("File " + output + " generated. " + m
-                + " matches found in " + inputs.size() + " files.").showInformation();
+        MainViewController.printMessage("Success: file " + output + " generated (" + m + " matches)",
+                "success");
+//        Dialogs.create().title("Completed").message("File " + output + " generated. " + m
+//                + " matches found in " + inputs.size() + " files.").showInformation();
     }
 
     /**

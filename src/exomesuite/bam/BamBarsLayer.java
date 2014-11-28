@@ -16,12 +16,7 @@
  */
 package exomesuite.bam;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
 
 /**
@@ -33,94 +28,8 @@ public final class BamBarsLayer extends BamLayer {
 
     private double barRelativeWidth;
 
-    public BamBarsLayer(GraphParameters parameters) {
-        super(parameters);
+    public BamBarsLayer() {
         this.barRelativeWidth = 0.8;
-        parameters.getMaxYValue().addListener((ObservableValue<? extends Number> obs, Number p,
-                Number n) -> repaint());
-    }
-
-    @Override
-    protected void draw(double width, double height) {
-        /*
-         4 bars: ATCG.
-         We leave space of the base margins (barRelativeWidth) and divide the space in 4 bars:
-
-         |______| baseWidth
-         | ____ | baseWidth * barRelativeWidth
-         | _    | barWidth = baseWidth * barRelativeWidth * 0.25
-         | atcg |
-
-         */
-        final double baseWidth = parameters.getBaseWidth().get();
-        final double margin = parameters.getAxisMargin().get();
-        final double barwidth = barRelativeWidth * baseWidth * 0.25;
-        final double y = height - margin;
-        final double maxHeigth = height - 2 * margin;
-        List<Map<Character, Integer>> list = parameters.getValues();
-        int i = 0;
-        double x = margin + (1.0 - barRelativeWidth) * 0.5 * baseWidth;
-        while (i < list.size() && x < width - margin) {
-            if (list.get(i) == null) {
-                i++;
-                continue;
-            }
-            int A = list.get(i).getOrDefault('A', 0);
-            int T = list.get(i).getOrDefault('T', 0);
-            int C = list.get(i).getOrDefault('C', 0);
-            int G = list.get(i).getOrDefault('G', 0);
-            SortedMap<Integer, Character> m = new TreeMap<>(Collections.reverseOrder());
-            // Sort values
-            m.put(A, 'A');
-            m.put(G, 'G');
-            m.put(C, 'C');
-            m.put(T, 'T');
-            // Percentage proportion
-            final double sum = A + T + G + C;
-            final double prop = maxHeigth / sum;
-            final double absProp = maxHeigth / parameters.getMaxYValue().get();
-            // Select values ordered
-            Character base = 'N';
-            if (parameters.getReference().size() > i) {
-                base = parameters.getReference().get(i);
-            }
-            // By default, no color.
-            getGraphicsContext2D().setFill(Color.DARKGRAY);
-            for (Map.Entry<Integer, Character> entry : m.entrySet()) {
-                double barHeight = parameters.getPercentageUnits().get()
-                        ? entry.getKey() * prop : entry.getKey() * absProp;
-                // Select paint
-                switch (entry.getValue()) {
-                    case 'A':
-                        // Color if set on options or if variant.
-                        if (parameters.getBaseColors().get() || base != 'A') {
-                            getGraphicsContext2D().setFill(A_COLOR);
-                        }
-                        getGraphicsContext2D().fillRect(x, y - barHeight, barwidth, barHeight);
-                        break;
-                    case 'T':
-                        if (parameters.getBaseColors().get() || base != 'T') {
-                            getGraphicsContext2D().setFill(T_COLOR);
-                        }
-                        getGraphicsContext2D().fillRect(x + barwidth, y - barHeight, barwidth, barHeight);
-                        break;
-                    case 'C':
-                        if (parameters.getBaseColors().get() || base != 'C') {
-                            getGraphicsContext2D().setFill(C_COLOR);
-                        }
-                        getGraphicsContext2D().fillRect(x + 2 * barwidth, y - barHeight, barwidth, barHeight);
-                        break;
-                    case 'G':
-                        if (parameters.getBaseColors().get() || base != 'G') {
-                            getGraphicsContext2D().setFill(G_COLOR);
-                        }
-                        getGraphicsContext2D().fillRect(x + 3 * barwidth, y - barHeight, barwidth, barHeight);
-                        break;
-                }
-            }
-            x += baseWidth;
-            i++;
-        }
     }
 
     public void setBarRelativeWidth(double barRelativeWidth) {
@@ -131,4 +40,199 @@ public final class BamBarsLayer extends BamLayer {
         return barRelativeWidth;
     }
 
+    @Override
+    protected void draw(BamCanvas bamCanvas) {
+        if (bamCanvas.getShowAlleles().get()) {
+            drawWithAlleles(bamCanvas);
+        } else {
+            drawWithoutAlleles(bamCanvas);
+        }
+    }
+
+    private void drawWithAlleles(BamCanvas bamCanvas) {
+        /*
+         4 bars: ATCG.
+         We leave space of the base margins (barRelativeWidth) and divide the space in 4 bars:
+
+         |______| baseWidth
+         | ____ | baseWidth * barRelativeWidth
+         | _    | barWidth = baseWidth * barRelativeWidth * 0.25
+         | atcg |
+         */
+        final double height = bamCanvas.getHeight();
+        final double width = bamCanvas.getWidth();
+        final double baseWidth = bamCanvas.getBaseWidth().get();
+        final double margin = bamCanvas.getAxisMargin().get();
+        final double barwidth = barRelativeWidth * baseWidth * 0.25;
+        final double y = height * 0.5;
+        final double maxHeigth = 0.5 * height - margin;
+        final boolean inPercentage = bamCanvas.getPercentageUnits().get();
+        final boolean inColor = bamCanvas.getBaseColors().get();
+        List<PileUp> list = bamCanvas.getAlignments();
+        double x = margin + (1.0 - barRelativeWidth) * 0.5 * baseWidth;
+        for (PileUp pileUp : list) {
+            if (x < width - margin) {
+                int A = pileUp.getDepth(PileUp.A);
+                int T = pileUp.getDepth(PileUp.T);
+                int C = pileUp.getDepth(PileUp.C);
+                int G = pileUp.getDepth(PileUp.G);
+                int a = pileUp.getDepth('a');
+                int t = pileUp.getDepth('t');
+                int c = pileUp.getDepth('c');
+                int g = pileUp.getDepth('g');
+                char reference = pileUp.getReference();
+                // Percentage proportion
+                final double sumF = A + T + G + C;
+                final double sumR = a + c + g + t;
+                final double unitF = maxHeigth / ((inPercentage) ? sumF : bamCanvas.getMaxYValue().get());
+                final double unitR = maxHeigth / ((inPercentage) ? sumR : bamCanvas.getMaxYValue().get());
+
+//            final double prop = maxHeigth / sum;
+//            final double absProp = maxHeigth / bamCanvas.getMaxYValue().get();
+                // By default, no color scheme
+                // A
+                double barheigth = A * unitF;
+                if (inColor || reference != 'A') {
+                    getGraphicsContext2D().setFill(A_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x, y - barheigth, barwidth, barheigth);
+                // a
+                barheigth = a * unitR;
+                if (inColor || reference != 'A') {
+                    getGraphicsContext2D().setFill(A_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x, y, barwidth, barheigth);
+                // C
+                barheigth = C * unitF;
+                if (inColor || reference != 'C') {
+                    getGraphicsContext2D().setFill(C_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + barwidth, y - barheigth, barwidth, barheigth);
+                // c
+                barheigth = c * unitR;
+                if (inColor || reference != 'C') {
+                    getGraphicsContext2D().setFill(C_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + barwidth, y, barwidth, barheigth);
+                // G
+                barheigth = G * unitF;
+                if (inColor || reference != 'G') {
+                    getGraphicsContext2D().setFill(G_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 2 * barwidth, y - barheigth, barwidth, barheigth);
+                // g
+                barheigth = g * unitR;
+                if (inColor || reference != 'G') {
+                    getGraphicsContext2D().setFill(G_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 2 * barwidth, y, barwidth, barheigth);
+                // T
+                barheigth = T * unitF;
+                if (inColor || reference != 'T') {
+                    getGraphicsContext2D().setFill(T_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 3 * barwidth, y - barheigth, barwidth, barheigth);
+                // t
+                barheigth = t * unitR;
+                if (inColor || reference != 'T') {
+                    getGraphicsContext2D().setFill(T_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 3 * barwidth, y, barwidth, barheigth);
+                x += baseWidth;
+            } else {
+                break;
+            }
+        }
+    }
+
+    private void drawWithoutAlleles(BamCanvas bamCanvas) {
+        /*
+         4 bars: ATCG.
+         We leave space of the base margins (barRelativeWidth) and divide the space in 4 bars:
+
+         |______| baseWidth
+         | ____ | baseWidth * barRelativeWidth
+         | _    | barWidth = baseWidth * barRelativeWidth * 0.25
+         | atcg |
+
+         */
+        final double height = bamCanvas.getHeight();
+        final double width = bamCanvas.getWidth();
+        final double baseWidth = bamCanvas.getBaseWidth().get();
+        final double margin = bamCanvas.getAxisMargin().get();
+        final double barwidth = barRelativeWidth * baseWidth * 0.25;
+        final double y = height - margin;
+        final double maxHeigth = height - 2 * margin;
+        final boolean inPercentage = bamCanvas.getPercentageUnits().get();
+        final boolean inColor = bamCanvas.getBaseColors().get();
+//        List<Map<Character, Integer>> list = bamCanvas.getValues();
+        List<PileUp> list = bamCanvas.getAlignments();
+        double x = margin + (1.0 - barRelativeWidth) * 0.5 * baseWidth;
+        for (PileUp pileUp : list) {
+            if (x < width - margin) {
+                int A = pileUp.getDepth(PileUp.A) + pileUp.getDepth('a');
+                int T = pileUp.getDepth(PileUp.T) + pileUp.getDepth('t');
+                int C = pileUp.getDepth(PileUp.C) + pileUp.getDepth('c');
+                int G = pileUp.getDepth(PileUp.G) + pileUp.getDepth('g');
+                char reference = pileUp.getReference();
+                // Percentage proportion
+                final double sum = A + T + G + C;
+                final double unit = maxHeigth / ((inPercentage) ? sum : bamCanvas.getMaxYValue().get());
+//            final double prop = maxHeigth / sum;
+//            final double absProp = maxHeigth / bamCanvas.getMaxYValue().get();
+                // By default, no color scheme
+                // A
+                double barheigth = A * unit;
+                if (inColor || reference != 'A') {
+                    getGraphicsContext2D().setFill(A_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x, y - barheigth, barwidth, barheigth);
+                // C
+                barheigth = C * unit;
+                if (inColor || reference != 'C') {
+                    getGraphicsContext2D().setFill(C_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + barwidth, y - barheigth, barwidth, barheigth);
+                // G
+                barheigth = G * unit;
+                if (inColor || reference != 'G') {
+                    getGraphicsContext2D().setFill(G_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 2 * barwidth, y - barheigth, barwidth, barheigth);
+                // T
+                barheigth = T * unit;
+                if (inColor || reference != 'T') {
+                    getGraphicsContext2D().setFill(T_COLOR);
+                } else {
+                    getGraphicsContext2D().setFill(Color.DARKGRAY);
+                }
+                getGraphicsContext2D().fillRect(x + 3 * barwidth, y - barheigth, barwidth, barheigth);
+                x += baseWidth;
+            } else {
+                break;
+            }
+        }
+    }
 }

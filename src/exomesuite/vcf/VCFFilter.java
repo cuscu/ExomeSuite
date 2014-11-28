@@ -17,6 +17,9 @@
 package exomesuite.vcf;
 
 /**
+ * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM,
+ * POS, DP...), a connector (greater than, equals...) and a value. When a variant is passed to the
+ * filter it is read: variant.field connector value (variant.chrom is equals to 7).
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -25,6 +28,18 @@ public class VCFFilter {
     private String value;
     private Connector connector;
     private Field field;
+    private String selectedInfo;
+
+    public VCFFilter() {
+        connector = Connector.EQUALS;
+        field = Field.CHROMOSOME;
+    }
+
+    public VCFFilter(Connector connector, Field field, String selectedInfo) {
+        this.connector = connector;
+        this.field = field;
+        this.selectedInfo = selectedInfo;
+    }
 
     /**
      * Gets the value of the filter.
@@ -44,6 +59,11 @@ public class VCFFilter {
         this.value = value;
     }
 
+    /**
+     * The connector of the filter.
+     *
+     * @return
+     */
     public Connector getConnector() {
         return connector;
     }
@@ -60,6 +80,14 @@ public class VCFFilter {
         this.field = field;
     }
 
+    public String getSelectedInfo() {
+        return selectedInfo;
+    }
+
+    public void setSelectedInfo(String selectedInfo) {
+        this.selectedInfo = selectedInfo;
+    }
+
     /**
      * Returns true in case this variant passes this filter or filter can NOT be applied due to
      * field<->connector<->value incompatibilities.
@@ -67,7 +95,10 @@ public class VCFFilter {
      * @param variant the variant to filter.
      * @return true if passes the filter or the filter cannot be applied, false otherwise.
      */
-    public boolean filter(Variant2 variant) {
+    public boolean filter(Variant variant) {
+        if (field == null) {
+            return true;
+        }
         // Get the value (one of the Field.values())
         String stringValue = null;
         double doubleValue = Double.MIN_VALUE;
@@ -84,22 +115,28 @@ public class VCFFilter {
             case FILTER:
                 stringValue = variant.getFilter();
                 break;
-            case DP:
-                String[] infos = variant.getInfo().split(";");
-                for (String s : infos) {
-                    if (s.startsWith("DP=")) {
-                        stringValue = s.split("=")[1];
-                        doubleValue = Double.valueOf(stringValue);
-                        break;
-                    }
-                }
-                break;
-            case AF:
-                infos = variant.getInfo().split(";");
-                for (String s : infos) {
-                    if (s.startsWith("AF=") || s.startsWith("AF1=")) {
-                        stringValue = s.split("=")[1];
-                        doubleValue = Double.valueOf(stringValue.split(",")[0]);
+            case ID:
+                stringValue = variant.getId();
+            case INFO:
+                String[] content = variant.getInfo().split(";");
+                // variant.getInfo = "DP=10;MQ=23,43;H2"
+                // content[0] = "DP=10"
+                // content[1] = "MQ=23,43"
+                // content[2] = "H2"
+                for (String s : content) {
+                    if (s.startsWith(selectedInfo)) {
+                        if (s.contains("=")) {
+                            // Case DP=10 or MQ=23,43 or REF=G
+                            stringValue = s.split("=")[1];
+                            try {
+                                doubleValue = Double.valueOf(stringValue.split(",")[0]);
+                            } catch (NumberFormatException e) {
+                                // If not a number
+                            }
+                        } else {
+                            // Case H2
+                            stringValue = s;
+                        }
                         break;
                     }
                 }
@@ -233,15 +270,9 @@ public class VCFFilter {
         CHROMOSOME,
         POSITION,
         QUALITY,
-        /**
-         * Depth of coverage.
-         */
-        DP,
-        /**
-         * Allele frequency.
-         */
-        AF,
-        FILTER
+        INFO,
+        FILTER,
+        ID
     }
 
 }

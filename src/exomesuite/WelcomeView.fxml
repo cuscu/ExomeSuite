@@ -6,8 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.WelcomeViewController">
-
+<fx:root type="VBox" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" >
     <children>
         <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
         <HBox alignment="CENTER">
@@ -21,7 +20,7 @@
                                 <ImageView  >
                                     <image>
                                         <Image url="exomesuite/img/add.png" />
-                                    </image>  
+                                    </image>
                                 </ImageView>
                             </graphic><!-- -->
                         </Label>
@@ -31,16 +30,16 @@
                                 <ImageView  >
                                     <image>
                                         <Image url="exomesuite/img/open.png" />
-                                    </image>  
+                                    </image>
                                 </ImageView>
                             </graphic><!-- -->
                         </Label>
                     </children>
                 </VBox>
-                <Separator orientation="HORIZONTAL" visible="false" HBox.hgrow="ALWAYS" />      
+                <Separator orientation="HORIZONTAL" visible="false" HBox.hgrow="ALWAYS" />
             </children>
-        </HBox> 
+        </HBox>
         <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
         <VBox fx:id="settings" />
     </children>
-</VBox>
+</fx:root>

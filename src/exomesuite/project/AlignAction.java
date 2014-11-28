@@ -16,6 +16,7 @@
  */
 package exomesuite.project;
 
+import exomesuite.MainViewController;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
@@ -23,8 +24,6 @@ import exomesuite.utils.OS;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  *
@@ -85,12 +84,14 @@ public class AlignAction extends Action {
         String output = path + File.separator + name + ".bam";
         File out = new File(output);
         if (out.exists()) {
-            org.controlsfx.control.action.Action ret = Dialogs.create().title("Repeat Call?")
-                    .message("File " + out.getAbsolutePath() + " exists."
-                            + " Do you want to repeat the alignment?").showConfirm();
-            if (ret == Dialog.ACTION_CANCEL || ret == Dialog.ACTION_NO) {
-                return null;
-            }
+            MainViewController.printMessage("File " + output + " already exists", "warning");
+            return null;
+//            org.controlsfx.control.action.Action ret = Dialogs.create().title("Repeat Call?")
+//                    .message("File " + out.getAbsolutePath() + " exists."
+//                            + " Do you want to repeat the alignment?").showConfirm();
+//            if (ret == Dialog.ACTION_CANCEL || ret == Dialog.ACTION_NO) {
+//                return null;
+//            }
         }
         if (errors.isEmpty()) {
             Aligner aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
@@ -104,7 +105,8 @@ public class AlignAction extends Action {
         } else {
             String msg = "";
             msg = errors.stream().map((s) -> s + "\n").reduce(msg, String::concat);
-            Dialogs.create().title("Alignment parameters errors").message(msg).showError();
+            MainViewController.printMessage("Alignment parameters errors\n" + msg, "warning");
+//            Dialogs.create().title("Alignment parameters errors").message(msg).showError();
             return null;
         }
     }

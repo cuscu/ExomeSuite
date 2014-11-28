@@ -33,6 +33,7 @@ import javafx.stage.WindowEvent;
 public class ExomeSuite extends Application {
 
     private static Stage mainStage;
+    private MainViewController controller;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -40,19 +41,14 @@ public class ExomeSuite extends Application {
         testSoftware();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
         Parent root = loader.load();
-        MainViewController controller = loader.getController();
+        controller = loader.getController();
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setTitle("Exome Suite");
-        stage.setOnCloseRequest((WindowEvent event) -> {
-            if (!controller.canClose()) {
-                event.consume();
-            }
-            controller.closeWindow();
-        });
+        stage.setOnCloseRequest(event -> exit(event));
         mainStage = stage;
         stage.getIcons().add(new Image(ExomeSuite.class.getResourceAsStream("img/exomesuite.png")));
         stage.show();
@@ -104,4 +100,8 @@ public class ExomeSuite extends Application {
 //        GenomeIndexer.index(new File("/home/unidad03/DNA_Sequencing/HomoSapiensGRCh38/genome.fasta"));
     }
 
+    private void exit(WindowEvent event) {
+        controller.exitApplication();
+        event.consume();
+    }
 }

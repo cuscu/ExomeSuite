@@ -16,6 +16,7 @@
  */
 package exomesuite.project;
 
+import exomesuite.MainViewController;
 import exomesuite.graphic.CallParams;
 import exomesuite.graphic.MistParams;
 import exomesuite.systemtask.Caller;
@@ -32,11 +33,10 @@ import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class CallAction extends Action {
 
@@ -68,8 +68,7 @@ public class CallAction extends Action {
         String genome = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
         if (genome == null) {
             errors.add("Project has no genome selected");
-            Dialogs.create().title("Project has no genome selected").message(
-                    "Select a reference genome in project properties.").showError();
+            MainViewController.printMessage("Select a reference genome in project properties.", "warning");
         }
         String genomeFile = OS.getProperty(genome);
         if (genomeFile == null) {
@@ -88,13 +87,15 @@ public class CallAction extends Action {
                 case SAMTOOLS:
                     return new SamtoolsCaller(genomeFile, dbsnp, inputBAM, output);
                 default:
-                    Dialogs.create().title("Algorithm not found")
-                            .message("Please select an algorithm").showError();
+                    MainViewController.printMessage("Algorithm not selected", "warning");
+//                    Dialogs.create().title("Algorithm not found")
+//                            .message("Please select an algorithm").showError();
                     return null;
             }
         } else {
-            Dialogs.create().title("Wrong parameters in Call task")
-                    .message(errors.toString()).showError();
+            MainViewController.printMessage("Wrong parameters in Call task:\n" + errors.toString(), "warning");
+//            Dialogs.create().title("Wrong parameters in Call task")
+//                    .message(errors.toString()).showError();
             return null;
         }
     }

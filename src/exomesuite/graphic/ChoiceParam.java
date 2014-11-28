@@ -45,6 +45,9 @@ public class ChoiceParam extends Param {
     public void setOptions(List<String> options) {
         this.options.getItems().setAll(options);
         this.options.getSelectionModel().select(0);
+        if (getValue() == null || getValue().isEmpty()) {
+            setValue(options.get(0));
+        }
     }
 
 }

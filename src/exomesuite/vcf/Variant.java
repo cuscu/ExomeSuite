@@ -21,7 +21,7 @@ package exomesuite.vcf;
  *
  * @author Pascual Lorente Arencibia
  */
-public class Variant2 {
+public class Variant {
 
     private final String chrom, id, ref, alt, filter, info, format;
     private final int pos;
@@ -33,7 +33,7 @@ public class Variant2 {
      *
      * @param line the line to parse
      */
-    public Variant2(String line) {
+    public Variant(String line) {
         final String[] v = line.split("\t");
         chrom = v[0];
         pos = Integer.valueOf(v[1]);

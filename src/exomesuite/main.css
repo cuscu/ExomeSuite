@@ -109,20 +109,40 @@
     -fx-font: 1em monospace;
 }
 
-.pass {
-    -fx-font-weight: bold;
-    -fx-text-fill: lightgreen;
+/* Isabel Castillo http://isabelcastillo.com/error-info-messages-css */
+.info-label {
+    -fx-text-fill: #00529B;
 }
-
-.pass:selected {
-    -fx-text-fill: palegreen;
+.success-label {
+    -fx-text-fill:  #4F8A10;
 }
-
-.no-pass {
-    -fx-font-weight: bold;
-    -fx-text-fill: orange;
+.warning-label {
+    -fx-text-fill:  #9F6000;
 }
-
-.no-pass:selected {
-    -fx-text-fill: papayawhip;
+.error-label {
+    -fx-text-fill:  #D8000C;
+}
+.info-box {
+    -fx-background-color: #BDE5F8;
+}
+.success-box {
+    -fx-background-color: #DFF2BF;
+}
+.warning-box {
+    -fx-background-color: #FEEFB3;
+}
+.error-box,.error-box .button {
+    -fx-background-color: #FFBABA;
+}
+.success-box .button {
+    -fx-border-color: #4F8A10;
+}
+.info-box .button {
+    -fx-border-color: #00529B;
+}
+.warning-box .button {
+    -fx-border-color: #9F6000;
+}
+.error-box .button {
+    -fx-border-color: #D8000C;
 }

@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
+<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
             xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
@@ -23,12 +23,12 @@
                         <!-- Project properties -->
                         <VBox alignment="TOP_CENTER" fillWidth="true"  >
                             <children>
+                                <ProjectActions fx:id="projectActions" />
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS" >
                                     <content>
                                         <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
                                     </content>
                                 </ScrollPane>
-                                <ProjectActions fx:id="projectActions" />
                             </children>
                         </VBox>
                     </items>
@@ -70,11 +70,13 @@
         </VBox>
     </top>
     <bottom>
-        <HBox >
+        <HBox fx:id="infoBox" alignment="CENTER" spacing="5" >
             <children>
                 <Label fx:id="info"/>
-                <ProgressBar fx:id="progress" visible="false"  />
             </children>
+            <padding>
+                <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
+            </padding>
         </HBox>
     </bottom>
 </BorderPane>

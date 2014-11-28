@@ -16,8 +16,8 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.MainViewController;
 import exomesuite.utils.FileManager;
-import exomesuite.utils.OS;
 import java.io.File;
 
 /**
@@ -48,7 +48,7 @@ public class Caller extends SystemTask {
             msg += "dbSNP\n";
         }
         if (!msg.isEmpty()) {
-            System.err.println("Some arguments are missing:\n" + msg);
+            MainViewController.printMessage("Some arguments are missing:\n" + msg, "warning");
             return 1;
         }
         // So easy, only one command.
@@ -57,7 +57,7 @@ public class Caller extends SystemTask {
                 + "GenomeAnalysisTK.jar";
         updateProgress(50, 100);
         updateMessage("Calling SNPs and indels...");
-        int ret = execute(OS.scanJava7(), "-jar", gatk,
+        int ret = execute("software/jre1.7.0_71/bin/java", "-jar", gatk,
                 "-T", "HaplotypeCaller", "-R", genome,
                 "-I", input, "-o", output,
                 "--dbsnp", dbsnp);

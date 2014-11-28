@@ -16,7 +16,7 @@
  */
 package exomesuite.bam;
 
-import exomesuite.graphic.ResizableCanvas;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 
 /**
@@ -26,37 +26,43 @@ import javafx.scene.paint.Color;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public abstract class BamLayer extends ResizableCanvas {
+abstract class BamLayer extends Canvas {
 
     protected static final Color A_COLOR = Color.rgb(255, 227, 85);
     protected static final Color T_COLOR = Color.rgb(85, 255, 96);
     protected static final Color C_COLOR = Color.rgb(255, 89, 85);
     protected static final Color G_COLOR = Color.rgb(142, 104, 255);
 
-    protected final GraphParameters parameters;
-
-    public BamLayer(GraphParameters parameters) {
-        this.parameters = parameters;
-        /*
-         Mouse selection: all layers will be listening for mouse events, but only the top layer can
-         do this. So it must call others by modifing the selectedIndex property. Layers which want
-         to listen for index changing just need to add a listener to this property.
-         */
-        setOnMouseClicked(e -> {
-            /*
-             We translate X position of the mouse to an index in the nucleotide list.
-             -> Proportional position of the X in the graph (0 -> left, 1-> right)
-             position = (x - leftMargin) / (width - margins)
-             -> Number of graph divisions or number of elements been displayed
-             elements = (width - margins) / baseWidth
-             -> Index of the selected item
-             i = floor(position * elements) = (x - margins) / baseWidth
-             */
-            final double margin = parameters.getAxisMargin().doubleValue();
-            final double width = parameters.getBaseWidth().doubleValue();
-            final int index = (int) Math.floor((e.getX() - margin) / width);
-            System.out.println("Clicked on " + e.getX() + "," + e.getY() + " (" + index + ")");
-            parameters.setSelectedIndex(index);
-        });
+    /**
+     * Clears and paints the whole layer.
+     *
+     * @param bamCanvas
+     */
+    public void repaint(BamCanvas bamCanvas) {
+        getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
+        draw(bamCanvas);
     }
+
+    /**
+     * Paints the layer, but do not clear it previously.
+     *
+     * @param bamCanvas
+     */
+    protected abstract void draw(BamCanvas bamCanvas);
+
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
+
+    @Override
+    public double prefHeight(double width) {
+        return getHeight();
+    }
+
+    @Override
+    public double prefWidth(double height) {
+        return getWidth();
+    }
+
 }

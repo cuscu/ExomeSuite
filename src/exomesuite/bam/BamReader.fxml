@@ -9,12 +9,29 @@
 
 <fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <StackPane fx:id="canvas" />
+        <exomesuite.bam.BamCanvas fx:id="bamCanvas" />
         <HBox >
             <children>
-                <ChoiceParam fx:id="chromosome" title="Chromosome"  />
-                <TextParam fx:id="position" title="Position" />
-                <NumberParam fx:id="zoom" title="Zoom" min="20" max="100" value="20" />
+                <FlowPane >
+                    <children>
+                        <ChoiceParam fx:id="chromosome" title="Chromosome" value="1"  />
+                        <TextParam fx:id="position" title="Position" value="1"  />
+                        <NumberParam fx:id="zoom" title="Zoom" min="10" max="100" value="20" />
+                    </children>
+                </FlowPane>
+                <VBox >
+                    <children>
+                        <CheckBox text="Show background color" fx:id="showBackgroundColor" />
+                        <CheckBox text="Show bars color per nucleotide" fx:id="showNucleotideColor" />
+                        <CheckBox text="Show X axis" fx:id="showAxisX"/>
+                        <CheckBox text="Show Y axis" fx:id="showAxisY"/>
+                        <CheckBox text="Show labels X axis" fx:id="showLabelsX"/>
+                        <CheckBox text="Show lables Y axis" fx:id="showLabelsY"/>
+                        <CheckBox text="Show DP as percentage" fx:id="showPercentageDP"/>
+                        <CheckBox text="Show as alleles" fx:id="showAlleles"/>
+
+                    </children>
+                </VBox>
             </children>
         </HBox>
         <Label fx:id="info"/>

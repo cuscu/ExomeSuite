@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.MainViewController;
 import exomesuite.utils.FileManager;
 import java.io.File;
 
@@ -97,7 +98,7 @@ public class Aligner extends SystemTask {
             msg += "Temporary folder";
         }
         if (!msg.isEmpty()) {
-            System.err.println("There is one or more arguments not specifierd:\n" + msg);
+            MainViewController.printMessage("There is one or more arguments not specifierd:\n" + msg, "warning");
             return 1;
         }
         // Align using bwa

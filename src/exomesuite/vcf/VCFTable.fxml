@@ -7,33 +7,37 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml/1" >
+<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1" >
     <children>
         <SplitPane >
             <items>
-                <VBox alignment="CENTER" >
-                    <children>
-                        <VBox fx:id="filtersPane"/>
-                        <FlatButton fx:id="addFilter" text="Add a filter"  />
-                        <Label fx:id="infoLabel" />
-                    </children>
-                </VBox>
                 <SplitPane orientation="VERTICAL">
                     <items>
                         <TableView VBox.vgrow="ALWAYS" fx:id="table" maxHeight="9999" />
-                        <VBox >
+                        <HBox >
                             <children>
-                                <!-- INFO -->
-                                <SectionTitle title="INFO" />
-                                <VariantInfo fx:id="variantInfo" VBox.vgrow="NEVER"  />
-                                <!-- GENOTYPE -->
-                                <SectionTitle title="GENOTYPE" />
-                                <VariantGenotype fx:id="formatBox"/>
-                                <!-- EXONS -->
-                                <SectionTitle title="EXONS" />
-                                <VariantExons fx:id="variantExons" VBox.vgrow="ALWAYS" />
+                                <VBox alignment="CENTER" >
+                                    <children>
+                                        <VBox fx:id="filtersPane"/>
+                                        <FlatButton fx:id="addFilter" text="Add a filter"  />
+                                        <Label fx:id="infoLabel" />
+                                    </children>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS" >
+                                    <children>
+                                        <!-- INFO -->
+                                        <SectionTitle title="INFO" />
+                                        <VariantInfo fx:id="variantInfo" VBox.vgrow="NEVER"  />
+                                        <!-- GENOTYPE -->
+                                        <SectionTitle title="GENOTYPE" />
+                                        <VariantGenotype fx:id="formatBox"/>
+                                        <!-- EXONS -->
+                                        <SectionTitle title="EXONS" />
+                                        <VariantExons fx:id="variantExons" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
                             </children>
-                        </VBox>
+                        </HBox>
                     </items>
                 </SplitPane>
             </items>

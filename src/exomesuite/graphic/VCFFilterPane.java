@@ -17,6 +17,7 @@
 package exomesuite.graphic;
 
 import exomesuite.vcf.VCFFilter;
+import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -39,11 +40,16 @@ public class VCFFilterPane extends VBox {
     private final Label staticInfo = new Label();
     private final ComboBox<VCFFilter.Field> field = new ComboBox<>();
     private final ComboBox<VCFFilter.Connector> connector = new ComboBox<>();
+    private final ComboBox<String> info = new ComboBox<>();
     private final TextField value = new TextField();
     private final FlatButton accept = new FlatButton("apply.png", "Accept");
     private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
     private final FlatButton delete = new FlatButton("delete.png", "Delete");
     private EventHandler onAccept, onDelete;
+    private HBox up = new HBox(field, info);
+    private HBox center = new HBox(connector, value);
+    private HBox down = new HBox(accept, cancel);
+    private VCFFilter filter;
 
     {
         field.getItems().setAll(VCFFilter.Field.values());
@@ -64,19 +70,32 @@ public class VCFFilterPane extends VBox {
         getStyleClass().add("parameter");
         setAlignment(Pos.CENTER);
         toPassive();
+        field.setOnAction(e -> {
+            if (field.getSelectionModel().getSelectedItem() == VCFFilter.Field.INFO) {
+                up.getChildren().add(info);
+//                info.setVisible(true);
+            } else {
+                up.getChildren().remove(info);
+//                info.setVisible(false);
+            }
+        });
+        info.setOnAction(e -> filter.setSelectedInfo(info.getValue()));
+        HBox.setHgrow(value, Priority.SOMETIMES);
     }
 
-    private VCFFilter filter;
-
-    public VCFFilterPane() {
-        filter = new VCFFilter();
+    public VCFFilterPane(List<String> infos) {
+        filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
+        info.getItems().addAll(infos);
+//        setStaticInfo();
     }
 
-    public VCFFilterPane(VCFFilter filter) {
+    public VCFFilterPane(VCFFilter filter, List<String> infos) {
         this.filter = filter;
         value.setText(filter.getValue());
         field.getSelectionModel().select(filter.getField());
         connector.getSelectionModel().select(filter.getConnector());
+        info.getItems().addAll(infos);
+        info.getSelectionModel().select(0);
         setStaticInfo();
     }
 
@@ -110,15 +129,24 @@ public class VCFFilterPane extends VBox {
     }
 
     private void startEdit() {
-        HBox up = new HBox(field, connector);
-        HBox down = new HBox(accept, cancel);
-        getChildren().setAll(up, value, down);
+        if (info.getSelectionModel().isEmpty()) {
+            info.getSelectionModel().select(0);
+        }
+        if (connector.getSelectionModel().isEmpty()) {
+            connector.getSelectionModel().select(VCFFilter.Connector.EQUALS);
+        }
+        if (field.getSelectionModel().isEmpty()) {
+            field.getSelectionModel().select(VCFFilter.Field.CHROMOSOME);
+        }
+        getChildren().setAll(up, center, down);
     }
 
     private void setStaticInfo() {
-        staticInfo.setText(filter.getField()
-                + " " + filter.getConnector()
-                + " " + filter.getValue());
+        String f = (filter.getField() == VCFFilter.Field.INFO)
+                ? filter.getSelectedInfo() : filter.getField().name();
+        String v = filter.getValue() == null || filter.getValue().isEmpty()
+                ? "[empty]" : filter.getValue();
+        staticInfo.setText(f + " " + filter.getConnector() + " " + v);
     }
 
     public void setOnAccept(EventHandler onAccept) {

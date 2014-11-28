@@ -24,20 +24,45 @@ import javafx.scene.paint.Color;
  */
 public class BamAxisLayer extends BamLayer {
 
-    public BamAxisLayer(GraphParameters parameters) {
-        super(parameters);
+    public BamAxisLayer() {
         getGraphicsContext2D().setStroke(Color.BLACK);
     }
 
     @Override
-    protected void draw(double width, double height) {
-        // Y axis
-        final double margin = parameters.getAxisMargin().get();
-        final double tickLength = parameters.getTickLength().get();
-        getGraphicsContext2D().strokeLine(margin, margin, margin, height - (margin - tickLength));
-        // X axis
-        getGraphicsContext2D().strokeLine(margin - tickLength, height - margin,
-                width - margin, height - margin);
+    protected void draw(BamCanvas bamCanvas) {
+        final double height = bamCanvas.getHeight();
+        final double width = bamCanvas.getWidth();
+        final boolean showAlleles = bamCanvas.getShowAlleles().get();
+        final double margin = bamCanvas.getAxisMargin().get();
+        final double tickLength = bamCanvas.getTickLength().get();
+
+        if (showAlleles) {
+            /*
+             |
+             |
+             |------------------------
+             |
+             |
+             */
+            // Y axis
+            getGraphicsContext2D().strokeLine(margin, margin, margin, height - margin);
+            // X Axis
+            getGraphicsContext2D().strokeLine(margin - tickLength, height / 2, width - margin, height / 2);
+        } else {
+            /*
+             |
+             |
+             |
+             |
+             |
+             |-----------------------
+             */
+            // Y axis
+            getGraphicsContext2D().strokeLine(margin, margin, margin, height - (margin - tickLength));
+            // X axis
+            getGraphicsContext2D().strokeLine(margin - tickLength, height - margin,
+                    width - margin, height - margin);
+        }
     }
 
 }

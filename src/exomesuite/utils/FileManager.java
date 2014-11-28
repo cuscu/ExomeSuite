@@ -284,15 +284,18 @@ public final class FileManager {
         File file = chooser.showSaveDialog(null);
         if (file != null) {
             lastPath = file.getParentFile();
-            String ext
-                    = chooser.getSelectedExtensionFilter().getExtensions().get(0).replace("*", "");
-            if (file.getName().endsWith(ext)) {
-                return file;
-            } else {
-                return new File(file.getAbsolutePath() + ext);
+            if (!filters.isEmpty()) {
+                String f = chooser.getSelectedExtensionFilter().getExtensions().get(0);
+                if (f != null) {
+                    String ext = f.replace("*", "");
+                    if (file.getName().endsWith(ext)) {
+                    } else {
+                        return new File(file.getAbsolutePath() + ext);
+                    }
+                }
             }
         }
-        return null;
+        return file;
     }
 
     /**

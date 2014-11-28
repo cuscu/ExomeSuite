@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -53,6 +54,7 @@ public class TextParam extends Param {
             field.setText(getValue());
         }
         field.setPromptText(getPromptText());
+        Platform.runLater(() -> field.requestFocus());
         return new HBox(field, accept, cancel);
     }
 

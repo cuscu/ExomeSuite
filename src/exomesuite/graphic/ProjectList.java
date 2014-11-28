@@ -17,7 +17,6 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Project;
-import exomesuite.utils.FileManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -33,9 +32,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  *
@@ -91,17 +87,17 @@ public class ProjectList extends ListView<Project> {
             // Ask user to remove folder content
             File path = new File(project.getProperty(Project.PropertyName.PATH));
             File config = project.getConfigFile();
-            Action showConfirm = Dialogs.create()
-                    .message("Do you want to delete everything under " + path + "?")
-                    .showConfirm();
-            if (showConfirm == Dialog.ACTION_NO) {
-                config.delete();
-                getItems().remove(project);
-            } else if (showConfirm == Dialog.ACTION_YES) {
-                config.delete();
-                FileManager.delete(path, true);
-                getItems().remove(project);
-            }
+//            Action showConfirm = Dialogs.create()
+//                    .message("Do you want to delete everything under " + path + "?")
+//                    .showConfirm();
+//            if (showConfirm == Dialog.ACTION_NO) {
+//                config.delete();
+//                getItems().remove(project);
+//            } else if (showConfirm == Dialog.ACTION_YES) {
+//                config.delete();
+//                FileManager.delete(path, true);
+//                getItems().remove(project);
+//            }
         }
     }
 

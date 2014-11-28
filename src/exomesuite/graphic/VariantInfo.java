@@ -16,7 +16,7 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.vcf.Variant2;
+import exomesuite.vcf.Variant;
 import exomesuite.vcf.VariantListener;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
@@ -31,7 +31,7 @@ public class VariantInfo extends FlowPane implements VariantListener {
     }
 
     @Override
-    public void variantChanged(Variant2 variant) {
+    public void variantChanged(Variant variant) {
         getChildren().clear();
         if (variant != null) {
             for (String info : variant.getInfo().split(";")) {

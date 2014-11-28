@@ -15,12 +15,12 @@
 
         <Label fx:id="finalPath" />
         <SectionTitle title="Additional information" hLine="true" />
-        <FileParam fx:id="forward" title="Forward sequences" promtText="Select forward sequences" />
-        <FileParam fx:id="reverse" title="Reverse sequences" promtText="Select reverse sequences" />
+        <FileParam fx:id="forward" title="Forward sequences" promptText="Select forward sequences" />
+        <FileParam fx:id="reverse" title="Reverse sequences" promptText="Select reverse sequences" />
         <HBox maxWidth="9999">
             <children>
-                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="genome" title="Reference genome" promtText="Select a reference genome" />
-                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="encoding" title="Base encoding" promtText="Select a base encoding" />
+                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="genome" title="Reference genome" promptText="Select a reference genome" />
+                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="encoding" title="Base encoding" promptText="Select a base encoding" />
             </children>
         </HBox>
         <Button fx:id="acceptButton" text="Create" />

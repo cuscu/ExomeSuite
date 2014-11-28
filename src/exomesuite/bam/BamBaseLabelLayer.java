@@ -26,40 +26,42 @@ import javafx.scene.text.TextAlignment;
  */
 public class BamBaseLabelLayer extends BamLayer {
 
-    public BamBaseLabelLayer(GraphParameters parameters) {
-        super(parameters);
+    public BamBaseLabelLayer() {
         getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
         getGraphicsContext2D().setTextBaseline(VPos.BOTTOM);
     }
 
     @Override
-    protected void draw(double width, double height) {
-        final double margin = parameters.getAxisMargin().get();
-        final double baseWidth = parameters.getBaseWidth().get();
-        final double textMargin = parameters.getTextMargin().get();
-        final List<Character> reference = parameters.getReference();
+    protected void draw(BamCanvas bamCanvas) {
+        final double margin = bamCanvas.getAxisMargin().get();
+        final double baseWidth = bamCanvas.getBaseWidth().get();
+        final double textMargin = bamCanvas.getTextMargin().get();
+//        final List<Character> reference = bamCanvas.getReference();
         final double textWidth = baseWidth - 2 * textMargin;
-
+        final List<PileUp> list = bamCanvas.getAlignments();
         int i = 0;
         double x = margin + baseWidth * 0.5;
-        while (i < reference.size() && x < width - margin) {
-            String nucleotide = String.valueOf(reference.get(i++));
-            switch (nucleotide) {
-                case "A":
+        while (i < list.size() && x < bamCanvas.getWidth() - margin) {
+            switch (list.get(i).getReference()) {
+//        while (i < reference.size() && x < bamCanvas.getWidth() - margin) {
+//            String nucleotide = String.valueOf(reference.get(i++));
+//            switch (nucleotide) {
+                case 'A':
                     getGraphicsContext2D().setFill(A_COLOR);
                     break;
-                case "T":
+                case 'T':
                     getGraphicsContext2D().setFill(T_COLOR);
                     break;
-                case "G":
+                case 'G':
                     getGraphicsContext2D().setFill(G_COLOR);
                     break;
-                case "C":
+                case 'C':
                     getGraphicsContext2D().setFill(C_COLOR);
                     break;
             }
-            getGraphicsContext2D().fillText(nucleotide, x, margin, textWidth);
+            getGraphicsContext2D().fillText(list.get(i).getReference() + "", x, margin, textWidth);
             x += baseWidth;
+            i++;
         }
     }
 

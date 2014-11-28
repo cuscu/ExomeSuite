@@ -30,22 +30,20 @@ public class BamBaseBackgroundLayer extends BamLayer {
      */
     final static double opacity = 0.1;
 
-    public BamBaseBackgroundLayer(GraphParameters parameters) {
-        super(parameters);
-    }
-
     @Override
-    protected void draw(double width, double height) {
-        final double baseWidth = parameters.getBaseWidth().get();
-        final double margin = parameters.getAxisMargin().get();
-        final List<Character> reference = parameters.getReference();
-        final double barwidth = baseWidth;
+    protected void draw(BamCanvas bamCanvas) {
+        final double height = bamCanvas.getHeight();
+        final double baseWidth = bamCanvas.getBaseWidth().get();
+        final double margin = bamCanvas.getAxisMargin().get();
+        final double barwidth = baseWidth * 0.9;
         final double barHeight = height - 2 * margin;
         final double y = height - margin - barHeight;
+        final List<PileUp> list = bamCanvas.getAlignments();
         int i = 0;
         double x = margin;
-        while (i < reference.size() && x < width - margin) {
-            switch (reference.get(i)) {
+
+        while (i < list.size() && x < bamCanvas.getWidth() - margin) {
+            switch (list.get(i).getReference()) {
                 case 'A':
                     getGraphicsContext2D().setFill(A_COLOR.deriveColor(0, 1, 1, opacity));
                     getGraphicsContext2D().fillRect(x, y, barwidth, barHeight);

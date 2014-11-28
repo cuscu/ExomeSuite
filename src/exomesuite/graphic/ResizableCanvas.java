@@ -49,7 +49,7 @@ public abstract class ResizableCanvas extends Canvas {
     /**
      * Clears layer and repaints it.
      */
-    protected void repaint() {
+    public void repaint() {
         getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
         draw(getWidth(), getHeight());
     }

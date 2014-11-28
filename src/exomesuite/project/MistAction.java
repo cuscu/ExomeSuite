@@ -16,6 +16,7 @@
  */
 package exomesuite.project;
 
+import exomesuite.MainViewController;
 import exomesuite.graphic.MistParams;
 import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.SystemTask;
@@ -31,8 +32,6 @@ import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  *
@@ -68,10 +67,11 @@ public class MistAction extends Action {
             }
         }
         if (bamfiles.isEmpty()) {
-            Dialogs.create().title("BAM file missing").message(
-                    "There are not BAM files in processed data of the project."
-                    + " Please, add some of them or align first.").
-                    showError();
+            MainViewController.printMessage("Project does not contain BAM files. Please, add some", "warning");
+//            Dialogs.create().title("BAM file missing").message(
+//                    "There are not BAM files in processed data of the project."
+//                    + " Please, add some of them or align first.").
+//                    showError();
             return null;
         }
 
@@ -88,7 +88,8 @@ public class MistAction extends Action {
                 throw new NumberFormatException("threshold must be > 0");
             }
         } catch (NumberFormatException e) {
-            Dialogs.create().title("Threshold format error").showException(e);
+            MainViewController.showException(e);
+//            Dialogs.create().title("Threshold format error").showException(e);
             return null;
         }
         // Assert length is an Integer
@@ -100,7 +101,8 @@ public class MistAction extends Action {
             }
 
         } catch (NumberFormatException e) {
-            Dialogs.create().title("Length format error").showException(e);
+            MainViewController.showException(e);
+//            Dialogs.create().title("Length format error").showException(e);
             return null;
         }
         // No need to triple check input, I did it at the begining of the method.
@@ -108,8 +110,10 @@ public class MistAction extends Action {
 
         // Check that PATH exists
         if (!FileManager.tripleCheck(project.getProperty(Project.PropertyName.PATH))) {
-            Dialogs.create().title("Incorrect path").message("PATH " + project.getProperty(
-                    Project.PropertyName.PATH) + " does not exist").showError();
+            MainViewController.printMessage("PATH " + project.getProperty(
+                    Project.PropertyName.PATH) + " does not exist", "warning");
+//            Dialogs.create().title("Incorrect path").message("PATH " + project.getProperty(
+//                    Project.PropertyName.PATH) + " does not exist").showError();
             return null;
         }
         // Output is path/code_dp10_l1.mist
@@ -118,18 +122,20 @@ public class MistAction extends Action {
                 + "_l" + length + ".mist";
         final File out = new File(output);
         if (out.exists()) {
-            org.controlsfx.control.action.Action ret = Dialogs.create().title("Repeat MIST?")
-                    .message("A file with name " + out.getName()
-                            + " exists. Do you want to replace it?").showConfirm();
-            if (ret == Dialog.ACTION_CANCEL || ret == Dialog.ACTION_NO) {
-                return null;
-            }
+            MainViewController.printMessage("File " + out + " already exists", "error");
+//            org.controlsfx.control.action.Action ret = Dialogs.create().title("Repeat MIST?")
+//                    .message("A file with name " + out.getName()
+//                            + " exists. Do you want to replace it?").showConfirm();
+//            if (ret == Dialog.ACTION_CANCEL || ret == Dialog.ACTION_NO) {
+            return null;
+//            }
         }
         String ensembl = OS.getProperty("ensembl");
         if (!FileManager.tripleCheck(ensembl)) {
-            Dialogs.create().title("Ensembl database is missing").message(
-                    "you need to select the ensembl database in Databases view").
-                    showError();
+            MainViewController.printMessage("Ensembl database not found", "error");
+//            Dialogs.create().title("Ensembl database is missing").message(
+//                    "you need to select the ensembl database in Databases view").
+//                    showError();
             return null;
         }
         /* Buf, input exists, output parent path exists, ensembl exists, threshold and length are

@@ -16,7 +16,7 @@
  */
 package exomesuite.vcf;
 
-import exomesuite.vcf.Variant2;
+import exomesuite.vcf.Variant;
 
 /**
  *
@@ -24,5 +24,5 @@ import exomesuite.vcf.Variant2;
  */
 public interface VariantListener {
 
-    public void variantChanged(Variant2 variant);
+    public void variantChanged(Variant variant);
 }

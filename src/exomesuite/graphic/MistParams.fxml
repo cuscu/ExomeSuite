@@ -11,7 +11,7 @@
     <children>
         <ChoiceParam fx:id="bamFile" title="Alignments file" promptText="Select a BAM file"/>
         <TextParam fx:id="threshold" title="Threshold" value="10" />
-        <NumberParam fx:id="length" title="Length" value="1" onlyInteger="true" max="50" min="1" />
+        <NumberParam fx:id="length"  title="Length" value="1" max="50" min="1" />
         <Button text="Accept" fx:id="accept"/>
     </children>
     <padding>

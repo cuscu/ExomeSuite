@@ -16,8 +16,9 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.MainViewController;
 import exomesuite.utils.OS;
-import exomesuite.vcf.Variant2;
+import exomesuite.vcf.Variant;
 import exomesuite.vcf.VariantListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -33,7 +34,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import org.controlsfx.dialog.Dialogs;
 
 /**
  * FXML Controller class. This is the panel under the variants table.
@@ -80,7 +80,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
     }
 
     @Override
-    public void variantChanged(Variant2 variant) {
+    public void variantChanged(Variant variant) {
         getItems().clear();
         if (variant == null) {
             return;
@@ -167,7 +167,8 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                         });
                         System.out.println("Done");
                     } catch (Exception e) {
-                        Dialogs.create().showException(e);
+                        MainViewController.showException(e);
+//                        Dialogs.create().showException(e);
                     }
                     return null;
                 }
@@ -190,7 +191,8 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                         out.write(Arrays.toString(exon.line));
                         out.newLine();
                     } catch (Exception e) {
-                        Dialogs.create().showException(e);
+                        MainViewController.showException(e);
+//                        Dialogs.create().showException(e);
                     }
                 });
             });

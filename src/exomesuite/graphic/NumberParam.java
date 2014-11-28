@@ -37,7 +37,7 @@ public class NumberParam extends Param {
     private final FlatButton accept = new FlatButton("apply.png", "Accept");
     private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
     private final HBox pane;
-    private boolean onlyInteger;
+    private boolean onlyInteger = true;
 
     public NumberParam() {
         accept.setOnAction(e -> endEdit(true, textField.getText()));
