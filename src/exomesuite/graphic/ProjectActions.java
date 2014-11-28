@@ -144,6 +144,7 @@ public class ProjectActions extends VBox implements ProjectListener {
         // When closed, process is killed
         t.setOnCloseRequest(e -> {
 //            System.err.println("Trying to cancel task");
+            MainViewController.printMessage("Task " + task.getTitle() + " canceled by user", "warning");
             task.cancel();
         });
         taskPanel.getCancelButton().setOnAction(e -> {
@@ -157,6 +158,7 @@ public class ProjectActions extends VBox implements ProjectListener {
         MainViewController.getWorkingArea().getTabs().add(t);
         MainViewController.getWorkingArea().getSelectionModel().select(t);
         // Launch the task
+        MainViewController.printMessage("Task " + task.getTitle() + " started", "info");
         try {
             new Thread(task).start();
         } catch (Exception e) {

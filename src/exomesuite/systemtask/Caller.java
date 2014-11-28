@@ -51,6 +51,13 @@ public class Caller extends SystemTask {
             MainViewController.printMessage("Some arguments are missing:\n" + msg, "warning");
             return 1;
         }
+        // Check if genome is already indexed.
+        if (!Indexer.isIndexed(new File(genome))) {
+            updateMessage("Indexing genome");
+            Indexer index = new Indexer(genome);
+            index.setPrintStream(printStream);
+            index.call();
+        }
         // So easy, only one command.
         updateTitle("Calling " + new File(output).getName());
         String gatk = "software" + File.separator + "gatk" + File.separator

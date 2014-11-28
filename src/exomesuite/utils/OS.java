@@ -1,5 +1,6 @@
 package exomesuite.utils;
 
+import exomesuite.MainViewController;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,8 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Contains methods to control files in DNAnalytics and fields containing file filters. Open and
- * save files, set TextFileds with the name of the files and compress and uncompress files.
+ * Contains methods to control application properties (databases, opened projects..) and most
+ * general methods, like {@code humanReadableByteCount()} or {@code asString()}. If you want to
+ * perform a general GUI operation, such as print a message, use {@link MainViewController}.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -86,10 +88,6 @@ public class OS {
             s += values.get(i++) + separator;
         }
         return s + values.get(i);
-    }
-
-    public static boolean downloadFromWeb(String url, String user, String pass) {
-        return false;
     }
 
     public static String getTempDir() {

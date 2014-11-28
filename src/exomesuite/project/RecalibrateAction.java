@@ -35,7 +35,7 @@ public class RecalibrateAction extends Action {
 
     @Override
     public boolean isDisabled(Project project) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override

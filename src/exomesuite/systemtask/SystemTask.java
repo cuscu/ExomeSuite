@@ -16,9 +16,7 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.tool.Console;
 import exomesuite.utils.OS;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -28,26 +26,22 @@ import javafx.concurrent.Task;
 /**
  * Class that should override any long-CPU process in the Application. To execute a system command,
  * use {@code execute(String... args)}. To print messages to the application use
- * {@code println(message)} instead of {@code System.out.println(message)}. Task are usually managed
- * by a {@link Step}.
+ * {@code println(message)} instead of {@code System.out.println(message)}.
  * <p>
  * As they extends from {@link Task}, they can be launched only once. In order to reuse them, it is
- * necessary to create a new SystemTask. The {@code configure} method was created to substitute the
- * constructor. Use it as shown below.
+ * necessary to create a new SystemTask.
  * <p>
  * {@code SystemTask mytask = new MyTask();}
  * <p>
- * {@code mytask.configure(projectConfig, mainConfig);}
- * <p>
  * {@code new Thread(mytask).start);}
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public abstract class SystemTask extends Task<Integer> {
 
     /**
      * A PrintStream to replace System.out.println. See that every Task has its own PrintStream,
-     * this allows ExomeSuite to manage a different {@link Console} for each SystemTask.
+     * this allows ExomeSuite to manage a different tab for each SystemTask.
      */
     protected PrintStream printStream;
     /**
@@ -109,7 +103,6 @@ public abstract class SystemTask extends Task<Integer> {
     protected void cancelled() {
         if (process != null) {
             process.destroy();
-            println("Canceled...");
         }
     }
 
@@ -117,7 +110,7 @@ public abstract class SystemTask extends Task<Integer> {
     public boolean cancel(boolean mayInterruptIfRunning) {
         if (process != null) {
             process.destroy();
-            println("Canceled...");
+            println("Canceling...");
         }
         return super.cancel(mayInterruptIfRunning);
     }

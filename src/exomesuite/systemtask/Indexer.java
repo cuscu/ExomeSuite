@@ -38,10 +38,22 @@ public class Indexer extends SystemTask {
     protected Integer call() throws Exception {
         updateMessage("Generating BWA index...");
         updateProgress(5, 100);
-        int ret = execute("bwa", "index", "-a", "bwtsw", genome);
-        if (ret != 0) {
-            return ret;
+        int ret;
+        // Only perform bwa index if needed
+        boolean bwaindexed = true;
+        for (String extension : extensions) {
+            if (!new File(genome + extension).exists()) {
+                bwaindexed = false;
+                break;
+            }
         }
+        if (!bwaindexed) {
+            ret = execute("bwa", "index", "-a", "bwtsw", genome);
+            if (ret != 0) {
+                return ret;
+            }
+        }
+
         updateMessage("Generating samtools index...");
         updateProgress(60, 100);
         if ((ret = execute("samtools", "faidx", genome)) != 0) {
@@ -61,11 +73,14 @@ public class Indexer extends SystemTask {
     }
 
     public static boolean isIndexed(File file) {
-        boolean isIndexed = true;
-        for (String extension : extensions) {
-            if (!new File(file.getAbsolutePath() + extension).exists()) {
-                isIndexed = false;
-                break;
+        // Check for GATK index
+        boolean isIndexed = new File(file.getAbsolutePath().replace(".fasta", ".fa").replace(".fa", ".dict")).exists();
+        if (isIndexed) {
+            for (String extension : extensions) {
+                if (!new File(file.getAbsolutePath() + extension).exists()) {
+                    isIndexed = false;
+                    break;
+                }
             }
         }
         return isIndexed;

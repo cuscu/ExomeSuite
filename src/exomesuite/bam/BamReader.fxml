@@ -28,7 +28,7 @@
                         <CheckBox text="Show labels X axis" fx:id="showLabelsX"/>
                         <CheckBox text="Show lables Y axis" fx:id="showLabelsY"/>
                         <CheckBox text="Show DP as percentage" fx:id="showPercentageDP"/>
-                        <CheckBox text="Show as alleles" fx:id="showAlleles"/>
+                        <CheckBox text="Show 5' and 3'" fx:id="showAlleles"/>
 
                     </children>
                 </VBox>

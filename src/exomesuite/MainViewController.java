@@ -67,7 +67,8 @@ import javafx.stage.Stage;
 
 /**
  * Controller class for the main window. Manages projects (open, close, create, delete...), adds
- * tabs to the rigth panel.
+ * tabs to the rigth panel and prints messages, among other operations. This is GOD. For some
+ * general methods related with app, but not GUI, use {@link OS}.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -335,6 +336,7 @@ public class MainViewController {
                 printMessage("File extension not compatible (" + file.getName() + ")", "warning");
                 return;
             }
+            printMessage(file + " opened", "success");
             staticWorkingArea.getTabs().add(t);
             staticWorkingArea.getSelectionModel().select(t);
         }
@@ -367,11 +369,6 @@ public class MainViewController {
     }
 
     private void combineVCF() {
-        try {
-            Double.valueOf("e");
-        } catch (NumberFormatException e) {
-            showException(e);
-        }
         try {
             FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"));
             Parent p = loader.load();
@@ -445,11 +442,11 @@ public class MainViewController {
             }
         }));
         Button view = new Button("View details");
+        Stage stage = new Stage();
+        Scene scene = new Scene(area);
+        stage.centerOnScreen();
+        stage.setScene(scene);
         view.setOnAction(event -> {
-            Stage stage = new Stage();
-            Scene scene = new Scene(area);
-            stage.centerOnScreen();
-            stage.setScene(scene);
             stage.showAndWait();
         });
         infoHBox.getChildren().setAll(infoLabel, view);

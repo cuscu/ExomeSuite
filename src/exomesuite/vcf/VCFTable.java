@@ -231,7 +231,7 @@ public class VCFTable extends VBox {
 
     private void updateInfo() {
         final double percentage = lines.get() * 100.0 / totalLines.get();
-        infoLabel.setText(String.format("%,d/%,d (%.2f%%)", lines.get(), totalLines.get(),
+        infoLabel.setText(String.format("%,d / %,d (%.2f%%)", lines.get(), totalLines.get(),
                 percentage));
 
     }
