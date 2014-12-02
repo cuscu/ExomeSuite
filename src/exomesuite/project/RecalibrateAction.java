@@ -58,7 +58,13 @@ public class RecalibrateAction extends Action {
 
     @Override
     public void onSucceeded(Project p, SystemTask t) {
-        p.setProperty(Project.PropertyName.RECAL_VCF_FILE, output);
+        String files = p.getProperty(Project.PropertyName.FILES);
+        if (files.isEmpty()) {
+            files = output;
+        } else {
+            files += ";" + output;
+        }
+        p.setProperty(Project.PropertyName.FILES, files);
     }
 
 }

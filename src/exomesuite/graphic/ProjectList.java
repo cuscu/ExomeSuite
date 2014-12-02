@@ -17,6 +17,8 @@
 package exomesuite.graphic;
 
 import exomesuite.project.Project;
+import exomesuite.utils.FileManager;
+import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -75,6 +77,7 @@ public class ProjectList extends ListView<Project> {
      */
     private void close(Project project) {
         getItems().remove(project);
+        OS.removeProject(project);
     }
 
     /**
@@ -87,17 +90,17 @@ public class ProjectList extends ListView<Project> {
             // Ask user to remove folder content
             File path = new File(project.getProperty(Project.PropertyName.PATH));
             File config = project.getConfigFile();
-//            Action showConfirm = Dialogs.create()
-//                    .message("Do you want to delete everything under " + path + "?")
-//                    .showConfirm();
-//            if (showConfirm == Dialog.ACTION_NO) {
-//                config.delete();
-//                getItems().remove(project);
-//            } else if (showConfirm == Dialog.ACTION_YES) {
-//                config.delete();
-//                FileManager.delete(path, true);
-//                getItems().remove(project);
-//            }
+            Dialog.Response response = new Dialog().showYesNoCancel("Delete content",
+                    "Do you also want to delete everything under" + path + "?",
+                    "Delete everything", "Delete only project", "Cancel");
+            switch (response) {
+                case YES:
+                    FileManager.delete(path, true);
+                case NO:
+                    config.delete();
+                    getItems().remove(project);
+                    OS.removeProject(project);
+            }
         }
     }
 

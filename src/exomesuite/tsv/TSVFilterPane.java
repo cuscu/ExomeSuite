@@ -14,18 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcf;
+package exomesuite.tsv;
 
 import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.SizableImage;
 import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -35,25 +38,26 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class VCFFilterPane extends VBox {
+public class TSVFilterPane extends VBox {
 
     private final Label staticInfo = new Label();
-    private final ComboBox<VCFFilter.Field> field = new ComboBox<>();
-    private final ComboBox<VCFFilter.Connector> connector = new ComboBox<>();
-    private final ComboBox<String> info = new ComboBox<>();
+    private final ComboBox<String> field = new ComboBox<>();
+    private final ComboBox<TSVFilter.Connector> connector = new ComboBox<>();
     private final TextField value = new TextField();
     private final FlatButton accept = new FlatButton("apply.png", "Accept");
     private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
-    private final FlatButton delete = new FlatButton("delete.png", "Delete");
+    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 32));
     private EventHandler onAccept, onDelete;
-    private HBox up = new HBox(field, info);
-    private HBox center = new HBox(connector, value);
-    private HBox down = new HBox(accept, cancel);
-    private VCFFilter filter;
+    private final HBox center = new HBox(field, connector, value, accept, cancel);
+    private TSVFilter filter;
 
     {
-        field.getItems().setAll(VCFFilter.Field.values());
-        connector.getItems().setAll(VCFFilter.Connector.values());
+        ImageView icon = new ImageView("exomesuite/img/delete.png");
+        icon.setFitWidth(32);
+        icon.setPreserveRatio(true);
+        //icon.setSmooth(true);
+        delete.setGraphic(icon);
+        connector.getItems().setAll(TSVFilter.Connector.values());
         accept.setOnAction(e -> accept());
         cancel.setOnAction(e -> toPassive());
         setOnMouseClicked(e -> startEdit());
@@ -66,50 +70,32 @@ public class VCFFilterPane extends VBox {
                 toPassive();
             }
         });
+        field.setOnAction(event -> filter.setSelectedIndex(field.getSelectionModel().getSelectedIndex()));
         staticInfo.setText("Click to set the filter");
-        getStyleClass().add("parameter");
+        //getStyleClass().add("parameter");
         setAlignment(Pos.CENTER);
         toPassive();
-        field.setOnAction(e -> {
-            if (field.getSelectionModel().getSelectedItem() == VCFFilter.Field.INFO) {
-                up.getChildren().add(info);
-//                info.setVisible(true);
-            } else {
-                up.getChildren().remove(info);
-//                info.setVisible(false);
-            }
-        });
-        info.setOnAction(e -> filter.setSelectedInfo(info.getValue()));
         HBox.setHgrow(value, Priority.SOMETIMES);
+        center.setSpacing(3);
     }
 
-    public VCFFilterPane(List<String> infos) {
-        filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
-        info.getItems().addAll(infos);
-//        setStaticInfo();
+    public TSVFilterPane(List<String> fields) {
+        filter = new TSVFilter();
+        field.getItems().addAll(fields);
+        getStyleClass().add("filter-box");
     }
 
-    public VCFFilterPane(VCFFilter filter, List<String> infos) {
-        this.filter = filter;
-        value.setText(filter.getValue());
-        field.getSelectionModel().select(filter.getField());
-        connector.getSelectionModel().select(filter.getConnector());
-        info.getItems().addAll(infos);
-        info.getSelectionModel().select(0);
-        setStaticInfo();
-    }
-
-    public VCFFilter getFilter() {
+    public TSVFilter getFilter() {
         return filter;
     }
 
-    public void setFilter(VCFFilter filter) {
+    public void setFilter(TSVFilter filter) {
         this.filter = filter;
     }
 
     private void accept() {
-        filter.setField(field.getSelectionModel().getSelectedItem());
-        filter.setConnector(connector.getSelectionModel().getSelectedItem());
+        filter.setSelectedIndex(field.getSelectionModel().getSelectedIndex());
+        filter.setSelectedConnector(connector.getValue());
         filter.setValue(value.getText());
         getChildren().clear();
         setStaticInfo();
@@ -129,24 +115,21 @@ public class VCFFilterPane extends VBox {
     }
 
     private void startEdit() {
-        if (info.getSelectionModel().isEmpty()) {
-            info.getSelectionModel().select(0);
-        }
         if (connector.getSelectionModel().isEmpty()) {
-            connector.getSelectionModel().select(VCFFilter.Connector.EQUALS);
+            connector.getSelectionModel().select(TSVFilter.Connector.EQUALS);
         }
         if (field.getSelectionModel().isEmpty()) {
-            field.getSelectionModel().select(VCFFilter.Field.CHROMOSOME);
+            field.getSelectionModel().select(0);
         }
-        getChildren().setAll(up, center, down);
+        getChildren().setAll(center);
     }
 
     private void setStaticInfo() {
-        String f = (filter.getField() == VCFFilter.Field.INFO)
-                ? filter.getSelectedInfo() : filter.getField().name();
+        String f = (filter.getSelectedIndex() < 0)
+                ? field.getItems().get(0) : field.getSelectionModel().getSelectedItem();
         String v = filter.getValue() == null || filter.getValue().isEmpty()
                 ? "[empty]" : filter.getValue();
-        staticInfo.setText(f + " " + filter.getConnector() + " " + v);
+        staticInfo.setText(f + " " + filter.getSelectedConnector() + " " + v);
     }
 
     public void setOnAccept(EventHandler onAccept) {

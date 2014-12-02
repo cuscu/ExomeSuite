@@ -221,18 +221,13 @@ public final class Project {
             return;
         }
         // Get the current list of files
-        String files = getProperty(PropertyName.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
+        List<String> fs = new ArrayList<>(Arrays.asList(getProperty(PropertyName.FILES, "").split(";")));
         // Is the file already in the list?
         if (fs.contains(file)) {
             return;
         }
-        // First file do not need separator
-        if (!files.isEmpty()) {
-            files += ";";
-        }
-        files += file;
-        setProperty(PropertyName.FILES, files);
+        fs.add(file);
+        setProperty(PropertyName.FILES, OS.asString(";", fs));
     }
 
     /**
@@ -240,12 +235,10 @@ public final class Project {
      * @param file
      */
     public void removeExtraFile(String file) {
-        final String filesString = getProperty(PropertyName.FILES);
-        List<String> files = new ArrayList<>(Arrays.asList(filesString.split(";")));
+        List<String> files = Arrays.asList(getProperty(PropertyName.FILES).split(";"));
         if (files.remove(file)) {
             String newFiles = OS.asString(";", files);
             setProperty(PropertyName.FILES, newFiles);
-
         }
     }
 
@@ -291,14 +284,6 @@ public final class Project {
          * Illumina, SOLiD. Jus joking. We only use Illumina.
          */
         SEQUENCING_PLATFORM,
-        /**
-         * Mist analysis threshold
-         */
-        THRESHOLD,
-        /**
-         * Variants file recalibrated
-         */
-        RECAL_VCF_FILE,
         /**
          * Other files list
          */

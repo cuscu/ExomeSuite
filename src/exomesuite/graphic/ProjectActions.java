@@ -102,6 +102,7 @@ public class ProjectActions extends VBox implements ProjectListener {
             FlatButton fb = new FlatButton(action.getIcon(), action.isDisabled(project)
                     ? action.getDisableDescription() : action.getDescription());
             fb.setDisable(action.isDisabled(project));
+            fb.setText(action.getDescription());
             fb.setOnAction(e -> call(action));
             buttons.getChildren().add(fb);
         });

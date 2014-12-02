@@ -23,7 +23,8 @@
                         <!-- Project properties -->
                         <VBox alignment="TOP_CENTER" fillWidth="true"  >
                             <children>
-                                <ProjectActions fx:id="projectActions" />
+                                <!--ProjectActions fx:id="projectActions" /-->
+                                <PActions fx:id="pactions" />
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS" >
                                     <content>
                                         <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>

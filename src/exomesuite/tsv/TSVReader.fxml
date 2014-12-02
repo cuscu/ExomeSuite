@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+
+<fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
+    <items>
+        <TableView fx:id="table" />
+        <VBox alignment="TOP_RIGHT"  >
+            <children>
+                <Label fx:id="infoLabel"  />
+                <VBox spacing="5" styleClass="niceBox" alignment="TOP_CENTER" >
+                    <children>
+                        <SectionTitle hLine="false" title="FILTERS" />
+                        <VBox fx:id="filtersPane"/>
+                        <Button fx:id="addFilter" styleClass="flat-button" text="New filter"  />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </items>
+</fx:root>

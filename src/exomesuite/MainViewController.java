@@ -20,12 +20,13 @@ import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
 import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
+import exomesuite.graphic.Dialog;
 import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.PActions;
 import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
 import exomesuite.project.Project;
-import exomesuite.tsvreader.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.vcf.CombineVariants;
@@ -102,6 +103,8 @@ public class MainViewController {
     @FXML
     private ProjectActions projectActions;
     @FXML
+    private PActions pactions;
+    @FXML
     private ProjectInfo projectInfo;
     @FXML
     private TabPane workingArea;
@@ -121,13 +124,14 @@ public class MainViewController {
         projectList.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
                 -> {
-                    projectActions.setProject(newValue);
+//                    projectActions.setProject(newValue);
+                    pactions.setProject(newValue);
                     projectInfo.setProject(newValue);
                 });
         infoLabel = info;
         staticWorkingArea = workingArea;
         infoHBox = infoBox;
-        // Open recently opened projects
+        // Open recently opened projects (.config files)
         final String openedProjects = OS.getProperty("projects");
         if (openedProjects != null && !openedProjects.isEmpty()) {
             String[] op = openedProjects.split(";");
@@ -151,6 +155,7 @@ public class MainViewController {
             projectList.getSelectionModel().select(project);
         }
         printMessage("Project " + project.getProperty(Project.PropertyName.NAME) + " opened", "INFO");
+        OS.addProject(project);
     }
 
     /**
@@ -159,26 +164,20 @@ public class MainViewController {
      *
      */
     public void exitApplication() {
-        Button exit = new Button("Exit", new ImageView("exomesuite/img/exit.png"));
-        Button cont = new Button("Continue", new ImageView("exomesuite/img/cancel.png"));
-        infoBox.getChildren().setAll(infoLabel, exit, cont);
-        printMessage("Are you sure you want to exit?", "info");
-        root.getTop().setDisable(true);
-        root.getCenter().setDisable(true);
-        exit.setOnAction(e -> {
-            String projects = "";
-            projects = projectList.getItems().stream().
-                    map((p) -> p.getConfigFile().getAbsolutePath() + ";").reduce(projects,
-                            String::concat);
-            OS.setProperty("projects", projects);
+        if (!OS.containsKey("confirmExit") || OS.getProperty("confirmExit").equals("true")) {
+            Dialog.Response resp = new Dialog().showYesNoCancel("Exit application?",
+                    "Do you want to exit?", "Exit", "Continue", "Exit and don't ask again");
+            if (resp == Dialog.Response.YES) {
+                ExomeSuite.getMainStage().close();
+            } else if (resp == Dialog.Response.NO) {
+                printMessage("Good, keep working", "success");
+            } else {
+                OS.setProperty("confirmExit", "false");
+                ExomeSuite.getMainStage().close();
+            }
+        } else {
             ExomeSuite.getMainStage().close();
-        });
-        cont.setOnAction(e -> {
-            infoBox.getChildren().setAll(infoLabel);
-            printMessage("Good, keep working", "success");
-            root.getTop().setDisable(false);
-            root.getCenter().setDisable(false);
-        });
+        }
     }
 
     /**
@@ -321,7 +320,10 @@ public class MainViewController {
             /* Select the class depending on the extension */
             Tab t = new Tab(file.getName());
             if (file.getName().endsWith(".tsv") || file.getName().endsWith(".mist")) {
-                t.setContent(new TSVReader(file).get());
+                //t.setContent(new TSVReader(file).get());
+                exomesuite.tsv.TSVReader reader = new exomesuite.tsv.TSVReader();
+                reader.setFile(file);
+                t.setContent(reader);
             } else if (file.getName().endsWith(".vcf")) {
                 VCFTable table = new VCFTable();
                 table.setFile(file);
@@ -344,10 +346,6 @@ public class MainViewController {
 
     public static TabPane getWorkingArea() {
         return staticWorkingArea;
-    }
-
-    public static Label getInfo() {
-        return infoLabel;
     }
 
     private void combineMIST() {

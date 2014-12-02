@@ -16,16 +16,11 @@
  */
 package exomesuite.graphic;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
 
 /**
  * A FlatButton is the standard Button in ExomeSuite. They are styled in the same way.
@@ -37,15 +32,7 @@ public class FlatButton extends Button {
     private StringProperty icon = new SimpleStringProperty();
 
     public FlatButton() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("FlatButton.fxml"));
-        loader.setController(this);
-        loader.setRoot(this);
-        try {
-            loader.load();
-        } catch (IOException ex) {
-            Logger.getLogger(FlatButton.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        setBackground(Background.EMPTY);
+        getStyleClass().add("flat-button");
     }
 
     /**
@@ -59,7 +46,7 @@ public class FlatButton extends Button {
         if (tooltip != null && !tooltip.isEmpty()) {
             setTooltip(new Tooltip(tooltip));
         }
-        setBackground(Background.EMPTY);
+        getStyleClass().add("flat-button");
     }
 
     /**

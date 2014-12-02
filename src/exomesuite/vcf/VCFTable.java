@@ -17,7 +17,6 @@
 package exomesuite.vcf;
 
 import exomesuite.graphic.FlatButton;
-import exomesuite.graphic.VCFFilterPane;
 import exomesuite.graphic.VariantExons;
 import exomesuite.graphic.VariantGenotype;
 import exomesuite.graphic.VariantInfo;

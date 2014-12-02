@@ -101,9 +101,7 @@ public abstract class SystemTask extends Task<Integer> {
      */
     @Override
     protected void cancelled() {
-        if (process != null) {
-            process.destroy();
-        }
+        System.out.println("Canceled");
     }
 
     @Override

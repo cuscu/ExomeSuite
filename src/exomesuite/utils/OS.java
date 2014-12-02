@@ -1,6 +1,7 @@
 package exomesuite.utils;
 
 import exomesuite.MainViewController;
+import exomesuite.project.Project;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -167,5 +168,36 @@ public class OS {
 
     public static Properties getProperies() {
         return properties;
+    }
+
+    /**
+     * Removes a project from the projects list.
+     *
+     * @param project the project to remove
+     */
+    public static void removeProject(Project project) {
+        // Import projects
+        List<String> files = Arrays.asList(properties.getProperty("projects", "").split(";"));
+        // Check if project is in the list by trying to remove it
+        if (files.remove(project.getConfigFile().getAbsolutePath())) {
+            setProperty("projects", OS.asString(";", files));
+        }
+    }
+
+    /**
+     * Adds a project to the project list.
+     *
+     * @param project the project to add
+     */
+    public static void addProject(Project project) {
+        // Import projects
+        List<String> projects = new ArrayList<>(Arrays.asList(
+                properties.getProperty("projects", "").split(";")));
+        // If project is not yet in the list
+        if (!projects.contains(project.getConfigFile().getAbsolutePath())) {
+            // Add it
+            projects.add(project.getConfigFile().getAbsolutePath());
+            setProperty("projects", OS.asString(";", projects));
+        }
     }
 }
