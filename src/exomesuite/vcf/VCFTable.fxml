@@ -7,44 +7,48 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1" >
-    <children>
-        <SplitPane orientation="VERTICAL">
-            <items>
-                <TableView VBox.vgrow="ALWAYS" fx:id="table" maxHeight="9999" />
-                <HBox >
-                    <children>
-                        <VBox alignment="TOP_CENTER" spacing="5" >
-                            <children>
-                                <SectionTitle hLine="false" title="VARIANTS" />
-                                <Label fx:id="infoLabel" styleClass="niceBox" />
-                                <SectionTitle hLine="false" title="FILTERS" />
-                                <VBox fx:id="filtersPane"/>
-                                <FlatButton fx:id="addFilter" text="Add a filter"  />
-                            </children>
-                            <padding>
-                                <javafx.geometry.Insets bottom="5" left="5" right="5" top="5"/>
-                            </padding>
-                        </VBox>
-                        <VBox HBox.hgrow="ALWAYS" spacing="5"  >
-                            <children>
-                                <!-- INFO -->
-                                <SectionTitle title="INFO" hLine="false" />
-                                <VariantInfo fx:id="variantInfo" VBox.vgrow="NEVER" styleClass="niceBox"  />
-                                <!-- GENOTYPE -->
-                                <SectionTitle title="GENOTYPE" hLine="false" />
-                                <VariantGenotype fx:id="formatBox" styleClass="niceBox" />
-                                <!-- EXONS -->
-                                <SectionTitle title="EXONS" />
-                                <VariantExons fx:id="variantExons" VBox.vgrow="ALWAYS" />
-                            </children>
-                            <padding>
-                                <javafx.geometry.Insets bottom="5" left="5" right="5" top="5"/>
-                            </padding>
-                        </VBox>
-                    </children>
+<fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
+    <items>
+        <TableView VBox.vgrow="ALWAYS" fx:id="table" maxHeight="9999" />
+        <VBox >
+            <children>
+                <HBox alignment="TOP_RIGHT" >
+                    <Label fx:id="infoLabel" />
                 </HBox>
-            </items>
-        </SplitPane>
-    </children>
+                <!-- FILTERS -->
+                <VBox alignment="TOP_CENTER" styleClass="niceBox">
+                    <children>
+                        <Label text="FILTERS"/>
+                        <VBox fx:id="filtersPane" spacing="5" />
+                        <Button fx:id="addFilter" text="New filter" styleClass="graphic-button"  />
+                    </children>
+                </VBox>
+                <!-- INFO -->
+                <VBox styleClass="niceBox" >
+                    <children>
+                        <SectionTitle title="INFO" hLine="false" />
+                        <VariantInfo fx:id="variantInfo" />
+                    </children>
+                </VBox>
+                <!-- GENOTYPE -->
+                <VBox styleClass="niceBox" >
+                    <children>
+                        <SectionTitle title="GENOTYPE" hLine="false" />
+                        <VariantGenotype fx:id="formatBox" />
+                    </children>
+                </VBox>
+                <!-- INFO
+                <VBox styleClass="niceBox" >
+                    <children>
+                        <SectionTitle title="EXONS" hLine="false" />
+                        <VariantExons fx:id="variantExons" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
+                -->
+            </children>
+            <padding>
+                <javafx.geometry.Insets bottom="5" left="5" right="5" top="5"/>
+            </padding>
+        </VBox>
+    </items>
 </fx:root>

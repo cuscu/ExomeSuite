@@ -20,20 +20,10 @@ import exomesuite.project.Project;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 
 /**
  *
@@ -41,32 +31,20 @@ import javafx.scene.layout.HBox;
  */
 public class ProjectList extends ListView<Project> {
 
-    /**
-     * Custom control standard constructor
-     */
     public ProjectList() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectList.fxml"));
-        loader.setController(this);
-        loader.setRoot(this);
-        try {
-            loader.load();
-        } catch (IOException ex) {
-            Logger.getLogger(ProjectList.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        initialize();
     }
 
-    @FXML
     private void initialize() {
         setPlaceholder(new Label("Open or create a project."));
         // Context menu
-        MenuItem close = new MenuItem("Close project", new ImageView("exomesuite/img/cancel4.png"));
-        MenuItem delete = new MenuItem("Delete project", new ImageView("exomesuite/img/delete.png"));
+        MenuItem close = new MenuItem("Close", new SizableImage("exomesuite/img/cancel.png", 16));
+        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/delete.png", 16));
         close.setOnAction(event -> close(getSelectionModel().getSelectedItem()));
         delete.setOnAction(event -> delete(getSelectionModel().getSelectedItem()));
         final ContextMenu contextMenu = new ContextMenu(close, delete);
         setContextMenu(contextMenu);
         // Cell factory
-        setCellFactory(p -> new MyCell());
         setEditable(false);
     }
 
@@ -104,42 +82,4 @@ public class ProjectList extends ListView<Project> {
         }
     }
 
-    /**
-     * Cells for the list, they include buttons to delete or close the projects.
-     */
-    private class MyCell extends ListCell<Project> {
-
-        private final FlatButton delete = new FlatButton("delete.png", "Delete project");
-        private final FlatButton close = new FlatButton("cancel4.png", "Close project");
-        private final HBox box = new HBox(close, delete);
-        private Project project;
-
-        public MyCell() {
-            setContentDisplay(ContentDisplay.LEFT);
-            box.setAlignment(Pos.CENTER_RIGHT);
-            box.setMaxWidth(Double.MAX_VALUE);
-            setMaxWidth(Double.MAX_VALUE);
-            delete.setOnAction(event -> delete(project));
-            close.setOnAction(event -> close(project));
-        }
-
-        @Override
-        protected void updateItem(Project project, boolean empty) {
-            super.updateItem(project, empty);
-            this.project = project;
-            if (empty) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                setText(project.getProperty(Project.PropertyName.NAME));
-                setGraphic(box);
-                project.addListener(e -> {
-                    if (getItem() == project) {
-                        setText(project.getProperty(Project.PropertyName.NAME));
-                    }
-                });
-            }
-        }
-
-    }
 }

@@ -20,6 +20,7 @@
     -fx-padding: 2;
 }
 
+// Button with only graphic, whe hover or pressed a border is shown.
 .flat-button {
     -fx-border-width: 1px;
     -fx-border-radius: 2px;
@@ -37,14 +38,16 @@
     -fx-border-color: black;
 
 }
-.green {
-    -fx-border-color: green;
-    -fx-background-color: #99ff99;
+// Buttons that only show an icon, hover and pressed are only made by decreasing the opacity
+.graphic-button {
+    -fx-background-color: transparent;
+}
+.graphic-button:hover {
+    -fx-opacity: 0.5;
 }
 
-.red {
-    -fx-border-color: red;
-    -fx-background-color: lightsalmon;
+.graphic-button:pressed{
+    -fx-opacity: 0.25;
 }
 
 #nameColumn, #codeColumn {
@@ -67,11 +70,12 @@
     -fx-background-color: white;
 }
 
+// Filtering boxes in TSVReader/VCFReader
 .filter-box {
     -fx-background-color: ghostwhite;
     -fx-text-alignment: left;
-    //-fx-padding: 4px;
-    -fx-border-color: darkgray;
+    //    -fx-border-color: darkgray;
+    -fx-padding: 5px;
 }
 
 .filter-box:hover{
@@ -90,10 +94,10 @@
     -fx-border-radius: 16px;
 }
 
+
 .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-width: 0;
-
 }
 
 .root {

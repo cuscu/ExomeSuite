@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
 /**
@@ -45,11 +46,11 @@ public class CombineMIST {
     @FXML
     private ListView<File> fileList;
     @FXML
-    private FlatButton addButton;
+    private Button addButton;
     @FXML
     private FileParam output;
     @FXML
-    private FlatButton startButton;
+    private Button startButton;
 
     /**
      * The field that contains the EXON_ID
@@ -92,6 +93,8 @@ public class CombineMIST {
         output.setOnValueChanged(e -> startButton.setDisable(false));
         output.addFilter(FileManager.MIST_FILTER);
         startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getValue())));
+        addButton.setGraphic(new SizableImage("exomesuite/img/addFile.png", 32));
+        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", 32));
     }
 
     /**

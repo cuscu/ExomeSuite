@@ -16,14 +16,13 @@
  */
 package exomesuite;
 
+import exomesuite.graphic.ButtonsBar;
 import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
 import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
-import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.PActions;
-import exomesuite.graphic.ProjectActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
 import exomesuite.project.Project;
@@ -45,14 +44,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -61,7 +58,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -82,8 +78,6 @@ public class MainViewController {
     @FXML
     private MenuItem databaseMenu;
     @FXML
-    private FlowPane toolBar;
-    @FXML
     private MenuItem openFile;
     @FXML
     private MenuItem combineVCFMenu;
@@ -101,8 +95,6 @@ public class MainViewController {
     @FXML
     private HBox infoBox;
     @FXML
-    private ProjectActions projectActions;
-    @FXML
     private PActions pactions;
     @FXML
     private ProjectInfo projectInfo;
@@ -114,13 +106,14 @@ public class MainViewController {
     private static HBox infoHBox;
     @FXML
     private BorderPane root;
+    @FXML
+    private ButtonsBar toolbar;
 
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
      */
     public void initialize() {
         setMenus();
-        setToolBar();
         projectList.getSelectionModel().selectedItemProperty().addListener((
                 ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
                 -> {
@@ -144,8 +137,10 @@ public class MainViewController {
     /**
      * Opens a FileChooser and lets the user open a .config file. If returned file is not null, it
      * will call {@code addProjectTab}.
+     *
+     * @param configFile
      */
-    private void openProject(File configFile) {
+    public void openProject(File configFile) {
         if (configFile == null || !configFile.exists()) {
             return;
         }
@@ -211,27 +206,9 @@ public class MainViewController {
     }
 
     /**
-     * Fills the top toolbar with quick access buttons.
-     */
-    private void setToolBar() {
-        FlatButton open = new FlatButton("open.png", "Open project... Ctrl+O");
-        open.setOnAction(e -> openProject(FileManager.openFile("Config file",
-                FileManager.CONFIG_FILTER)));
-        FlatButton newProject = new FlatButton("add.png", "New project... Ctrl+N");
-        newProject.setOnAction(e -> showNewPane());
-        FlatButton db = new FlatButton("database.png", "Select databases... Ctrl+D");
-        db.setOnAction(e -> showDatabasesPane());
-        FlatButton fileOpen = new FlatButton("file.png", "Open file");
-        fileOpen.setOnAction(e -> openFile());
-        Separator s = new Separator(Orientation.VERTICAL);
-        Separator s2 = new Separator(Orientation.VERTICAL);
-        toolBar.getChildren().addAll(fileOpen, s, open, newProject, s2, db);
-    }
-
-    /**
      * Opens dialog to create a new project.
      */
-    private void showNewPane() {
+    public void showNewPane() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"));
             loader.load();
@@ -277,7 +254,7 @@ public class MainViewController {
     /**
      * Opens dialog to set databases selection.
      */
-    private void showDatabasesPane() {
+    public void showDatabasesPane() {
         Databases db = new Databases();
         ScrollPane pane = new ScrollPane(db);
         db.setPadding(new Insets(5));
@@ -295,7 +272,7 @@ public class MainViewController {
         stage.showAndWait();
     }
 
-    private void openFile() {
+    public void openFile() {
         File f = FileManager.openFile("Choose any file", FileManager.ALL_FILTER);
         showFileContent(f, null);
     }
@@ -308,7 +285,7 @@ public class MainViewController {
      * @param file the file to open
      * @param secondary a second file if needed
      */
-    public static void showFileContent(File file, File secondary) {
+    public void showFileContent(File file, File secondary) {
         if (file != null) {
             /* Check if the file is already opened */
             for (Tab t : staticWorkingArea.getTabs()) {

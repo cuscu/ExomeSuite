@@ -12,12 +12,12 @@
     <children>
         <SectionTitle title="Select files"/>
         <ListView fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-        <FlatButton fx:id="addInclude" text="Add" icon="addFile.png" />
+        <Button fx:id="addInclude" text="Add" />
         <SectionTitle title="Select files"/>
         <ListView fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-        <FlatButton fx:id="addExclude" text="Add" icon="addFile.png" />
+        <Button fx:id="addExclude" text="Add" />
         <FileParam fx:id="output" title="Output" behaviour="SAVE" />
-        <FlatButton fx:id="startButton" text="Start" icon="start.png"/>
+        <Button fx:id="startButton" text="Start" />
     </children>
 
 </VBox>

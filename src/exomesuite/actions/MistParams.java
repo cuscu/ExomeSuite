@@ -14,14 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.actions;
 
+import exomesuite.MainViewController;
+import exomesuite.graphic.ChoiceParam;
+import exomesuite.graphic.NumberParam;
+import exomesuite.graphic.SizableImage;
+import exomesuite.graphic.TextParam;
 import java.util.List;
 import java.util.Properties;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 
 /**
  * FXML Controller class. The controller of the windows with the parameters for the MIST call.
@@ -29,7 +35,7 @@ import javafx.scene.control.Button;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class MistParams {
+public class MistParams extends VBox {
 
     @FXML
     private ChoiceParam bamFile;
@@ -39,21 +45,57 @@ public class MistParams {
     private NumberParam length;
     @FXML
     private Button accept;
+    @FXML
+    private Button cancel;
 
     private EventHandler closeEvent;
+
+    private final Properties properties;
+
+    private boolean accepted = false;
+
+    public MistParams(Properties properties) {
+        this.properties = properties;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MistParams.fxml"));
+            loader.setRoot(this);
+            loader.setController(this);
+            loader.load();
+        } catch (Exception e) {
+            MainViewController.showException(e);
+        }
+    }
 
     /**
      * Initializes the controller class.
      */
     public void initialize() {
-        accept.setDisable(true);
         bamFile.setOnValueChanged(e -> enableAccept());
-        accept.setOnAction(e -> accept(e));
+        if (properties.containsKey("bamFile")) {
+            bamFile.setValue(properties.getProperty("bamFile"));
+        }
+        if (properties.containsKey("threshold")) {
+            threshold.setValue(properties.getProperty("threshold"));
+        }
+        if (properties.containsKey("length")) {
+            length.setValue(properties.getProperty("length"));
+        }
+        accept.setOnAction(event -> {
+            accepted = true;
+            closeEvent.handle(event);
+        });
+        cancel.setOnAction(event -> closeEvent.handle(event));
+        accept.setGraphic(new SizableImage("exomesuite/img/mist.png", 32));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }
 
+    /**
+     * Provide options for the bam param.
+     *
+     * @param options
+     */
     public void setBamOptions(List<String> options) {
         bamFile.setOptions(options);
-        accept.setDisable(false);
     }
 
     public void enableAccept() {
@@ -62,14 +104,12 @@ public class MistParams {
         }
     }
 
-    private void accept(Event e) {
-        if (closeEvent != null) {
-            closeEvent.handle(e);
-        }
-    }
-
     public void setOnAccept(EventHandler eventHandler) {
         closeEvent = eventHandler;
+    }
+
+    public boolean accept() {
+        return accepted;
     }
 
     /**
@@ -77,8 +117,7 @@ public class MistParams {
      *
      * @return a Properties object with the parameters
      */
-    public Properties getProperties() {
-        Properties properties = new Properties();
+    public Properties getParams() {
         properties.setProperty("threshold", threshold.getValue());
         properties.setProperty("length", length.getValue());
         properties.setProperty("input", bamFile.getValue());

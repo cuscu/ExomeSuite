@@ -7,16 +7,21 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
-<VBox prefWidth="350" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" >
+<fx:root type="VBox" prefWidth="350" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" >
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
     <children>
         <ChoiceParam fx:id="bamFile" title="Alignments file" />
         <ChoiceParam fx:id="algorithm" title="Algorithm"  />
-        <Button text="Accept" fx:id="accept"/>
+        <HBox >
+            <children>
+                <Button text="Cancel" fx:id="cancel"/>
+                <Button text="Accept" fx:id="accept"/>
+            </children>
+        </HBox>
     </children>
     <padding>
         <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
     </padding>
-</VBox>
+</fx:root>

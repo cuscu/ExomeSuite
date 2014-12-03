@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
@@ -157,15 +158,13 @@ public class ProjectInfo extends VBox implements ProjectListener {
      */
     private void showFile() {
         String f = files.getSelectionModel().getSelectedItem();
-        if (!FileManager.tripleCheck(f)) {
+        if (FileManager.tripleCheck(f)) {
+            File file = new File(f);
+            String grch = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
+            ExomeSuite.getController().showFileContent(file, new File(OS.getGenome(grch)));
+        } else {
             MainViewController.printMessage("File " + f + " is not accesible", "warning");
-//            Dialogs.create().title("File does not exist").message("File " + f + " does not exist.").
-//                    showError();
-            return;
         }
-        File file = new File(f);
-        String grch = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
-        MainViewController.showFileContent(file, new File(OS.getGenome(grch)));
     }
 
     /**

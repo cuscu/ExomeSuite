@@ -16,8 +16,7 @@
  */
 package exomesuite.vcf;
 
-import exomesuite.graphic.FlatButton;
-import exomesuite.graphic.VariantExons;
+import exomesuite.graphic.SizableImage;
 import exomesuite.graphic.VariantGenotype;
 import exomesuite.graphic.VariantInfo;
 import java.io.BufferedReader;
@@ -35,13 +34,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 
@@ -50,20 +50,20 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class VCFTable extends VBox {
+public class VCFTable extends SplitPane {
 
     @FXML
     private TableView<Variant> table;
     @FXML
     private VariantGenotype formatBox;
-    @FXML
-    private VariantExons variantExons;
+//    @FXML
+//    private VariantExons variantExons;
     @FXML
     private VariantInfo variantInfo;
     @FXML
     private VBox filtersPane;
     @FXML
-    private FlatButton addFilter;
+    private Button addFilter;
     @FXML
     private Label infoLabel;
 
@@ -97,7 +97,7 @@ public class VCFTable extends VBox {
      */
     @FXML
     public void initialize() {
-        addFilter.setGraphic(new ImageView("/exomesuite/img/more.png"));
+        addFilter.setGraphic(new SizableImage("/exomesuite/img/new.png", 16));
         addFilter.setOnAction(e -> addFilter());
         table.setSortPolicy((TableView<Variant> param) -> false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -128,7 +128,6 @@ public class VCFTable extends VBox {
 
         table.getSelectionModel().selectedItemProperty().addListener(e -> updateVariant());
         addListener(variantInfo);
-        addListener(variantExons);
         addListener(formatBox);
 
     }

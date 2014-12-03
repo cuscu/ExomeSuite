@@ -19,6 +19,7 @@ package exomesuite.actions;
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.FileParam;
+import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.util.Properties;
@@ -26,7 +27,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 /**
@@ -87,8 +87,8 @@ public class AlignParams extends VBox {
         cancel.setOnAction(event -> handler.handle(event));
         encoding.setOptions(OS.getSupportedEncodings());
         reference.setOptions(OS.getSupportedReferenceGenomes());
-        accept.setGraphic(new ImageView("exomesuite/img/align16.png"));
-        cancel.setGraphic(new ImageView("exomesuite/img/cancel.png"));
+        accept.setGraphic(new SizableImage("exomesuite/img/align.png", 32));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }
 
     public boolean accept() {

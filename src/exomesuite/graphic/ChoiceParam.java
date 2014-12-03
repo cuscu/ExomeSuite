@@ -18,6 +18,7 @@ package exomesuite.graphic;
 
 import java.util.List;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 
@@ -28,8 +29,8 @@ import javafx.scene.layout.HBox;
 public class ChoiceParam extends Param {
 
     final ComboBox<String> options = new ComboBox<>();
-    private final FlatButton accept = new FlatButton("apply.png", "Accept");
-    private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
 
     public ChoiceParam() {
         accept.setOnAction(e -> endEdit(true, options.getValue()));

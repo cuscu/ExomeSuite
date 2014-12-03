@@ -16,7 +16,6 @@
  */
 package exomesuite.tsv;
 
-import exomesuite.graphic.FlatButton;
 import exomesuite.graphic.SizableImage;
 import java.util.List;
 import javafx.event.ActionEvent;
@@ -28,7 +27,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,19 +42,20 @@ public class TSVFilterPane extends VBox {
     private final ComboBox<String> field = new ComboBox<>();
     private final ComboBox<TSVFilter.Connector> connector = new ComboBox<>();
     private final TextField value = new TextField();
-    private final FlatButton accept = new FlatButton("apply.png", "Accept");
-    private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
-    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 32));
+    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
     private EventHandler onAccept, onDelete;
     private final HBox center = new HBox(field, connector, value, accept, cancel);
     private TSVFilter filter;
 
-    {
-        ImageView icon = new ImageView("exomesuite/img/delete.png");
-        icon.setFitWidth(32);
-        icon.setPreserveRatio(true);
-        //icon.setSmooth(true);
-        delete.setGraphic(icon);
+    public TSVFilterPane(List<String> fields) {
+        filter = new TSVFilter();
+        field.getItems().addAll(fields);
+        initialize();
+    }
+
+    private void initialize() {
         connector.getItems().setAll(TSVFilter.Connector.values());
         accept.setOnAction(e -> accept());
         cancel.setOnAction(e -> toPassive());
@@ -70,19 +69,14 @@ public class TSVFilterPane extends VBox {
                 toPassive();
             }
         });
-        field.setOnAction(event -> filter.setSelectedIndex(field.getSelectionModel().getSelectedIndex()));
+        connector.setOnAction(e -> value.requestFocus());
+        field.setOnAction(e -> value.requestFocus());
+        getStyleClass().add("filter-box");
         staticInfo.setText("Click to set the filter");
-        //getStyleClass().add("parameter");
         setAlignment(Pos.CENTER);
         toPassive();
         HBox.setHgrow(value, Priority.SOMETIMES);
         center.setSpacing(3);
-    }
-
-    public TSVFilterPane(List<String> fields) {
-        filter = new TSVFilter();
-        field.getItems().addAll(fields);
-        getStyleClass().add("filter-box");
     }
 
     public TSVFilter getFilter() {

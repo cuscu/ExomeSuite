@@ -290,4 +290,10 @@ public final class Project {
         FILES
     }
 
+    @Override
+    public String toString() {
+        return getProperty(PropertyName.NAME);
+
+    }
+
 }

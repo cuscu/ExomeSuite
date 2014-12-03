@@ -7,7 +7,7 @@
 <?import exomesuite.graphic.*?>
 
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
-            xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
+            xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController" id="main">
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
             <items>
@@ -66,7 +66,7 @@
                         </Menu>
                     </menus>
                 </MenuBar>
-                <FlowPane fx:id="toolBar"/>
+                <ButtonsBar fx:id="toolbar"/>
             </children>
         </VBox>
     </top>

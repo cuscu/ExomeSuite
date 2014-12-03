@@ -7,14 +7,19 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<VBox  xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.graphic.MistParams" alignment="TOP_CENTER" prefWidth="400"  >
+<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1"  alignment="TOP_CENTER" prefWidth="400"  >
     <children>
         <ChoiceParam fx:id="bamFile" title="Alignments file" promptText="Select a BAM file"/>
         <TextParam fx:id="threshold" title="Threshold" value="10" />
         <NumberParam fx:id="length"  title="Length" value="1" max="50" min="1" />
-        <Button text="Accept" fx:id="accept"/>
+        <HBox alignment="TOP_RIGHT" spacing="5" >
+            <children>
+                <Button text="Cancel" fx:id="cancel"/>
+                <Button text="Accept" fx:id="accept"/>
+            </children>
+        </HBox>
     </children>
     <padding>
         <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
     </padding>
-</VBox>
+</fx:root>

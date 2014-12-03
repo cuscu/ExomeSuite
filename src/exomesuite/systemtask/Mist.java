@@ -300,7 +300,8 @@ public class Mist extends SystemTask {
                             // So we located the start of the poor region
                             valid = false;
                             // Put start and end
-                            poor_start = i++;
+                            poor_start = i;
+                            i++;
                             try {
                                 while (depths[i] < threshold && i <= end) {
                                     i++;
@@ -384,25 +385,35 @@ public class Mist extends SystemTask {
         final String[] row = line.split("\t");
         for (int i = 0; i < row.length; i++) {
             switch (row[i].toLowerCase()) {
-                case "chrom": EXON_CHR = i;
+                case "chrom":
+                    EXON_CHR = i;
                     break;
-                case "start": EXON_START = i;
+                case "start":
+                    EXON_START = i;
                     break;
-                case "end": EXON_END = i;
+                case "end":
+                    EXON_END = i;
                     break;
-                case "gene_id": GENE_ID = i;
+                case "gene_id":
+                    GENE_ID = i;
                     break;
-                case "gene_name": GENE_NAME = i;
+                case "gene_name":
+                    GENE_NAME = i;
                     break;
-                case "exon_number": EXON_N = i;
+                case "exon_number":
+                    EXON_N = i;
                     break;
-                case "transcript_id": EXON_ID = i;
+                case "transcript_id":
+                    EXON_ID = i;
                     break;
-                case "transcript_name": TRANS_NAME = i;
+                case "transcript_name":
+                    TRANS_NAME = i;
                     break;
-                case "transcript_info": TRANS_INFO = i;
+                case "transcript_info":
+                    TRANS_INFO = i;
                     break;
-                case "gene_biotype": GENE_BIO = i;
+                case "gene_biotype":
+                    GENE_BIO = i;
                     break;
             }
         }

@@ -19,10 +19,12 @@ package exomesuite.graphic;
 import exomesuite.MainViewController;
 import exomesuite.actions.AlignParams;
 import exomesuite.actions.CallParams;
+import exomesuite.actions.MistParams;
 import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
+import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.OS;
@@ -42,13 +44,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Tab;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 /**
- * Manages the actions panels.
+ * Manages the actions panels. Align, Call and Mist Buttons.
+ *
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -59,20 +63,23 @@ public class PActions extends HBox implements ProjectListener {
      */
     private Project project;
 
-    private final Button align = new FlatButton("align.png", "Align sequences");
-    private final Button call = new FlatButton("call.png", "Call variants");
-    private final Button mist = new FlatButton("mist.png", "MIST analysis");
+    private final Button align = new Button("Align", new SizableImage("exomesuite/img/align.png", 32));
+    private final Button call = new Button("Call", new SizableImage("exomesuite/img/call.png", 32));
+    private final Button mist = new Button("Mist", new SizableImage("exomesuite/img/mist.png", 32));
 
     public PActions() {
         align.setOnAction(event -> showAlingParams());
         call.setOnAction(event -> showCallParams());
-        mist.setOnAction(event -> mist());
-        align.setText("Align");
-        call.setText("Call");
-        mist.setText("Mist");
+        mist.setOnAction(event -> showMistParams());
+        align.setTooltip(new Tooltip("Align sequencing data"));
+        call.setTooltip(new Tooltip("Call variants from alignments"));
+        mist.setTooltip(new Tooltip("Mist analysis"));
         align.setContentDisplay(ContentDisplay.TOP);
         call.setContentDisplay(ContentDisplay.TOP);
         mist.setContentDisplay(ContentDisplay.TOP);
+        align.getStyleClass().add("graphic-button");
+        call.getStyleClass().add("graphic-button");
+        mist.getStyleClass().add("graphic-button");
         getChildren().addAll(align, call, mist);
     }
 
@@ -88,6 +95,27 @@ public class PActions extends HBox implements ProjectListener {
 
     public Project getProject() {
         return project;
+    }
+
+    /**
+     * Stablishes if buttons are enabled or disabled.
+     */
+    private void setButtons() {
+        String files = project.getProperty(Project.PropertyName.FILES, "");
+        List<String> fs = Arrays.asList(files.split(";"));
+        // Mist and call can only be done with a BAM file.
+        mist.setDisable(true);
+        call.setDisable(true);
+        for (String file : fs) {
+            if (file.endsWith(".bam")) {
+                mist.setDisable(false);
+                call.setDisable(false);
+                break;
+            }
+        }
+        // Align can be done with both sequences files
+        align.setDisable(!project.contains(Project.PropertyName.FORWARD_FASTQ)
+                || !project.contains(Project.PropertyName.REVERSE_FASTQ));
     }
 
     private void showAlingParams() {
@@ -126,6 +154,9 @@ public class PActions extends HBox implements ProjectListener {
 
     private void showCallParams() {
         Properties properties = new Properties();
+        if (project.contains(Project.PropertyName.REFERENCE_GENOME)) {
+            properties.setProperty("reference", project.getProperty(Project.PropertyName.REFERENCE_GENOME));
+        }
         Stage stage = new Stage();
         CallParams params = new CallParams(properties);
         // Look for the bam files
@@ -157,29 +188,33 @@ public class PActions extends HBox implements ProjectListener {
         stage.showAndWait();
     }
 
-    private void mist() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    /**
-     * Stablishes if buttons are enabled or disabled.
-     */
-    private void setButtons() {
-        String files = project.getProperty(Project.PropertyName.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
-        // Mist and call can only be done with a BAM file.
-        mist.setDisable(true);
-        call.setDisable(true);
-        for (String file : fs) {
-            if (file.endsWith(".bam")) {
-                mist.setDisable(false);
-                call.setDisable(false);
-                break;
+    private void showMistParams() {
+        Properties properties = new Properties();
+        Stage stage = new Stage();
+        MistParams params = new MistParams(properties);
+        // Look for the bam files
+        List<String> bams = new ArrayList<>();
+        String[] files = project.getProperty(Project.PropertyName.FILES, "").split(";");
+        for (String s : files) {
+            if (s.endsWith(".bam")) {
+                bams.add(s);
             }
         }
-        // Align can be done with both sequences files
-        align.setDisable(!project.contains(Project.PropertyName.FORWARD_FASTQ)
-                || !project.contains(Project.PropertyName.REVERSE_FASTQ));
+        params.setBamOptions(bams);
+        Scene scene = new Scene(params);
+        stage.setScene(scene);
+        scene.getStylesheets().add("exomesuite/main.css");
+        stage.centerOnScreen();
+        stage.setAlwaysOnTop(true);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+        params.setOnAccept(event -> {
+            stage.close();
+            if (params.accept()) {
+                mist(params.getParams());
+            }
+        });
+        stage.showAndWait();
     }
 
     /**
@@ -207,12 +242,39 @@ public class PActions extends HBox implements ProjectListener {
     }
 
     private void call(Properties params) {
-
-        if (params.getProperty("algorithm").toLowerCase().equals("samtools")) {
-            SamtoolsCaller caller = new SamtoolsCaller(null, null, null, null);
-
+        String reference = params.getProperty("reference");
+        String genome = OS.getProperty(reference);
+        String dbsnp = OS.getProperty("dbsnp");
+        String input = params.getProperty("bamFile");
+        String algorithm = params.getProperty("algorithm");
+        // path/code.vcf
+        String output = project.getProperty(Project.PropertyName.PATH) + File.separator
+                + project.getProperty(Project.PropertyName.CODE) + ".vcf";
+        if (algorithm.toLowerCase().equals("samtools")) {
+            SamtoolsCaller caller = new SamtoolsCaller(genome, input, output);
+            bindAndStart(caller);
         } else {
-            Caller caller = new Caller(null, null, null, null);
+            Caller caller = new Caller(genome, output, input, dbsnp);
+            bindAndStart(caller);
+        }
+    }
+
+    private void mist(Properties params) {
+        String reference = params.getProperty("reference");
+        String genome = OS.getProperty(reference);
+        String input = params.getProperty("bamFile");
+        String threshold = params.getProperty("threshold");
+        String length = params.getProperty("length");
+        int intThreshold, intLength;
+        try {
+            intThreshold = Integer.valueOf(threshold);
+            intLength = Integer.valueOf(length);
+            // path/code.vcf
+            String output = project.getProperty(Project.PropertyName.PATH) + File.separator
+                    + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + "_l" + length + ".mist";
+            Mist task = new Mist(input, output, genome, intThreshold, intLength);
+        } catch (Exception e) {
+            MainViewController.showException(e);
         }
     }
 

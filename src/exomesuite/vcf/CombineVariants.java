@@ -17,11 +17,12 @@
 package exomesuite.vcf;
 
 import exomesuite.graphic.FileParam;
-import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import java.io.File;
 import java.util.List;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 
@@ -34,15 +35,15 @@ public class CombineVariants {
     @FXML
     private FileParam output;
     @FXML
-    private FlatButton startButton;
+    private Button startButton;
     @FXML
     private ListView<File> includes;
     @FXML
-    private FlatButton addInclude;
+    private Button addInclude;
     @FXML
     private ListView<File> excludes;
     @FXML
-    private FlatButton addExclude;
+    private Button addExclude;
 
     @FXML
     private void initialize() {
@@ -60,9 +61,9 @@ public class CombineVariants {
         addExclude.setOnAction(e -> addExclude());
         startButton.setOnAction(e -> start());
         output.addFilter(FileManager.VCF_FILTER);
-    }
-
-    public void show() {
+        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", 32));
+        addExclude.setGraphic(new SizableImage("exomesuite/img/addFile.png", 32));
+        addInclude.setGraphic(new SizableImage("exomesuite/img/addFile.png", 32));
 
     }
 

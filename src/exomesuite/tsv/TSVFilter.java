@@ -148,7 +148,7 @@ public class TSVFilter {
 
                 },
         /**
-         * Contains (String)
+         * Contains (String).
          */
         CONTAINS {
 

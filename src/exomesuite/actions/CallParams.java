@@ -39,8 +39,10 @@ public class CallParams extends VBox {
     private ChoiceParam algorithm;
     @FXML
     private Button accept;
+    @FXML
+    private Button cancel;
     private EventHandler acceptEvent;
-    private boolean accepted = true;
+    private boolean accepted = false;
     private Properties params;
 
     public CallParams(Properties properties) {
@@ -59,8 +61,13 @@ public class CallParams extends VBox {
      * Initializes the controller class.
      */
     public void initialize() {
-        bamFile.setOnValueChanged(e -> accept.setDisable(false));
-        accept.setOnAction(event -> acceptEvent.handle(event));
+        accept.setOnAction(event -> {
+            accepted = true;
+            acceptEvent.handle(event);
+        });
+        cancel.setOnAction(event -> acceptEvent.handle(event));
+        bamFile.setOnValueChanged(event -> params.put("bamFile", bamFile.getValue()));
+        algorithm.setOnValueChanged(event -> params.put("algorithm", algorithm.getValue()));
     }
 
     public void setBamOptions(List<String> bams) {
@@ -80,6 +87,8 @@ public class CallParams extends VBox {
     }
 
     public Properties getParams() {
+        params.setProperty("algorithm", algorithm.getValue());
+        params.setProperty("bamFile", bamFile.getValue());
         return params;
     }
 

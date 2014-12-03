@@ -33,7 +33,7 @@ import javafx.stage.WindowEvent;
 public class ExomeSuite extends Application {
 
     private static Stage mainStage;
-    private MainViewController controller;
+    private static MainViewController controller;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -104,4 +104,9 @@ public class ExomeSuite extends Application {
         controller.exitApplication();
         event.consume();
     }
+
+    public static MainViewController getController() {
+        return controller;
+    }
+
 }

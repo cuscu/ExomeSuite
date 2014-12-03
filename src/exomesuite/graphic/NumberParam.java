@@ -18,6 +18,7 @@ package exomesuite.graphic;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -32,10 +33,11 @@ public class NumberParam extends Param {
 
     private final Slider slider = new Slider();
     private final TextField textField = new TextField();
-    private final FlatButton up = new FlatButton("up.png", "Increase 1");
-    private final FlatButton down = new FlatButton("down.png", "Decrease 1");
-    private final FlatButton accept = new FlatButton("apply.png", "Accept");
-    private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
+    private final Button up = new Button(null, new SizableImage("exomesuite/img/up.png", 16));
+    private final Button down = new Button(null, new SizableImage("exomesuite/img/down.png", 16));
+
     private final HBox pane;
     private boolean onlyInteger = true;
 

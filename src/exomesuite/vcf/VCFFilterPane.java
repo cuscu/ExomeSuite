@@ -16,12 +16,13 @@
  */
 package exomesuite.vcf;
 
-import exomesuite.graphic.FlatButton;
+import exomesuite.graphic.SizableImage;
 import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -42,16 +43,20 @@ public class VCFFilterPane extends VBox {
     private final ComboBox<VCFFilter.Connector> connector = new ComboBox<>();
     private final ComboBox<String> info = new ComboBox<>();
     private final TextField value = new TextField();
-    private final FlatButton accept = new FlatButton("apply.png", "Accept");
-    private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
-    private final FlatButton delete = new FlatButton("delete.png", "Delete");
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
+    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
     private EventHandler onAccept, onDelete;
-    private HBox up = new HBox(field, info);
-    private HBox center = new HBox(connector, value);
-    private HBox down = new HBox(accept, cancel);
+    private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
     private VCFFilter filter;
 
-    {
+    public VCFFilterPane(List<String> infos) {
+        filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
+        info.getItems().addAll(infos);
+        initialize();
+    }
+
+    private void initialize() {
         field.getItems().setAll(VCFFilter.Field.values());
         connector.getItems().setAll(VCFFilter.Connector.values());
         accept.setOnAction(e -> accept());
@@ -66,37 +71,20 @@ public class VCFFilterPane extends VBox {
                 toPassive();
             }
         });
-        staticInfo.setText("Click to set the filter");
-        getStyleClass().add("parameter");
-        setAlignment(Pos.CENTER);
-        toPassive();
         field.setOnAction(e -> {
             if (field.getSelectionModel().getSelectedItem() == VCFFilter.Field.INFO) {
-                up.getChildren().add(info);
-//                info.setVisible(true);
+                info.setDisable(false);
             } else {
-                up.getChildren().remove(info);
-//                info.setVisible(false);
+                info.setDisable(true);
             }
+            value.requestFocus();
         });
-        info.setOnAction(e -> filter.setSelectedInfo(info.getValue()));
+        info.setOnAction(e -> value.requestFocus());
+        connector.setOnAction(e -> value.requestFocus());
+        staticInfo.setText("Click to set the filter");
         HBox.setHgrow(value, Priority.SOMETIMES);
-    }
-
-    public VCFFilterPane(List<String> infos) {
-        filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
-        info.getItems().addAll(infos);
-//        setStaticInfo();
-    }
-
-    public VCFFilterPane(VCFFilter filter, List<String> infos) {
-        this.filter = filter;
-        value.setText(filter.getValue());
-        field.getSelectionModel().select(filter.getField());
-        connector.getSelectionModel().select(filter.getConnector());
-        info.getItems().addAll(infos);
-        info.getSelectionModel().select(0);
-        setStaticInfo();
+        getStyleClass().add("filter-box");
+        toPassive();
     }
 
     public VCFFilter getFilter() {
@@ -111,6 +99,7 @@ public class VCFFilterPane extends VBox {
         filter.setField(field.getSelectionModel().getSelectedItem());
         filter.setConnector(connector.getSelectionModel().getSelectedItem());
         filter.setValue(value.getText());
+        filter.setSelectedInfo(info.getValue());
         getChildren().clear();
         setStaticInfo();
         toPassive();
@@ -138,7 +127,8 @@ public class VCFFilterPane extends VBox {
         if (field.getSelectionModel().isEmpty()) {
             field.getSelectionModel().select(VCFFilter.Field.CHROMOSOME);
         }
-        getChildren().setAll(up, center, down);
+        getChildren().setAll(activePane);
+        value.requestFocus();
     }
 
     private void setStaticInfo() {

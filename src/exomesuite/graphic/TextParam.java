@@ -18,6 +18,7 @@ package exomesuite.graphic;
 
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -30,8 +31,8 @@ import javafx.scene.layout.HBox;
 public class TextParam extends Param {
 
     private final TextField field = new TextField();
-    private final FlatButton accept = new FlatButton("apply.png", "Accept");
-    private final FlatButton cancel = new FlatButton("cancel4.png", "Cancel");
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
 
     public TextParam() {
         // Accept by button

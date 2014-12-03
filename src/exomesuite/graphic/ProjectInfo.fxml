@@ -28,7 +28,7 @@
             </children>
         </HBox>
         <SectionTitle title="Processed data" />
-        <Button fx:id="addButton" text="Add a file"/>
+        <Button fx:id="addButton" text="Add a file" styleClass="graphic-button" />
         <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />
     </children>
 

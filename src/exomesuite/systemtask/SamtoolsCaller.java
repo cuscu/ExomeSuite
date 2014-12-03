@@ -30,13 +30,12 @@ import java.util.logging.Logger;
  */
 public class SamtoolsCaller extends SystemTask {
 
-    private final String genome, dbsnp, input, output;
+    private final String genome, input, output;
 
     private Process p1, p2, p3, p4;
 
-    public SamtoolsCaller(String genome, String dbsnp, String input, String output) {
+    public SamtoolsCaller(String genome, String input, String output) {
         this.genome = genome;
-        this.dbsnp = dbsnp;
         this.input = input;
         this.output = output;
     }
@@ -71,18 +70,7 @@ public class SamtoolsCaller extends SystemTask {
         p2.waitFor();
         updateMessage("Calling variants");
         updateProgress(0.6, 1);
-        samtools1.delete();
-//
-//        // bcftools view samtools_2.bcf > samtools_3.vcf
-//        ProcessBuilder pb3 = new ProcessBuilder("bcftools", "view", samtools2.getAbsolutePath());
-//        pb3.redirectOutput(samtools3);
-//        p3 = pb3.start();
-//        new PipeUtil(p3.getErrorStream(), printStream).start();
-//
-//        p3.waitFor();
-//        updateMessage("Filtering");
-//        updateProgress(0.80, 1);
-//        samtools2.delete();
+//        samtools1.delete();
 
         // /usr/bin/vcfutils.pl varFilter -D100 samtools_2.vcf > output.vcf
         ProcessBuilder pb4 = new ProcessBuilder("/usr/share/samtools/vcfutils.pl",
@@ -95,7 +83,7 @@ public class SamtoolsCaller extends SystemTask {
         updateMessage("Done");
         updateProgress(1, 1);
 
-        samtools2.delete();
+//        samtools2.delete();
         return 0;
 
     }
