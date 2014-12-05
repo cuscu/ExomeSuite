@@ -48,7 +48,7 @@ public class ButtonsBar extends FlowPane {
             loader.setController(this);
             loader.load();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 

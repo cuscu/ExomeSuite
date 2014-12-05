@@ -62,7 +62,7 @@ public class MistParams extends VBox {
             loader.setController(this);
             loader.load();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 
@@ -120,7 +120,7 @@ public class MistParams extends VBox {
     public Properties getParams() {
         properties.setProperty("threshold", threshold.getValue());
         properties.setProperty("length", length.getValue());
-        properties.setProperty("input", bamFile.getValue());
+        properties.setProperty("bamFile", bamFile.getValue());
         return properties;
     }
 }

@@ -16,8 +16,6 @@
  */
 package exomesuite.systemtask;
 
-import exomesuite.MainViewController;
-import exomesuite.utils.FileManager;
 import java.io.File;
 
 /**
@@ -71,35 +69,6 @@ public class Aligner extends SystemTask {
             Indexer index = new Indexer(genome);
             index.setPrintStream(printStream);
             index.call();
-        }
-        // Check that parameters are ok.
-        String msg = "";
-        if (gatkRefine) {
-            if (!FileManager.tripleCheck(dbsnp)) {
-                msg += "dbSNP\n";
-            }
-            if (!FileManager.tripleCheck(mills)) {
-                msg += "Mills database\n";
-            }
-            if (!FileManager.tripleCheck(phase1)) {
-                msg += "1000 genomes pahse 1 indels database\n";
-            }
-        }
-        if (!FileManager.tripleCheck(genome)) {
-            msg += "Reference genome\n";
-        }
-        if (!FileManager.tripleCheck(forward)) {
-            msg += "Forward sequences";
-        }
-        if (!FileManager.tripleCheck(reverse)) {
-            msg += "Reverse sequences";
-        }
-        if (!FileManager.tripleCheck(temp)) {
-            msg += "Temporary folder";
-        }
-        if (!msg.isEmpty()) {
-            MainViewController.printMessage("There is one or more arguments not specifierd:\n" + msg, "warning");
-            return 1;
         }
         // Align using bwa
         int ret;

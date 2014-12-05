@@ -86,7 +86,7 @@ public class TSVFilter {
         switch (selectedConnector) {
             case CONTAINS:
                 if (stringValue != null) {
-                    return value.contains(stringValue);
+                    return stringValue.contains(value);
                 }
                 break;
             case DIFFERS:

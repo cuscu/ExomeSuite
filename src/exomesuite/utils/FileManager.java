@@ -19,6 +19,7 @@ package exomesuite.utils;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -369,8 +370,8 @@ public final class FileManager {
      * inside it.
      *
      * @param file the file or directory to remove
-     * @param recursive
-     * @return
+     * @param recursive true if you want to perform a recursive deletion
+     * @return true if it could delete the file and, if specified, all of its content
      */
     public static boolean delete(File file, boolean recursive) {
         if (recursive) {
@@ -398,6 +399,30 @@ public final class FileManager {
      */
     public static boolean tripleCheck(String parameter) {
         return parameter != null && !parameter.isEmpty() && new File(parameter).exists();
+    }
+
+    /**
+     * Checks all of the files passed by argument and returns a list with the files that return
+     * false in {@code tripleCheck()}. Use this function when you have to systematically check a
+     * list of File parameters.
+     *
+     * @param parameters the list of parameters to check
+     * @return the list of parameters which do not pass tripleCheck
+     */
+    public static List<String> tripleCheck(String... parameters) {
+        return tripleCheck(Arrays.asList(parameters));
+    }
+
+    /**
+     * Checks all of the files passed by argument and returns a list with the files that return
+     * false in {@code tripleCheck()}. Use this function when you have to systematically check a
+     * list of File parameters.
+     *
+     * @param parameters the list of parameters to check
+     * @return the list of parameters which do not pass tripleCheck
+     */
+    public static List<String> tripleCheck(List<String> parameters) {
+        return parameters.stream().filter(param -> !tripleCheck(param)).collect(Collectors.toList());
     }
 
 }

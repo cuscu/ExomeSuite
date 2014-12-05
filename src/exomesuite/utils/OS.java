@@ -55,9 +55,9 @@ public class OS {
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
      * value3] -> value1,value2,value3
      *
-     * @param separator
-     * @param values
-     * @return
+     * @param separator something like "\t" or ","
+     * @param values a list of values
+     * @return the stringified list
      */
     public static String asString(String separator, String[] values) {
         if (values.length == 0) {
@@ -75,9 +75,9 @@ public class OS {
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
      * value3] -> value1,value2,value3
      *
-     * @param separator
-     * @param values
-     * @return
+     * @param separator something like "\t" or ","
+     * @param values a list of values
+     * @return the stringified list
      */
     public static String asString(String separator, List<String> values) {
         if (values.isEmpty()) {

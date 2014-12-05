@@ -16,9 +16,9 @@
  */
 package exomesuite;
 
-import exomesuite.graphic.ButtonsBar;
 import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
+import exomesuite.graphic.ButtonsBar;
 import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
@@ -227,7 +227,7 @@ public class MainViewController {
                     Project project = new Project(name, code, path);
                     String forward = controller.getForward();
                     String reverse = controller.getReverse();
-                    if (!forward.isEmpty() && !reverse.isEmpty()) {
+                    if (FileManager.tripleCheck(forward) && FileManager.tripleCheck(reverse)) {
                         project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward);
                         project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse);
                     }
@@ -373,7 +373,7 @@ public class MainViewController {
             stage.initOwner(ExomeSuite.getMainStage());
             stage.showAndWait();
         } catch (IOException e) {
-            showException(e);
+            printException(e);
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
         }
     }
@@ -397,34 +397,36 @@ public class MainViewController {
         }
     }
 
-    public static void showException(Exception e) {
-        infoLabel.setText(e.getClass() + " " + e.getMessage());
-        infoLabel.getStyleClass().clear();
-        infoHBox.getStyleClass().clear();
-        infoLabel.getStyleClass().add("error-label");
-        infoHBox.getStyleClass().add("error-box");
-        TextArea area = new TextArea();
-        area.getStyleClass().add("error-label");
-        e.printStackTrace(new PrintStream(new OutputStream() {
+    public static void printException(Exception e) {
+        Platform.runLater(() -> {
+            infoLabel.setText(e.getClass() + " " + e.getMessage());
+            infoLabel.getStyleClass().clear();
+            infoHBox.getStyleClass().clear();
+            infoLabel.getStyleClass().add("error-label");
+            infoHBox.getStyleClass().add("error-box");
+            TextArea area = new TextArea();
+            area.getStyleClass().add("error-label");
+            e.printStackTrace(new PrintStream(new OutputStream() {
 
-            @Override
-            public void write(int b) throws IOException {
-                byte[] c = {(byte) b};
-                final String character = new String(c, Charset.defaultCharset());
-                Platform.runLater(() -> {
-                    area.appendText(character);
-                });
-            }
-        }));
-        Button view = new Button("View details");
-        Stage stage = new Stage();
-        Scene scene = new Scene(area);
-        stage.centerOnScreen();
-        stage.setScene(scene);
-        view.setOnAction(event -> {
-            stage.showAndWait();
+                @Override
+                public void write(int b) throws IOException {
+                    byte[] c = {(byte) b};
+                    final String character = new String(c, Charset.defaultCharset());
+                    Platform.runLater(() -> {
+                        area.appendText(character);
+                    });
+                }
+            }));
+            Button view = new Button("View details");
+            Stage stage = new Stage();
+            Scene scene = new Scene(area);
+            stage.centerOnScreen();
+            stage.setScene(scene);
+            view.setOnAction(event -> {
+                stage.showAndWait();
+            });
+            infoHBox.getChildren().setAll(infoLabel, view);
         });
-        infoHBox.getChildren().setAll(infoLabel, view);
     }
 
 }

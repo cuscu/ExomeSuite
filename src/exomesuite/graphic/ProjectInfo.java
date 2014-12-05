@@ -202,8 +202,8 @@ public class ProjectInfo extends VBox implements ProjectListener {
                     Files.copy(source, target, COPY_ATTRIBUTES);
                     f.delete();
                 } catch (IOException ex) {
-//                    Dialogs.create().showException(ex);
-                    MainViewController.showException(ex);
+//                    Dialogs.create().printException(ex);
+                    MainViewController.printException(ex);
                     Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
                 }
 

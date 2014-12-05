@@ -145,7 +145,7 @@ public class VCFFilter {
         switch (connector) {
             case CONTAINS:
                 if (stringValue != null) {
-                    return value.contains(stringValue);
+                    return stringValue.contains(value);
                 }
                 break;
             case DIFFERS:

@@ -64,7 +64,7 @@ public class TSVReader extends SplitPane {
             loader.setController(this);
             loader.load();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 
@@ -92,7 +92,7 @@ public class TSVReader extends SplitPane {
             totalLines.set(table.getItems().size());
             currentLines.set(totalLines.get());
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
         setInfo();
     }
@@ -127,7 +127,7 @@ public class TSVReader extends SplitPane {
                 }
             });
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
         currentLines.set(table.getItems().size());
         setInfo();

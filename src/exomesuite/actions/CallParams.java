@@ -18,6 +18,7 @@ package exomesuite.actions;
 
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
+import exomesuite.graphic.SizableImage;
 import java.util.List;
 import java.util.Properties;
 import javafx.event.EventHandler;
@@ -53,7 +54,7 @@ public class CallParams extends VBox {
             loader.setController(this);
             loader.load();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 
@@ -68,6 +69,8 @@ public class CallParams extends VBox {
         cancel.setOnAction(event -> acceptEvent.handle(event));
         bamFile.setOnValueChanged(event -> params.put("bamFile", bamFile.getValue()));
         algorithm.setOnValueChanged(event -> params.put("algorithm", algorithm.getValue()));
+        accept.setGraphic(new SizableImage("exomesuite/img/call.png", 32));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }
 
     public void setBamOptions(List<String> bams) {

@@ -19,6 +19,7 @@ package exomesuite.bam;
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.NumberParam;
+import exomesuite.graphic.SizableImage;
 import exomesuite.graphic.TextParam;
 import exomesuite.utils.Ensembl;
 import exomesuite.utils.OS;
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -68,11 +70,20 @@ public class BamReader extends VBox {
     private CheckBox showPercentageDP;
     @FXML
     private CheckBox showAlleles;
+    @FXML
+    private Button left;
+    @FXML
+    private Button right;
+    @FXML
+    private BamCanvas bamCanvas;
+
     private final File bamFile;
     private final File genome;
 
-    @FXML
-    private BamCanvas bamCanvas;
+    private List<PileUp> windowAlignments;
+    int windowStart = 0, windowEnd = 0;
+    String windowChromosome = "";
+    private static final int WINDOW_SIZE = 50;
 
     public BamReader(File bamFile, File genome) {
         Ensembl.setFile(new File(OS.getProperty("ensembl")));
@@ -93,7 +104,7 @@ public class BamReader extends VBox {
         // Canvas options (force max and min size)
         bamCanvas.setPrefSize(9999, 9999);
         bamCanvas.setMinSize(1, 1);
-//        bamCanvas.widthProperty().addListener(object -> updatePosition());
+        bamCanvas.widthProperty().addListener(object -> updatePosition());
         initializeBamCanvas();
         initializeOptionsPanel();
         // Fill chromosomes with standard (can be replace with a samtools view -H)
@@ -102,6 +113,16 @@ public class BamReader extends VBox {
         // Jump to new position
         position.setOnValueChanged(event -> updatePosition());
         zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(Double.valueOf(zoom.getValue())));
+        left.setGraphic(new SizableImage("exomesuite/img/left-arrow.png", 32));
+        right.setGraphic(new SizableImage("exomesuite/img/right-arrow.png", 32));
+        left.setOnAction(event -> {
+            position.setValue((Integer.valueOf(position.getValue()) + 1) + "");
+            updatePosition();
+        });
+        right.setOnAction(event -> {
+            position.setValue((Integer.valueOf(position.getValue()) - 1) + "");
+            updatePosition();
+        });
     }
 
     private void initializeOptionsPanel() {
@@ -165,17 +186,18 @@ public class BamReader extends VBox {
             }
         } else {
             MainViewController.printMessage("No chromosome selected", "error");
-            System.err.println("Select a chromosome");
         }
     }
 
     /**
+     * Changes the position of the canvas to center the position chr:start.
      *
-     * @param chr
-     * @param index
+     * @param chr the chromosome to go
+     * @param index the position to center
      */
     private void changePosition(String chr, int index) {
         // Lets determine the length of the graph.
+        // The variant is centered on screen.
         final int elements = (int) Math.floor((bamCanvas.getWidth()
                 - 2 * bamCanvas.getAxisMargin().get())
                 / bamCanvas.getBaseWidth().get()) + 1;
@@ -185,10 +207,39 @@ public class BamReader extends VBox {
             end += (1 - start);
             start = 1;
         }
+        List<PileUp> alignments = new ArrayList<>();
+        // So, I want chr:start-end
+        // What do I have in alignmentWindow
+        if (!windowChromosome.equals(chr) || start < windowStart || end > windowEnd) {
+            // Determine the size of the new window
+            windowStart = start - WINDOW_SIZE;
+            if (windowStart < 1) {
+                windowStart = 1;
+            }
+            windowEnd = end + WINDOW_SIZE;
+            windowChromosome = chr;
+            windowAlignments = readBamFile(windowChromosome, windowStart, windowEnd);
+        }
+        for (int i = 0; i <= end - start && i + start - windowStart < windowAlignments.size(); i++) {
+            alignments.add(windowAlignments.get(i + start - windowStart));
+        }
+        bamCanvas.setAlignments(alignments);
+        bamCanvas.setGenomicPosition(start);
+        bamCanvas.setSelectedIndex(index);
+    }
+
+    /**
+     * Gets the alignment PileUps of the chromosome:start-end from the bamFile.
+     *
+     * @param chromosome the chromosome
+     * @param start the start position
+     * @param end the end position
+     * @return
+     */
+    private List<PileUp> readBamFile(String chromosome, int start, int end) {
         final List<PileUp> alignments = new ArrayList<>();
-        // The variant is centered on screen.
         ProcessBuilder pb = new ProcessBuilder("samtools", "mpileup", "-f", genome.getAbsolutePath(),
-                "-r", chr + ":" + start + "-" + end, bamFile.getAbsolutePath());
+                "-r", chromosome + ":" + start + "-" + end, bamFile.getAbsolutePath());
         System.out.println(pb.command());
         String errorLine = "";
         try {
@@ -202,7 +253,6 @@ public class BamReader extends VBox {
                 while ((eLine = error.readLine()) != null) {
                     errorLine += "\n" + eLine;
                 }
-//                error.lines().map(t -> t + ". ").reduce(errorLine, String::concat);
             } catch (IOException ex) {
                 Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -215,9 +265,7 @@ public class BamReader extends VBox {
         } catch (InterruptedException ex) {
             Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
         }
-        bamCanvas.setAlignments(alignments);
-        //System.out.println(alignments);
-        bamCanvas.setGenomicPosition(start);
+        return alignments;
     }
 
     /**

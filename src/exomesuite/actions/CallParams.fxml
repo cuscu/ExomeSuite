@@ -14,7 +14,7 @@
     <children>
         <ChoiceParam fx:id="bamFile" title="Alignments file" />
         <ChoiceParam fx:id="algorithm" title="Algorithm"  />
-        <HBox >
+        <HBox alignment="TOP_RIGHT" spacing="5"  >
             <children>
                 <Button text="Cancel" fx:id="cancel"/>
                 <Button text="Accept" fx:id="accept"/>

@@ -60,7 +60,7 @@ public class AlignParams extends VBox {
             loader.setController(this);
             loader.load();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 

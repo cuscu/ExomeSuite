@@ -17,6 +17,8 @@
                         <ChoiceParam fx:id="chromosome" title="Chromosome" value="1"  />
                         <TextParam fx:id="position" title="Position" value="1"  />
                         <NumberParam fx:id="zoom" title="Zoom" min="10" max="100" value="20" />
+                        <Button fx:id="left" styleClass="graphic-button" />
+                        <Button fx:id="right" styleClass="graphic-button" />
                     </children>
                 </FlowPane>
                 <VBox >

@@ -90,8 +90,8 @@ public class Ensembl {
                     });
                     System.out.println("Done");
                 } catch (Exception e) {
-                    MainViewController.showException(e);
-//                    Dialogs.create().showException(e);
+                    MainViewController.printException(e);
+//                    Dialogs.create().printException(e);
                 }
                 return null;
             }

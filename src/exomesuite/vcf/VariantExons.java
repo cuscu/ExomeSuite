@@ -167,8 +167,8 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                         });
                         System.out.println("Done");
                     } catch (Exception e) {
-                        MainViewController.showException(e);
-//                        Dialogs.create().showException(e);
+                        MainViewController.printException(e);
+//                        Dialogs.create().printException(e);
                     }
                     return null;
                 }
@@ -191,8 +191,8 @@ public class VariantExons extends TableView<String[]> implements VariantListener
                         out.write(Arrays.toString(exon.line));
                         out.newLine();
                     } catch (Exception e) {
-                        MainViewController.showException(e);
-//                        Dialogs.create().showException(e);
+                        MainViewController.printException(e);
+//                        Dialogs.create().printException(e);
                     }
                 });
             });

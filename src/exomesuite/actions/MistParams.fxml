@@ -15,7 +15,7 @@
         <HBox alignment="TOP_RIGHT" spacing="5" >
             <children>
                 <Button text="Cancel" fx:id="cancel"/>
-                <Button text="Accept" fx:id="accept"/>
+                <Button text="Start" fx:id="accept"/>
             </children>
         </HBox>
     </children>

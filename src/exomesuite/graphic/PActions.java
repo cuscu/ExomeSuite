@@ -24,9 +24,10 @@ import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
-import exomesuite.systemtask.Mist;
+import exomesuite.systemtask.Mist1;
 import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.systemtask.SystemTask;
+import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Properties;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -236,32 +238,86 @@ public class PActions extends HBox implements ProjectListener {
         String name = project.getProperty(Project.PropertyName.NAME);
         boolean illumina = properties.getProperty("encoding").equals("phred+64");
         boolean refine = reference.equalsIgnoreCase("grch37");
+        List<String> errors = new ArrayList<>();
+        // Check that parameters are ok.
+        if (refine) {
+//            errors.addAll(FileManager.tripleCheck(dbsnp, mills, phase1));
+            if (!FileManager.tripleCheck(dbsnp)) {
+                errors.add("dbSNP");
+            }
+            if (!FileManager.tripleCheck(mills)) {
+                errors.add("Mills database");
+            }
+            if (!FileManager.tripleCheck(phase1)) {
+                errors.add("1000 genomes pahse 1 indels database");
+            }
+        }
+//        errors.addAll(FileManager.tripleCheck(genome, forward, reverse, temp));
+        if (!FileManager.tripleCheck(genome)) {
+            errors.add("Reference genome");
+        }
+        if (!FileManager.tripleCheck(forward)) {
+            errors.add("Forward sequences");
+        }
+        if (!FileManager.tripleCheck(reverse)) {
+            errors.add("Reverse sequences");
+        }
+        if (!FileManager.tripleCheck(temp)) {
+            errors.add("Temporary folder");
+        }
+        if (!errors.isEmpty()) {
+            MainViewController.printMessage("There is one or more arguments not specifierd:\n" + errors, "warning");
+            return;
+        }
         SystemTask aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
                 output, name, illumina, refine);
         bindAndStart(aligner);
     }
 
+    /**
+     * Creates a Caller with the given properties, then call bindAndStart(caller).
+     *
+     * @param properties
+     */
     private void call(Properties params) {
         String reference = params.getProperty("reference");
         String genome = OS.getProperty(reference);
         String dbsnp = OS.getProperty("dbsnp");
         String input = params.getProperty("bamFile");
         String algorithm = params.getProperty("algorithm");
+        List<String> errors = new ArrayList<>();
+        if (!FileManager.tripleCheck(genome)) {
+            errors.add("Reference genome");
+        }
+        if (!FileManager.tripleCheck(dbsnp)) {
+            errors.add("dbSNP");
+        }
+        if (!FileManager.tripleCheck(input)) {
+            errors.add("Input bam");
+        }
+        if (!errors.isEmpty()) {
+            MainViewController.printMessage("There is one or more arguments not specifierd:\n" + errors, "warning");
+            return;
+        }
         // path/code.vcf
         String output = project.getProperty(Project.PropertyName.PATH) + File.separator
                 + project.getProperty(Project.PropertyName.CODE) + ".vcf";
-        if (algorithm.toLowerCase().equals("samtools")) {
-            SamtoolsCaller caller = new SamtoolsCaller(genome, input, output);
-            bindAndStart(caller);
-        } else {
-            Caller caller = new Caller(genome, output, input, dbsnp);
-            bindAndStart(caller);
-        }
+        SystemTask task;
+        task = algorithm.toLowerCase().equals("samtools")
+                ? new SamtoolsCaller(genome, input, output)
+                : new Caller(genome, output, input, dbsnp);
+        task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
+                Worker.State oldValue, Worker.State newValue) -> {
+                    if (newValue == Worker.State.SUCCEEDED) {
+                        project.addExtraFile(output);
+                    }
+                });
+        bindAndStart(task);
     }
 
     private void mist(Properties params) {
-        String reference = params.getProperty("reference");
-        String genome = OS.getProperty(reference);
+//        String reference = params.getProperty("reference");
+        String ensembl = OS.getProperty("ensembl");
         String input = params.getProperty("bamFile");
         String threshold = params.getProperty("threshold");
         String length = params.getProperty("length");
@@ -272,9 +328,22 @@ public class PActions extends HBox implements ProjectListener {
             // path/code.vcf
             String output = project.getProperty(Project.PropertyName.PATH) + File.separator
                     + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + "_l" + length + ".mist";
-            Mist task = new Mist(input, output, genome, intThreshold, intLength);
+            Mist1 task = new Mist1(input, output, ensembl, intThreshold, intLength);
+            task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
+                    Worker.State oldValue, Worker.State newValue) -> {
+                        if (newValue == Worker.State.SUCCEEDED) {
+                            project.addExtraFile(output);
+                        }
+                    });
+            task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
+                    Worker.State oldValue, Worker.State newValue) -> {
+                        if (newValue == Worker.State.SUCCEEDED) {
+                            project.addExtraFile(output);
+                        }
+                    });
+            bindAndStart(task);
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 
@@ -290,7 +359,7 @@ public class PActions extends HBox implements ProjectListener {
         try {
             loader.load();
         } catch (IOException ex) {
-            MainViewController.showException(ex);
+            MainViewController.printException(ex);
 //            Logger.getLogger(ProjectActions.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }
@@ -317,16 +386,24 @@ public class PActions extends HBox implements ProjectListener {
                         "If you close the tab, the task will be canceled.",
                         "Cancel task", "Continue task");
                 if (response == Dialog.Response.YES) {
-                    MainViewController.printMessage("Task " + task.getTitle() + " canceled by user", "info");
-                    task.cancel();
+                    if (task.cancel(true)) {
+
+                    }
                 } else {
                     e.consume();
                 }
             }
 
         });
+        // inform user about the victory
+        task.setOnSucceeded(event
+                -> MainViewController.printMessage("Task " + task.getTitle() + " finished", "success"));
         taskPanel.getCancelButton().setOnAction(e -> {
-            task.cancel();
+            if (!task.cancel(true)) {
+                MainViewController.printMessage("Imposible to stop task", "warning");
+            }
+        });
+        task.setOnCancelled(event -> {
             MainViewController.printMessage("Task " + task.getTitle() + " canceled by user", "info");
         });
         // Fill the tab
@@ -340,7 +417,7 @@ public class PActions extends HBox implements ProjectListener {
         try {
             new Thread(task).start();
         } catch (Exception e) {
-            MainViewController.showException(e);
+            MainViewController.printException(e);
         }
     }
 
