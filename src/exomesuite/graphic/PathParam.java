@@ -23,16 +23,16 @@ import java.io.File;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class PathParam extends Param {
+public class PathParam extends Param<File> {
 
     @Override
-    protected String editPassive() {
+    protected File editPassive() {
         File parent = null;
         if (getValue() != null) {
-            parent = new File(getValue()).getParentFile();
+            parent = getValue().getParentFile();
         }
         File file = FileManager.openDirectory("Select " + getTitle(), parent);
-        return (file == null) ? null : file.getAbsolutePath();
+        return file;
     }
 
 }

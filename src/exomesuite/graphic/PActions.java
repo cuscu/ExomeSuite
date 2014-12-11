@@ -24,7 +24,7 @@ import exomesuite.project.Project;
 import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
-import exomesuite.systemtask.Mist1;
+import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
@@ -328,7 +328,7 @@ public class PActions extends HBox implements ProjectListener {
             // path/code.vcf
             String output = project.getProperty(Project.PropertyName.PATH) + File.separator
                     + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + "_l" + length + ".mist";
-            Mist1 task = new Mist1(input, output, ensembl, intThreshold, intLength);
+            Mist task = new Mist(input, output, ensembl, intThreshold, intLength);
             task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
                     Worker.State oldValue, Worker.State newValue) -> {
                         if (newValue == Worker.State.SUCCEEDED) {
@@ -364,6 +364,7 @@ public class PActions extends HBox implements ProjectListener {
             return;
         }
         final TaskPanel taskPanel = loader.getController();
+
         // Message and progress are easy to bind
         taskPanel.getMessage().textProperty().bind(task.messageProperty());
         taskPanel.getProgress().progressProperty().bind(task.progressProperty());
@@ -397,7 +398,11 @@ public class PActions extends HBox implements ProjectListener {
         });
         // inform user about the victory
         task.setOnSucceeded(event
-                -> MainViewController.printMessage("Task " + task.getTitle() + " finished", "success"));
+                -> {
+                    MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
+                    taskPanel.getProgress().setVisible(false);
+                    taskPanel.getCancelButton().setVisible(false);
+                });
         taskPanel.getCancelButton().setOnAction(e -> {
             if (!task.cancel(true)) {
                 MainViewController.printMessage("Imposible to stop task", "warning");

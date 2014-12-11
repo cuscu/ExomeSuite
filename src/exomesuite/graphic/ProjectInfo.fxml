@@ -10,23 +10,15 @@
 <fx:root styleClass="root" type="javafx.scene.layout.VBox" spacing="3" alignment="TOP_CENTER"  xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <SectionTitle title="Properties"  />
-        <HBox maxWidth="9999" >
-            <children>
-                <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />
-                <TextParam title="Code" fx:id="code" HBox.hgrow="ALWAYS"  />
-            </children>
-        </HBox>
+        <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />
+        <TextParam title="Code" fx:id="code" HBox.hgrow="ALWAYS"  />
         <PathParam title="Path" fx:id="path" />
         <TextParam title="Description" fx:id="description" />
         <SectionTitle title="Original data"  />
         <FileParam title="Forward sequences" fx:id="forward" promptText="Forward sequences" />
         <FileParam title="Reverse sequences" fx:id="reverse" promptText="Reverse sequences" />
-        <HBox maxWidth="9999">
-            <children>
-                <ChoiceParam title="Base encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
-                <ChoiceParam title="Reference genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
-            </children>
-        </HBox>
+        <ChoiceParam title="Base encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
+        <ChoiceParam title="Reference genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
         <SectionTitle title="Processed data" />
         <Button fx:id="addButton" text="Add a file" styleClass="graphic-button" />
         <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />

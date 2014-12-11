@@ -27,6 +27,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 
 /**
+ * Copmbine VCFs tool. It will generate a VCF with the variants present in includes files and not
+ * present in exclude files.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -60,6 +62,9 @@ public class CombineVariants {
         addInclude.setOnAction(e -> addInclude());
         addExclude.setOnAction(e -> addExclude());
         startButton.setOnAction(e -> start());
+        // The start Button is disable until user selects an output file.
+        startButton.setDisable(true);
+        output.setOnValueChanged(e -> startButton.setDisable(false));
         output.addFilter(FileManager.VCF_FILTER);
         startButton.setGraphic(new SizableImage("exomesuite/img/start.png", 32));
         addExclude.setGraphic(new SizableImage("exomesuite/img/addFile.png", 32));

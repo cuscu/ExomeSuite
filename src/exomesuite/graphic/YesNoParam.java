@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 uichuimi03
+ * Copyright (C) 2014 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.vcf;
+package exomesuite.graphic;
 
 /**
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public interface VariantListener {
+public class YesNoParam extends Param<Boolean> {
 
-    public void variantChanged(Variant variant, VCFHeader header);
+    public YesNoParam() {
+        setValue(Boolean.TRUE);
+    }
+
+    @Override
+    protected Boolean editPassive() {
+        return !getValue();
+    }
+
+    @Override
+    protected String toLabel(Boolean value) {
+        if (value == null) {
+            return "NO";
+        }
+        return value ? "YES" : "NO";
+    }
+
 }

@@ -24,9 +24,9 @@ import javafx.scene.layout.HBox;
 
 /**
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class ChoiceParam extends Param {
+public class ChoiceParam extends Param<String> {
 
     final ComboBox<String> options = new ComboBox<>();
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));

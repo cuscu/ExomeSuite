@@ -16,17 +16,23 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.MainViewController;
+import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +51,24 @@ public class Mist extends SystemTask {
     private final static String LEFT = "left";
     private final static String RIGHT = "right";
 
+    // chrom | start | end | gene_id | gene_name | exon_number | transcript_id | transcript_name |
+    // transcript_info | gene_biotype
+    private final static int EXON_CHR = 0;
+    private final static int EXON_START = 1;
+    private final static int EXON_END = 2;
+    private final static int GENE_ID = 3;
+    private final static int GENE_NAME = 4;
+    private final static int EXON_N = 5;
+    private final static int EXON_ID = 6;
+    private final static int TRANS_NAME = 7;
+    private final static int TRANS_INFO = 8;
+    private final static int GENE_BIO = 9;
+
+    private long genomeLength;
+
+    private long startTime;
+    private List<Chromosome> chromosomes;
+
     /**
      * Parameters are not checked inside MIST, please, be sure all of them are legal.
      *
@@ -62,75 +86,17 @@ public class Mist extends SystemTask {
         this.length = length;
     }
 
-    /*
-     DISCUSSION:
-     This could be seen a little bit weird. But, when running, there are some problems when
-     accessing tsv columns.
-     First solution is to use int values (chr = row[0]; pos = row[1]). But what if the files columns
-     order changes? We have to programatically change them. But, what if two different files have
-     different columns order?. We want to determine the position of the columns on the run.
-     Second try was to create a List<String> with the column headers. When we want to access to
-     a column, simply call list.indexOf("chrom") or list.indexOf("exon_start"). Good, it works.
-     But indexOf is a loop, so imagine a file with thousans of lines, it implies thousands of
-     miniLoops, thousands of times making the same questions with the same answers.
-     Third solution, never implemented, but thought, was to create as many int constants as headers
-     and calculate them programatically at the begining, but this only work if all files have the
-     same header.
-     Current solution is a Map taht pairs an Enum value of Header with an int. There is a specific
-     Map for it, the EnumMap (This representation is extremely compact and efficient, prays the
-     documentation). To programatically calculate the order, we use another Map, taht pairs a Header
-     with its String representation.
-     To sum up. I hope EnumMap.indexOf(Header) to be faster than StringMap.indexOf(String). This is
-     the aspect of getting a value: row[columns.get(Header.EXON_START)], where row is the line and
-     columns the EnumSet.
-     */
-    /*
-     LAST UPDATE: forget everything, int static are the best non-headache solution.
-     */
-    /*
-     Exons columns are detected dinamically
-     */
-    private static int EXON_CHR;
-    private static int EXON_START;
-    private static int EXON_END;
-    private static int GENE_ID;
-    private static int GENE_NAME;
-    private static int EXON_N;
-    private static int EXON_ID;
-    private static int TRANS_NAME;
-    private static int TRANS_INFO;
-    private static int GENE_BIO;
-
-    /*
-     MIST output column order is knwon
-     */
-    private static final int OUT_CHR = 0;
-    private static final int OUT_EXON_START = 1;
-    private static final int OUT_EXON_END = 2;
-    private static final int OUT_POOR_START = 3;
-    private static final int OUT_POOR_END = 4;
-    private static final int OUT_GENE_ID = 5;
-    private static final int OUT_GENE_NAME = 6;
-    private static final int OUT_EXON_NUMBER = 7;
-    private static final int OUT_EXON_ID = 8;
-    private static final int OUT_TR_NAME = 9;
-    private static final int OUT_TR_INFO = 10;
-    private static final int OUT_GENE_BIO = 11;
-    private static final int OUT_MATCH = 12;
-
-    final String[] headers = {"chrom", "exon_start", "exon_end", "poor_start", "poor_end",
-        "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "transcript_info",
-        "gene_biotype", "match"};
-
-    private String chromosome;
-    private int[] depths;
-    boolean go = false;
+    final String[] headers = {"chrom", "exon_start", "exon_end", "mist_start", "mist_end",
+        "gene_id", "gene_name", "exon_id", "transcript_name", "biotype", "match"};
 
     /*
      * IMPORTANT NOTE FOR DEVELOPERS. Genomic positions start at 1, Java array positions start at 0.
      * To avoid confusions, all Java arrays will have length incremented in 1, and I won't use
      * position 0 in them. So any time there is an array access (depths[i]) it is accessing
      * to genomic position.
+     * NOTE 2: Firs implementation had a high cost: read each exon from Ensembl and call 'samtools
+     * mpileup' for each. Even with parallelization, its estimated time was 2 or 3 days for a sample.
+     * Current implementation piles up chromosome by chromosome by requesting.
      */
     @Override
     protected Integer call() throws Exception {
@@ -139,221 +105,82 @@ public class Mist extends SystemTask {
         println("Threshold = " + threshold);
         println("Length    = " + length);
         println("Output    = " + output.getAbsolutePath());
-        AtomicInteger iterations = new AtomicInteger(0);
-        // Get contigs and their lengths from SAM header.
-        Map<String, Integer> lengths = getChroms(input);
-        writeHeader(output);
-        // This should be the first iteration, but, to avoid unnecesary comparations, it's outside.
-        // It is possible, improbable but possible, that chromosome 1 is not in the SAM.
-        chromosome = "1";
-        depths = new int[lengths.get(chromosome) + 1];
-        String message = String.format("Chromosome %s (%d/%d)", chromosome,
-                iterations.incrementAndGet(), lengths.size());
-        updateTitle("MIST " + input.getName());
-        updateMessage(message);
-        updateProgress(iterations.get(), lengths.size());
-        // qname | flag | chr | pos | mapq | cigar | rnext | pnext | tlen | seq | qual
-        // chr: 2
-        // pos: 3
-        // len: 9.length
-        try (BufferedReader in = executeAndRead("samtools", "view", input.getAbsolutePath())) {
-            in.lines().forEach((String line) -> {
-                // When reached *, flush all the lines. These rows are not aligned.
-                if (chromosome.equals("*")) {
-                    return;
-                }
-                final String[] row = line.split("\t");
-                // Look for changes in the chromosome.
-                if (!row[2].equals(chromosome)) {
-                    // Chromosome change
-                    storeChrom(chromosome, depths, output);
-                    chromosome = row[2];
-                    if (chromosome.equals("*")) {
-                        final String msg = "Finishing...";
-                        updateMessage(msg);
-                        return;
-                    }
-                    depths = new int[lengths.get(row[2]) + 1];
-                    final String msg = String.format("Chromosome %s (%d/%d)", chromosome,
-                            iterations.incrementAndGet(), lengths.size());
-                    updateMessage(msg);
-                    updateProgress(iterations.get(), lengths.size() + 1);
-                }
-                final int start = Integer.valueOf(row[3]);
-                final int size = row[9].length();
-                try {
-                    // Using genomic positions. Read NOTE at beginning.
-                    for (int i = start; i <= start + size; i++) {
-                        depths[i]++;
-                    }
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    println("Some sequences fall out of chromosome."
-                            + chromosome + ":" + start + "(chr length:" + lengths.get(row[2]) + ")");
-                } catch (Exception ex) {
-                    Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            });
-            // If there are not misaligned lines, the algorithm reaches the end of the file with a
-            // pending chromosome.
-            if (chromosome != null && !chromosome.equals("*")) {
-                storeChrom(chromosome, depths, output);
-            }
-            println("Done");
-        } catch (IOException | NumberFormatException ex) {
-            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        startMIST();
         updateProgress(1, 1);
-        updateMessage("Succesful");
+        updateMessage("Successful");
         return 0;
     }
 
-    /**
-     * Executes a command and returns the output as a BufferedReader. errOut is redirected to
-     * stdOut, so the returning BufferedReader will contain both.
-     *
-     * @param input A sam/bam file.
-     * @return a BufferedReader that can be read Line by line.
+    /*
+     * 1: write headers
+     * 2: Read exons
+     * 3: if exon's chr is not loaded, mpileup in memory chr
+     * 4: Locate mist regions.
+     * 5: save mist regions
      */
-    private BufferedReader executeAndRead(String... args) throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(args);
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
-        return new BufferedReader(new InputStreamReader(process.getInputStream()));
-    }
+    private void startMIST() {
+        updateTitle("Finding MIST " + input.getName());
+        updateProgress(0, 1);
+        chromosomes = readBamHeaders(input);
+        // 1: write headers
+        writeHeader(output);
+        startTime = System.currentTimeMillis();
 
-    /**
-     * Reads input bam headers a returns a Map with pairs contig-length.
-     *
-     * @param input the sam or bam file.
-     * @return a Map with an entry for each chromosome. Chromosome name as key; chromosome length as
-     * value.
-     */
-    private Map<String, Integer> getChroms(File input) {
-        // samtools view -H input.bam
-        // @SQ	SN:1	LN:249250621
-        // @SQ	SN:GL000249.1	LN:38502
-        Map<String, Integer> chroms = new TreeMap<>();
-        try (BufferedReader in = executeAndRead("samtools", "view", "-H", input.getAbsolutePath())) {
-            in.lines().forEach((String line) -> {
-                String[] row = line.split("\t");
-                if (row[0].startsWith("@SQ")) {
-                    final String chr = row[1].substring(3);
-                    final int size = Integer.valueOf(row[2].substring(3));
-                    chroms.put(chr, size);
-                }
-            });
-        } catch (IOException ex) {
-            println("Error reading " + input + " lengths.");
-            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return chroms;
-    }
+        // Name of chromosome loaded in memory
+        AtomicReference<String> currentChromosome = new AtomicReference<>("0");
+        // Chromosome in memory, an array of ints
+        AtomicReference<int[]> depths = new AtomicReference<>();
+        // Counter for matches
+        AtomicInteger matches = new AtomicInteger();
 
-    /**
-     * Calculates poor regions and insert any exon matching into the output file.
-     *
-     * @param chr
-     * @param depths
-     * @param output
-     */
-    private void storeChrom(String chr, int[] depths, File output) {
-        /*
-         We will read exons database and select only exons in the chromosome chr.
-         For each exon, we will put on WINDOW_SIZE positions below the start.
-         Then, we will start counting how many consecutive position fall under the threshold.
-         */
-        try (BufferedReader in = new BufferedReader(new FileReader(ensembl))) {
-            //Header out.
-            fillEnsemblIndexes(in.readLine());
-            // Counts matches
-            AtomicInteger c = new AtomicInteger(0);
-            // Counts exons affected
-            AtomicInteger e = new AtomicInteger(0);
-            // Counts exons in the chromosome
-            AtomicInteger et = new AtomicInteger(0);
-            boolean valid;
-            int poor_start, poor_end;
-            String line;
-            while ((line = in.readLine()) != null) {
+        // Read the exons file
+        try (BufferedReader reader = new BufferedReader(new FileReader(ensembl))) {
+            // Skip first line
+            reader.readLine();
+            reader.lines().forEach(line -> {
                 String[] exon = line.split("\t");
-                // If exon is in the same chromosome
-                if (exon[EXON_CHR].equals(chr)) {
-                    et.incrementAndGet();
-                    // We start WINDOW_SIZE positions over and below exon start and end
-                    int start = Integer.valueOf(exon[EXON_START]) - WINDOW_SIZE;
-                    int end = Integer.valueOf(exon[EXON_END]) + WINDOW_SIZE;
-                    // Start must be crop to be positive
-                    if (start < 1) {
-                        start = 1;
-                    }
-                    // The end must be crop to not overflow chromosome
-                    if (end >= depths.length) {
-                        end = depths.length - 1;
-                    }
-                    int i = start;
-                    valid = true;
-                    // We start running through DPs vector
-                    while (i <= end) {
-                        if (depths[i] < threshold) {
-                            // So we located the start of the poor region
-                            valid = false;
-                            // Put start and end
-                            poor_start = i;
-                            i++;
-                            try {
-                                while (depths[i] < threshold && i <= end) {
-                                    i++;
-                                }
-                            } catch (ArrayIndexOutOfBoundsException ex) {
-                                println(String.format(
-                                        "Some exons fall out of the chromosome %s (length=%d) %s",
-                                        chr, depths.length, line));
-                            }
-                            // i - 1, because i++ puts us on the next nucleotide
-                            poor_end = i - 1;
-                            // New condition: length
-                            if (poor_end + 1 - poor_start >= length) {
-                                String[] outLine = new String[headers.length];
-                                outLine[OUT_CHR] = exon[EXON_CHR];
-                                outLine[OUT_EXON_START] = exon[EXON_START];
-                                outLine[OUT_EXON_END] = exon[EXON_END];
-                                outLine[OUT_POOR_START] = poor_start + "";
-                                outLine[OUT_POOR_END] = poor_end + "";
-                                outLine[OUT_EXON_ID] = exon[EXON_ID];
-                                outLine[OUT_EXON_NUMBER] = exon[EXON_N];
-                                outLine[OUT_GENE_ID] = exon[GENE_ID];
-                                outLine[OUT_GENE_NAME] = exon[GENE_NAME];
-                                outLine[OUT_GENE_BIO] = exon[GENE_BIO];
-                                outLine[OUT_TR_INFO] = exon[TRANS_INFO];
-                                outLine[OUT_TR_NAME] = exon[TRANS_NAME];
-                                boolean isLow = poor_start <= start + WINDOW_SIZE;
-                                boolean isHigh = poor_end >= end - WINDOW_SIZE;
-                                if (isHigh) {
-                                    outLine[OUT_MATCH] = isLow ? OVERLAP : RIGHT;
-                                } else {
-                                    outLine[OUT_MATCH] = isLow ? LEFT : INSIDE;
-                                }
-                                writeLine(output, outLine);
-                                c.incrementAndGet();
-                            }
-                        } else {
-                            // Everything is ok, no poor region for now
-                            i++;
+                String chr = exon[0];
+                // Call next chromosome
+                if (!currentChromosome.get().equals(chr)) {
+                    // Load new chromosome in memory, replacing current
+                    depths.set(readBamContent(chr, matches.get()));
+                    // Mark chromosome as read
+                    for (Chromosome c : chromosomes) {
+                        if (c.name.equals(chr)) {
+                            c.processed = true;
+                            break;
                         }
                     }
-                    if (!valid) {
-                        e.incrementAndGet();
-                    }
+                    currentChromosome.set(chr);
                 }
-            }
-            println(String.format("%6d matches in %6d / %6d exons", c.get(), e.get(), et.get()));
-//            println(c.get() + " matches in " + e.get() + "/" + et.get() + " exons.");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
+                // Ensure something was loaded
+                if (depths.get() == null) {
+                    return;
+                }
+                int start = Integer.valueOf(exon[1]);
+                int end = Integer.valueOf(exon[2]);
+                // Set the window size [start - WS, end + WS]
+                // Start can not be smaller than 1
+                int windowStart = start - WINDOW_SIZE;
+                if (windowStart < 1) {
+                    windowStart = 1;
+                }
+                // End cannot be greater than chromosome
+                int windowEnd = end + WINDOW_SIZE;
+                if (windowEnd >= depths.get().length) {
+                    windowEnd = depths.get().length - 1;
+                }
+                // Fill a TreeMap with <pos, dp>
+                TreeMap<Integer, Integer> dp = new TreeMap<>();
+                for (int i = windowStart; i <= windowEnd && i < depths.get().length; i++) {
+                    dp.put(i, depths.get()[i]);
+                }
+                // Call next step
+                matches.addAndGet(computeMistAreas(exon, dp));
+
+            });
+        } catch (Exception e) {
+            MainViewController.printException(e);
         }
     }
 
@@ -361,61 +188,15 @@ public class Mist extends SystemTask {
      * Writes all the args in the file using a tab as separator and insert a newLine mark at the
      * end.
      *
-     * @param output
-     * @param values
+     * @param output output file
+     * @param values list of values
      */
     private void writeLine(File output, String... values) {
         try (BufferedWriter out = new BufferedWriter(new FileWriter(output, true))) {
-            int i = 0;
-            while (i < values.length - 1) {
-                out.write(values[i++] + "\t");
-            }
-            out.write(values[i]);
+            out.write(OS.asString("\t", values));
             out.newLine();
-
         } catch (IOException ex) {
-            Logger.getLogger(Mist.class
-                    .getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    // chrom | start | end | gene_id | gene_name | exon_number | transcript_id | transcript_name |
-    // transcript_info | gene_biotype
-    private void fillEnsemblIndexes(String line) {
-        final String[] row = line.split("\t");
-        for (int i = 0; i < row.length; i++) {
-            switch (row[i].toLowerCase()) {
-                case "chrom":
-                    EXON_CHR = i;
-                    break;
-                case "start":
-                    EXON_START = i;
-                    break;
-                case "end":
-                    EXON_END = i;
-                    break;
-                case "gene_id":
-                    GENE_ID = i;
-                    break;
-                case "gene_name":
-                    GENE_NAME = i;
-                    break;
-                case "exon_number":
-                    EXON_N = i;
-                    break;
-                case "transcript_id":
-                    EXON_ID = i;
-                    break;
-                case "transcript_name":
-                    TRANS_NAME = i;
-                    break;
-                case "transcript_info":
-                    TRANS_INFO = i;
-                    break;
-                case "gene_biotype":
-                    GENE_BIO = i;
-                    break;
-            }
+            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -431,4 +212,277 @@ public class Mist extends SystemTask {
         writeLine(output, headers);
     }
 
+    /**
+     * Calculates the mist regions and for each one, prints a line in the output. This method
+     * suposes that the depths correspond to the exon, it does not check that depths position are
+     * inside the exon.
+     *
+     * @param exon the exon been analized
+     * @param depths the depths of the exon
+     */
+    private int computeMistAreas(String[] exon, TreeMap<Integer, Integer> depths) {
+        AtomicInteger mistStart = new AtomicInteger();
+        AtomicInteger mistEnd = new AtomicInteger();
+        AtomicBoolean inMist = new AtomicBoolean(false);
+        AtomicInteger matches = new AtomicInteger();
+        depths.forEach((Integer position, Integer depth) -> {
+            if (depth < threshold) {
+                // If the depth is under the threshold, and previously no mist region,
+                // set the start of the mist region
+                if (inMist.compareAndSet(false, true)) {
+                    mistStart.set(position);
+                }
+            } else {
+                // If the depth is over threshold, and a mist region was in progress
+                // Set the end of the region and inform
+                if (inMist.compareAndSet(true, false)) {
+                    mistEnd.set(position);
+                    if (printMist(exon, mistStart.get(), mistEnd.get())) {
+                        matches.incrementAndGet();
+                    }
+                }
+            }
+        });
+        if (inMist.get()) {
+            mistEnd.set(depths.lastKey());
+            if (printMist(exon, mistStart.get(), mistEnd.get())) {
+                matches.incrementAndGet();
+            }
+        }
+        return matches.get();
+    }
+
+    /**
+     * Calculates the mist regions and for each one, prints a line in the output. This method
+     * suposes that the depths correspond to the exon, it does not check that depths position are
+     * inside the exon.
+     *
+     * @param exon the exon been analized
+     * @param depths the depths of the exon
+     */
+//    private int computeMistAreas(String[] exon, int[] depths) {
+//        int start = Integer.valueOf(exon[1]);
+//        int end = Integer.valueOf(exon[2]);
+//        // Set the window size [start - WS, end + WS]
+//        // Start can not be smaller than 1
+//        int windowStart = start - WINDOW_SIZE;
+//        if (windowStart < 1) {
+//            windowStart = 1;
+//        }
+//        // End cannot be greater than chromosome
+//        int windowEnd = end + WINDOW_SIZE;
+//        if (windowEnd >= depths.length) {
+//            windowEnd = depths.length - 1;
+//        }
+//        int mistStart = 0;
+//        int mistEnd = 0;
+//        boolean inMist = false;
+//        int matches = 0;
+//        for (int pos = windowStart; pos < windowEnd; pos++) {
+//            if (depths[pos] < threshold) {
+//                // If the depth is under the threshold, and previously no mist region,
+//                // set the start of the mist region
+//                if (!inMist) {
+//                    inMist = true;
+//                    mist
+//                }
+//                if (inMist.compareAndSet(false, true)) {
+//                    mistStart.set(pos);
+//                } else {
+//                    // If the depth is over threshold, and a mist region was in progress
+//                    // Set the end of the region and inform
+//                    if (inMist.compareAndSet(true, false)) {
+//                        mistEnd.set(pos);
+//                        if (printMist(exon, mistStart.get(), mistEnd.get())) {
+//                            matches.incrementAndGet();
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (inMist.get()) {
+//            mistEnd.set(depths[windowEnd]);
+//            if (printMist(exon, mistStart.get(), mistEnd.get())) {
+//                matches.incrementAndGet();
+//            }
+//        }
+//        return matches.get();
+//    }
+    /**
+     * Stores a MIST region only if its length is greater than the length parameter.
+     *
+     * @param exon the TSV exon
+     * @param mistStart the start of the mist region
+     * @param mistEnd the end of the mist region
+     */
+    private boolean printMist(String[] exon, int mistStart, int mistEnd) {
+        if (mistEnd - mistStart + 1 >= length) {
+            final int exonStart = Integer.valueOf(exon[EXON_START]);
+            final int exonEnd = Integer.valueOf(exon[EXON_END]);
+            // Determine type of match
+            String match = determineMatch(exonStart, exonEnd, mistStart, mistEnd);
+            // chrom, exon_start, exon_end, mist_start, mist_end, gene_id, gene_name, exon_id,
+            // transcript_name, biotype, match
+            writeLine(output, exon[EXON_CHR], exon[EXON_START], exon[EXON_END], mistStart + "",
+                    mistEnd + "", exon[GENE_ID], exon[GENE_NAME], exon[EXON_ID], exon[TRANS_NAME],
+                    exon[GENE_BIO], match);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Given an exon coordinates and a MIST region coordinates determines if the MIST region if
+     * left, right, inside or overlapping the exon.
+     *
+     * @param exonStart start of the exon
+     * @param exonEnd end of the exon
+     * @param mistStart start of the mist region
+     * @param mistEnd end of the mist region
+     * @return left, rigth, inside or overlap
+     */
+    private String determineMatch(int exonStart, int exonEnd, int mistStart, int mistEnd) {
+        if (mistStart < exonStart) {
+            if (mistEnd > exonEnd) {
+                return OVERLAP;
+            } else {
+                return LEFT;
+            }
+        } else {
+            if (mistEnd > exonEnd) {
+                return RIGHT;
+            } else {
+                return INSIDE;
+            }
+        }
+    }
+
+    private void calculateProgress(String chr, int pos, int matches) {
+        AtomicLong gpos = new AtomicLong(pos);
+        chromosomes.forEach(c -> {
+            if (c.processed) {
+                gpos.addAndGet(c.length);
+            }
+        });
+        double percentage = gpos.get() * 100.0 / genomeLength;
+        long time = System.currentTimeMillis() - startTime;
+        long remaining = genomeLength * time / gpos.get() - time;
+        String elapsed = humanReadableTime(time);
+        String rem = humanReadableTime(remaining);
+        updateMessage(String.format("%s (%s:%,d) %d matches (%.2f%%, %s)", elapsed, chr, pos,
+                matches, percentage, rem));
+//        println(String.format("%.2f\t%s:%,d\t%s", percentage, chr, pos, matches, elapsed, rem));
+        updateProgress(percentage, 100.0);
+    }
+
+    private String humanReadableTime(long millis) {
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        millis -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+        String ret = "";
+        if (days > 0) {
+            ret += days + " d ";
+        }
+        ret += String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        return ret;
+    }
+
+    /**
+     * Creates a int[] with the length of chr + 1, using 1-based coordinates, son ret[0] is empty.
+     *
+     * @param chr
+     * @return
+     */
+    private int[] readBamContent(String chr, int matches) {
+        int le = -1;
+        for (Chromosome c : chromosomes) {
+            if (c.name.equals(chr)) {
+                le = c.length;
+                break;
+            }
+        }
+        if (le == -1) {
+            println("Chromosome " + chr + " is not in BAM header. Impossible to process.");
+        }
+        int[] depths = new int[le + 1];
+        ProcessBuilder pb = new ProcessBuilder("samtools", "mpileup", "-r", chr,
+                input.getAbsolutePath());
+        AtomicInteger iterations = new AtomicInteger();
+        try {
+            process = pb.start();
+            try (BufferedReader command
+                    = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                command.lines().parallel().forEachOrdered(pileup -> {
+                    final String[] pileupFields = pileup.split("\t");
+                    Integer pos = Integer.valueOf(pileupFields[1]);
+                    Integer depth = Integer.valueOf(pileupFields[3]);
+                    depths[pos] = depth;
+                    if (iterations.incrementAndGet() % 1000000 == 0) {
+                        calculateProgress(chr, pos, matches);
+                    }
+                });
+            } catch (IOException ex) {
+                Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return depths;
+    }
+
+    /**
+     * Reads input bam headers a returns a Map with pairs contig-length.
+     *
+     * @param input the sam or bam file.
+     * @return a Map with an entry for each chromosome. Chromosome name as key; chromosome length as
+     * value.
+     */
+    private List<Chromosome> readBamHeaders(File input) {
+        // samtools view -H input.bam
+        // @SQ	SN:1	LN:249250621
+        // @SQ	SN:GL000249.1	LN:38502
+        List<Chromosome> chroms = new ArrayList();
+        ProcessBuilder pb = new ProcessBuilder("samtools", "view", "-H", input.getAbsolutePath());
+        try {
+            process = pb.start();
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                in.lines().forEach(line -> {
+                    String[] row = line.split("\t");
+                    if (row[0].startsWith("@SQ")) {
+                        final String chr = row[1].substring(3);
+                        final int size = Integer.valueOf(row[2].substring(3));
+                        chroms.add(new Chromosome(chr, size));
+                    }
+                });
+            } catch (IOException ex) {
+                MainViewController.printException(ex);
+            }
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
+        }
+        chroms.stream().forEach(chr -> genomeLength += chr.length);
+        return chroms;
+    }
+
+    /**
+     * Tiny class to store together a chrom with its length and an already processed flag. This is
+     * only used for progress purpose.
+     */
+    private class Chromosome {
+
+        String name;
+        int length;
+        boolean processed = false;
+
+        public Chromosome(String name, int length) {
+            this.name = name;
+            this.length = length;
+        }
+
+    }
 }

@@ -177,7 +177,8 @@ public class OS {
      */
     public static void removeProject(Project project) {
         // Import projects
-        List<String> files = Arrays.asList(properties.getProperty("projects", "").split(";"));
+        List<String> files = new ArrayList<>(
+                Arrays.asList(properties.getProperty("projects", "").split(";")));
         // Check if project is in the list by trying to remove it
         if (files.remove(project.getConfigFile().getAbsolutePath())) {
             setProperty("projects", OS.asString(";", files));
@@ -191,8 +192,8 @@ public class OS {
      */
     public static void addProject(Project project) {
         // Import projects
-        List<String> projects = new ArrayList<>(Arrays.asList(
-                properties.getProperty("projects", "").split(";")));
+        List<String> projects = new ArrayList<>(
+                Arrays.asList(properties.getProperty("projects", "").split(";")));
         // If project is not yet in the list
         if (!projects.contains(project.getConfigFile().getAbsolutePath())) {
             // Add it

@@ -89,7 +89,7 @@ public class NewProjectViewController {
      *
      * @return the path
      */
-    public String getPath() {
+    public File getPath() {
         return path.getValue();
     }
 
@@ -127,7 +127,7 @@ public class NewProjectViewController {
      *
      * @return the forward file
      */
-    public String getForward() {
+    public File getForward() {
         return forward.getValue();
     }
 
@@ -136,7 +136,7 @@ public class NewProjectViewController {
      *
      * @return the reverse file
      */
-    public String getReverse() {
+    public File getReverse() {
         return reverse.getValue();
     }
 

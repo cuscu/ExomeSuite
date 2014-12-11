@@ -12,25 +12,25 @@
         <exomesuite.bam.BamCanvas fx:id="bamCanvas" />
         <HBox >
             <children>
-                <FlowPane >
+                <FlowPane HBox.hgrow="ALWAYS" >
                     <children>
                         <ChoiceParam fx:id="chromosome" title="Chromosome" value="1"  />
-                        <TextParam fx:id="position" title="Position" value="1"  />
-                        <NumberParam fx:id="zoom" title="Zoom" min="10" max="100" value="20" />
                         <Button fx:id="left" styleClass="graphic-button" />
+                        <TextParam fx:id="position" title="Position" value="1"  />
                         <Button fx:id="right" styleClass="graphic-button" />
+                        <NumberParam fx:id="zoom" title="Zoom" min="10" max="100" value="20" />
                     </children>
                 </FlowPane>
                 <VBox >
                     <children>
-                        <CheckBox text="Show background color" fx:id="showBackgroundColor" />
-                        <CheckBox text="Show bars color per nucleotide" fx:id="showNucleotideColor" />
-                        <CheckBox text="Show X axis" fx:id="showAxisX"/>
-                        <CheckBox text="Show Y axis" fx:id="showAxisY"/>
-                        <CheckBox text="Show labels X axis" fx:id="showLabelsX"/>
-                        <CheckBox text="Show lables Y axis" fx:id="showLabelsY"/>
-                        <CheckBox text="Show DP as percentage" fx:id="showPercentageDP"/>
-                        <CheckBox text="Show 5' and 3'" fx:id="showAlleles"/>
+                        <YesNoParam title="Show background color" fx:id="showBackgroundColor" />
+                        <YesNoParam title="Show bars color per nucleotide" fx:id="showNucleotideColor" />
+                        <YesNoParam title="Show X axis" fx:id="showAxisX"/>
+                        <YesNoParam title="Show Y axis" fx:id="showAxisY"/>
+                        <YesNoParam title="Show labels X axis" fx:id="showLabelsX"/>
+                        <YesNoParam title="Show lables Y axis" fx:id="showLabelsY"/>
+                        <YesNoParam title="Show DP as percentage" fx:id="showPercentageDP"/>
+                        <YesNoParam title="Show 5' and 3'" fx:id="showAlleles"/>
 
                     </children>
                 </VBox>

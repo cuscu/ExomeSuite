@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 uichuimi03
+ * Copyright (C) 2014 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,32 @@
 package exomesuite.vcf;
 
 /**
+ * Encapsulates name, value and description of a VCF INFO field.
  *
- * @author Pascual Lorente Arencibia
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public interface VariantListener {
+public final class Info {
 
-    public void variantChanged(Variant variant, VCFHeader header);
+    private final String name;
+    private final String value;
+    private final String description;
+
+    public Info(String name, String value, String description) {
+        this.name = name;
+        this.value = value;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
 }

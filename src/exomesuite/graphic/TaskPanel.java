@@ -22,7 +22,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 
 /**
  * FXML Controller class. Node of a process in the working area.
@@ -44,7 +43,7 @@ public class TaskPanel {
      * Initializes the controller class.
      */
     public void initialize() {
-        cancel.setGraphic(new ImageView("/exomesuite/img/cancel4.png"));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 16));
         cancel.setTooltip(new Tooltip(cancel.getText()));
         cancel.setText(null);
     }

@@ -60,7 +60,7 @@ public final class Project {
      * @param code the code of the project
      * @param parent the parent folder
      */
-    public Project(String name, String code, String parent) {
+    public Project(String name, String code, File parent) {
         properties = new Properties();
         File path = new File(parent, code);
         file = new File(path, code + ".config");

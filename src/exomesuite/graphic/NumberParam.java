@@ -29,7 +29,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class NumberParam extends Param {
+public class NumberParam extends Param<Double> {
 
     private final Slider slider = new Slider();
     private final TextField textField = new TextField();
@@ -40,9 +40,10 @@ public class NumberParam extends Param {
 
     private final HBox pane;
     private boolean onlyInteger = true;
+    private boolean fromText = false;
 
     public NumberParam() {
-        accept.setOnAction(e -> endEdit(true, textField.getText()));
+        accept.setOnAction(e -> endEdit(true, accept()));
         cancel.setOnAction(e -> endEdit(false, null));
         slider.setBlockIncrement(1);
         slider.setShowTickLabels(true);
@@ -57,16 +58,26 @@ public class NumberParam extends Param {
                     if (onlyInteger) {
                         slider.valueProperty().set(Math.round(newValue.doubleValue()));
                     }
-                    textField.setText(String.valueOf(slider.getValue()));
+                    if (!fromText) {
+                        textField.setText(String.valueOf(slider.getValue()));
+                    } else {
+                        fromText = false;
+                    }
                 });
         textField.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.ENTER) {
+                // Enter key terminates editing with true
+                accept();
+            } else if (e.getCode() == KeyCode.ESCAPE) {
+                // Escape key terminates editing with false
+                textField.setText(slider.getValue() + "");
+            } else {
+                // Rest of keys, try to determine new slider value on the run
                 try {
+                    fromText = true;
                     slider.setValue(Double.valueOf(textField.getText()));
                 } catch (NumberFormatException ex) {
                 }
-            } else if (e.getCode() == KeyCode.ESCAPE) {
-                textField.setText(slider.getValue() + "");
             }
         });
     }
@@ -76,11 +87,8 @@ public class NumberParam extends Param {
         return pane;
     }
 
-    @Override
-    public void setValue(String value) {
-        super.setValue(value);
-        slider.setValue(Double.valueOf(value));
-        textField.setText(value);
+    private Double accept() {
+        return slider.getValue();
     }
 
     public void setMax(double maxValue) {

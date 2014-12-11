@@ -39,6 +39,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
@@ -93,9 +94,9 @@ public class ProjectInfo extends VBox implements ProjectListener {
         // Add listeners to each property change, so every time a property is changed,
         // it is reflected in project.getProperties()
         forward.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getValue()));
+                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getValue().getAbsolutePath()));
         reverse.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getValue()));
+                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getValue().getAbsolutePath()));
         name.setOnValueChanged(event
                 -> project.setProperty(Project.PropertyName.NAME, name.getValue()));
         description.setOnValueChanged(event
@@ -112,6 +113,11 @@ public class ProjectInfo extends VBox implements ProjectListener {
                 showFile();
             }
         });
+        files.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                showFile();
+            }
+        });
         addButton.setGraphic(new ImageView("exomesuite/img/addFile.png"));
         addButton.setOnAction(event -> addFile());
     }
@@ -124,12 +130,12 @@ public class ProjectInfo extends VBox implements ProjectListener {
             setVisible(true);
             this.project = project;
             project.addListener(this);
-            forward.setValue(project.getProperty(Project.PropertyName.FORWARD_FASTQ));
-            reverse.setValue(project.getProperty(Project.PropertyName.REVERSE_FASTQ));
+            forward.setValue(new File(project.getProperty(Project.PropertyName.FORWARD_FASTQ)));
+            reverse.setValue(new File(project.getProperty(Project.PropertyName.REVERSE_FASTQ)));
             name.setValue(project.getProperty(Project.PropertyName.NAME));
             code.setValue(project.getProperty(Project.PropertyName.CODE));
             description.setValue(project.getProperty(Project.PropertyName.DESCRIPTION));
-            path.setValue(project.getProperty(Project.PropertyName.PATH));
+            path.setValue(new File(project.getProperty(Project.PropertyName.PATH)));
             encoding.setOptions(OS.getSupportedEncodings());
             encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING));
             genome.setOptions(OS.getSupportedReferenceGenomes());
@@ -178,7 +184,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
     private void changePath() {
         // Move files and directories
         final File from = new File(project.getProperty(Project.PropertyName.PATH));
-        final File to = new File(path.getValue());
+        final File to = path.getValue();
         clone(from, to);
         // Change properties by replacing path in all properties
         project.getProperties().forEach((Object t, Object u) -> {

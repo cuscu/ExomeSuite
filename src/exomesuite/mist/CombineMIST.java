@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.mist;
 
 import exomesuite.MainViewController;
+import exomesuite.graphic.FileParam;
+import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,7 +39,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
 /**
- * FXML Controller class. The window to intersect MIST files.
+ * The window to intersect MIST files.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -92,8 +94,8 @@ public class CombineMIST {
         startButton.setDisable(true);
         output.setOnValueChanged(e -> startButton.setDisable(false));
         output.addFilter(FileManager.MIST_FILTER);
-        startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getValue())));
-        addButton.setGraphic(new SizableImage("exomesuite/img/addFile.png", 32));
+        startButton.setOnAction(e -> intersect(fileList.getItems(), output.getValue()));
+        addButton.setGraphic(new SizableImage("exomesuite/img/new.png", 32));
         startButton.setGraphic(new SizableImage("exomesuite/img/start.png", 32));
     }
 
@@ -138,13 +140,11 @@ public class CombineMIST {
         }
         MainViewController.printMessage("Success: file " + output + " generated (" + m + " matches)",
                 "success");
-//        Dialogs.create().title("Completed").message("File " + output + " generated. " + m
-//                + " matches found in " + inputs.size() + " files.").showInformation();
     }
 
     /**
-     * Reads a MIST file a returns a <code>List<String[]></code> with all of the lines split by \t.
-     * Lines with the same exon are excluded.
+     * Reads a MIST file and returns a <code>List<String[]></code> with all of the lines split by
+     * \t. Lines with the same exon are excluded.
      *
      * @param file The file to read
      * @return a list with line.split("\t")

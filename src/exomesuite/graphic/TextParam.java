@@ -28,7 +28,7 @@ import javafx.scene.layout.HBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class TextParam extends Param {
+public class TextParam extends Param<String> {
 
     private final TextField field = new TextField();
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));

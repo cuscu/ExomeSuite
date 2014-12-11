@@ -18,11 +18,11 @@ package exomesuite.graphic;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 
 /**
  * Parent class for Parameters in ExomeSuite. A param has a title and a value. Value must be
@@ -30,11 +30,11 @@ import javafx.scene.layout.VBox;
  * class, by <code>setOnValueChanged</code> allows listening when a Parameter is changed.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
+ * @param <T> The class of the value
  */
-public class Param extends VBox {
+public class Param<T> extends HBox {
 
-    private String value;
-    private String title;
+    private T value;
     private String promptText;
     private EventHandler handler;
     private final Label titleLabel = new Label();
@@ -45,12 +45,40 @@ public class Param extends VBox {
      * Creates a new Param that responds to mouse click event.
      */
     public Param() {
-        showPassive();
+        initialize();
+    }
+
+    public Param(String title, T value) {
+        this.titleLabel.setText(title);
+        this.value = value;
+        initialize();
+    }
+
+    private void initialize() {
+        // Whe user clicks, start editing
         setOnMouseClicked(e -> edit());
+        // The nice blue box
         getStyleClass().add("parameter");
+        // The black/grey effect of title/value
         valueLabel.setDisable(true);
+        // Force the tooltip to the whole region
         Tooltip.install(this, tooltip);
         tooltip.setAutoHide(false);
+        if (value != null) {
+            tooltip.setText(value.toString());
+        }
+
+        setAlignment(Pos.CENTER_LEFT);
+        setSpacing(5);
+
+        // Title will hide last when no space
+        titleLabel.setMinWidth(USE_PREF_SIZE);
+        titleLabel.setLabelFor(valueLabel);
+
+        valueLabel.setText(toLabel(value));
+
+        // Start with the passive view
+        showPassive();
     }
 
     /**
@@ -59,7 +87,7 @@ public class Param extends VBox {
      * @return the title
      */
     public String getTitle() {
-        return title;
+        return titleLabel.getText();
     }
 
     /**
@@ -68,7 +96,6 @@ public class Param extends VBox {
      * @param title the new title
      */
     public void setTitle(String title) {
-        this.title = title;
         titleLabel.setText(title);
     }
 
@@ -77,19 +104,21 @@ public class Param extends VBox {
      *
      * @return value
      */
-    public String getValue() {
+    public T getValue() {
         return value;
     }
 
     /**
-     * Sets the value. Calls <code>labelValue()</code> to show in GUI. value is set as a tooltip.
+     * Sets the value. Calls <code>toLabel()</code> to show in GUI. value is set as a tooltip.
      *
      * @param value the new value
      */
-    public void setValue(String value) {
+    public void setValue(T value) {
         this.value = value;
-        valueLabel.setText(labelValue());
-        tooltip.setText(value);
+        if (value != null) {
+            valueLabel.setText(toLabel(value));
+            tooltip.setText(String.valueOf(value));
+        }
     }
 
     /**
@@ -123,12 +152,14 @@ public class Param extends VBox {
             showActive(node);
         } else {
             // Edit on the run
-            String val = editPassive();
+            T val = editPassive();
             if (val != null) {
                 setValue(val);
                 //showPassive();
                 // Call valueChanged event
-                handler.handle(new ActionEvent());
+                if (handler != null) {
+                    handler.handle(new ActionEvent());
+                }
             }
         }
     }
@@ -140,7 +171,7 @@ public class Param extends VBox {
      * @param accept true if value has changed, false if no changes to value
      * @param value the new value
      */
-    protected final void endEdit(boolean accept, String value) {
+    protected final void endEdit(boolean accept, T value) {
         if (accept) {
             setValue(value);
             if (handler != null) {
@@ -163,9 +194,9 @@ public class Param extends VBox {
      * Override this if you want to modify the value on the run, without showing a pane. If
      * <code>getEditingPane()</code> is overriden, this method will not have any effect.
      *
-     * @return null by default
+     * @return the new value or null to ignore
      */
-    protected String editPassive() {
+    protected T editPassive() {
         return null;
     }
 
@@ -173,13 +204,14 @@ public class Param extends VBox {
      * Override this if you want to show a different value to user than the real value. For
      * instance, the file name instead of the whole path.
      *
-     * @return
+     * @param value the value
+     * @return a String for the label of the param
      */
-    protected String labelValue() {
+    protected String toLabel(T value) {
         if (value == null) {
             return promptText;
         }
-        return value;
+        return String.valueOf(value);
     }
 
     /**

@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.vcf;
 
-import exomesuite.vcf.Variant;
-import exomesuite.vcf.VariantListener;
-import javafx.scene.control.Label;
+import exomesuite.graphic.Param;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -29,7 +27,7 @@ import javafx.scene.layout.VBox;
 public class VariantGenotype extends VBox implements VariantListener {
 
     @Override
-    public void variantChanged(Variant variant) {
+    public void variantChanged(Variant variant, VCFHeader vcfHeader) {
         // format       genotype[]
         // GT:PL:GQ	0/1:41,0,5:10
         getChildren().clear();
@@ -41,9 +39,12 @@ public class VariantGenotype extends VBox implements VariantListener {
             FlowPane box = new FlowPane();
             final String[] genotype = g.split(":");
             for (int i = 0; i < genotype.length; i++) {
-                Label l = new Label(format[i] + "=" + genotype[i]);
-                l.getStyleClass().add("parameter");
-                box.getChildren().add(l);
+                Param param = new Param();
+                param.setTitle(format[i]);
+                param.setValue(genotype[i]);
+//                Label l = new Label(format[i] + "=" + genotype[i]);
+//                l.getStyleClass().add("parameter");
+                box.getChildren().add(param);
             }
             getChildren().add(box);
         }

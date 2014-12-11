@@ -19,12 +19,12 @@ package exomesuite;
 import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
 import exomesuite.graphic.ButtonsBar;
-import exomesuite.graphic.CombineMIST;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
+import exomesuite.mist.CombineMIST;
 import exomesuite.project.Project;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
@@ -221,15 +221,15 @@ public class MainViewController {
             controller.setHandler((EventHandler) (Event event) -> {
                 String name = controller.getName();
                 String code = controller.getCode();
-                String path = controller.getPath();
+                File path = controller.getPath();
                 // NUll check
-                if (!name.isEmpty() && !code.isEmpty() && !path.isEmpty()) {
+                if (!name.isEmpty() && !code.isEmpty() && path.exists()) {
                     Project project = new Project(name, code, path);
-                    String forward = controller.getForward();
-                    String reverse = controller.getReverse();
-                    if (FileManager.tripleCheck(forward) && FileManager.tripleCheck(reverse)) {
-                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward);
-                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse);
+                    File forward = controller.getForward();
+                    File reverse = controller.getReverse();
+                    if (forward.exists() && reverse.exists()) {
+                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getAbsolutePath());
+                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getAbsolutePath());
                     }
                     String reference = controller.getReference();
                     if (reference != null && !reference.isEmpty()) {
@@ -390,6 +390,7 @@ public class MainViewController {
         infoHBox.getStyleClass().clear();
         infoLabel.getStyleClass().add(type.toLowerCase() + "-label");
         infoHBox.getStyleClass().add(type.toLowerCase() + "-box");
+        infoHBox.getChildren().setAll(infoLabel);
         if (type.equals("error")) {
             System.err.println(message);
         } else {

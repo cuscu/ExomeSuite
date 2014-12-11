@@ -26,17 +26,17 @@ import javafx.stage.FileChooser;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class FileParam extends Param {
+public class FileParam extends Param<File> {
 
     private final List<FileChooser.ExtensionFilter> filters = new ArrayList<>();
     private boolean showFullPath = false;
     private Behaviour behaviour = Behaviour.OPEN;
 
     @Override
-    protected String editPassive() {
+    protected File editPassive() {
         File parent = null;
         if (getValue() != null) {
-            parent = new File(getValue()).getParentFile();
+            parent = getValue().getParentFile();
         }
         File file;
         switch (behaviour) {
@@ -46,24 +46,24 @@ public class FileParam extends Param {
                 } else {
                     file = FileManager.openFile("Select " + getTitle(), filters);
                 }
-                return (file == null) ? null : file.getAbsolutePath();
+                return file;
             case SAVE:
                 if (parent != null) {
                     file = FileManager.saveFile("Select " + getTitle(), parent, filters);
                 } else {
                     file = FileManager.saveFile("Select " + getTitle(), filters);
                 }
-                return (file == null) ? null : file.getAbsolutePath();
+                return file;
         }
         return null;
     }
 
     @Override
-    protected String labelValue() {
-        if (!showFullPath && getValue() != null) {
-            return new File(getValue()).getName();
+    protected String toLabel(File value) {
+        if (value == null) {
+            return getPromptText();
         }
-        return getValue();
+        return showFullPath ? value.getAbsolutePath() : value.getName();
     }
 
     public void addFilter(FileChooser.ExtensionFilter filter) {

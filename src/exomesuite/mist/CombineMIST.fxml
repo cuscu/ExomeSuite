@@ -8,13 +8,13 @@
 <?import exomesuite.graphic.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600.0" alignment="TOP_CENTER"
-      fx:controller="exomesuite.graphic.CombineMIST">
+      fx:controller="exomesuite.mist.CombineMIST">
     <children>
         <SectionTitle title="Select files"/>
         <ListView fx:id="fileList" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-        <Button fx:id="addButton" text="Add"  />
+        <Button fx:id="addButton" text="Add files" styleClass="graphic-button" />
         <FileParam fx:id="output" title="Output" behaviour="SAVE"  />
-        <Button fx:id="startButton" text="Start"/>
+        <Button fx:id="startButton" text="Start" styleClass="graphic-button"/>
     </children>
 
 </VBox>

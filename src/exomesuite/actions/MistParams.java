@@ -78,7 +78,7 @@ public class MistParams extends VBox {
             threshold.setValue(properties.getProperty("threshold"));
         }
         if (properties.containsKey("length")) {
-            length.setValue(properties.getProperty("length"));
+            length.setValue(Double.valueOf(properties.getProperty("length")));
         }
         accept.setOnAction(event -> {
             accepted = true;
@@ -119,7 +119,7 @@ public class MistParams extends VBox {
      */
     public Properties getParams() {
         properties.setProperty("threshold", threshold.getValue());
-        properties.setProperty("length", length.getValue());
+        properties.setProperty("length", String.valueOf(length.getValue()));
         properties.setProperty("bamFile", bamFile.getValue());
         return properties;
     }

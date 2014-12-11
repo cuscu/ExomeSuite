@@ -18,6 +18,7 @@ package exomesuite.graphic;
 
 import exomesuite.MainViewController;
 import exomesuite.utils.OS;
+import exomesuite.vcf.VCFHeader;
 import exomesuite.vcf.Variant;
 import exomesuite.vcf.VariantListener;
 import java.io.BufferedReader;
@@ -80,7 +81,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
     }
 
     @Override
-    public void variantChanged(Variant variant) {
+    public void variantChanged(Variant variant, VCFHeader vcfHeader) {
         getItems().clear();
         if (variant == null) {
             return;

@@ -21,6 +21,7 @@ import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.NumberParam;
 import exomesuite.graphic.SizableImage;
 import exomesuite.graphic.TextParam;
+import exomesuite.graphic.YesNoParam;
 import exomesuite.utils.Ensembl;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
@@ -35,7 +36,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -55,21 +55,21 @@ public class BamReader extends VBox {
     @FXML
     private NumberParam zoom;
     @FXML
-    private CheckBox showNucleotideColor;
+    private YesNoParam showNucleotideColor;
     @FXML
-    private CheckBox showBackgroundColor;
+    private YesNoParam showBackgroundColor;
     @FXML
-    private CheckBox showAxisX;
+    private YesNoParam showAxisX;
     @FXML
-    private CheckBox showAxisY;
+    private YesNoParam showAxisY;
     @FXML
-    private CheckBox showLabelsX;
+    private YesNoParam showLabelsX;
     @FXML
-    private CheckBox showLabelsY;
+    private YesNoParam showLabelsY;
     @FXML
-    private CheckBox showPercentageDP;
+    private YesNoParam showPercentageDP;
     @FXML
-    private CheckBox showAlleles;
+    private YesNoParam showAlleles;
     @FXML
     private Button left;
     @FXML
@@ -112,7 +112,7 @@ public class BamReader extends VBox {
         chromosome.setOnValueChanged(event -> updatePosition());
         // Jump to new position
         position.setOnValueChanged(event -> updatePosition());
-        zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(Double.valueOf(zoom.getValue())));
+        zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(zoom.getValue()));
         left.setGraphic(new SizableImage("exomesuite/img/left-arrow.png", 32));
         right.setGraphic(new SizableImage("exomesuite/img/right-arrow.png", 32));
         left.setOnAction(event -> {
@@ -127,23 +127,23 @@ public class BamReader extends VBox {
 
     private void initializeOptionsPanel() {
         // Layer show/hide
-        showBackgroundColor.setSelected(true);
-        showAxisY.setSelected(true);
-        showLabelsX.setSelected(true);
-        showLabelsY.setSelected(true);
-        showNucleotideColor.setSelected(bamCanvas.getBaseColors().get());
-        showPercentageDP.setSelected(bamCanvas.getPercentageUnits().get());
-        showBackgroundColor.setOnAction(e -> bamCanvas.setShowBackground(showBackgroundColor.isSelected()));
-        showAxisX.setOnAction(e -> bamCanvas.setShowAxisX(showAxisX.isSelected()));
-        showAxisY.setOnAction(e -> bamCanvas.setShowAxisY(showAxisY.isSelected()));
+        showBackgroundColor.setValue(true);
+        showAxisY.setValue(true);
+        showLabelsX.setValue(true);
+        showLabelsY.setValue(true);
+        showNucleotideColor.setValue(bamCanvas.getBaseColors().get());
+        showPercentageDP.setValue(bamCanvas.getPercentageUnits().get());
+        showBackgroundColor.setOnValueChanged(e -> bamCanvas.setShowBackground(showBackgroundColor.getValue()));
+        showAxisX.setOnValueChanged(e -> bamCanvas.setShowAxisX(showAxisX.getValue()));
+        showAxisY.setOnValueChanged(e -> bamCanvas.setShowAxisY(showAxisY.getValue()));
         // Ohter options
-        showNucleotideColor.setOnAction(e -> bamCanvas.setBaseColors(showNucleotideColor.isSelected()));
-        showPercentageDP.setOnAction(e -> bamCanvas.setPercentageUnits(showPercentageDP.isSelected()));
-        showLabelsX.setOnAction(e -> bamCanvas.setShowLabelsX(showLabelsX.isSelected()));
-        showLabelsY.setOnAction(e -> bamCanvas.setShowLabelsY(showLabelsY.isSelected()));
-        showAlleles.setOnAction(e -> bamCanvas.setShowAlleles(showAlleles.isSelected()));
+        showNucleotideColor.setOnValueChanged(e -> bamCanvas.setBaseColors(showNucleotideColor.getValue()));
+        showPercentageDP.setOnValueChanged(e -> bamCanvas.setPercentageUnits(showPercentageDP.getValue()));
+        showLabelsX.setOnValueChanged(e -> bamCanvas.setShowLabelsX(showLabelsX.getValue()));
+        showLabelsY.setOnValueChanged(e -> bamCanvas.setShowLabelsY(showLabelsY.getValue()));
+        showAlleles.setOnValueChanged(e -> bamCanvas.setShowAlleles(showAlleles.getValue()));
         // By default, deactivate x axis
-        showAxisX.setSelected(false);
+        showAxisX.setValue(false);
         bamCanvas.setShowAxisX(false);
     }
 

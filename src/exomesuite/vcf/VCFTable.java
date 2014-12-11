@@ -17,8 +17,6 @@
 package exomesuite.vcf;
 
 import exomesuite.graphic.SizableImage;
-import exomesuite.graphic.VariantGenotype;
-import exomesuite.graphic.VariantInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -54,12 +52,12 @@ public class VCFTable extends SplitPane {
 
     @FXML
     private TableView<Variant> table;
-    @FXML
-    private VariantGenotype formatBox;
+//    @FXML
+//    private VariantGenotype formatBox;
 //    @FXML
 //    private VariantExons variantExons;
     @FXML
-    private VariantInfo variantInfo;
+    private VariantInfoTable variantInfo;
     @FXML
     private VBox filtersPane;
     @FXML
@@ -80,6 +78,7 @@ public class VCFTable extends SplitPane {
     private final TableColumn<Variant, String> filter = new TableColumn<>("Filter");
     private final List<VariantListener> listeners = new ArrayList<>();
     private List<String> infos = new ArrayList<>();
+    private VCFHeader vcfHeader;
 
     public VCFTable() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFTable.fxml"));
@@ -128,12 +127,13 @@ public class VCFTable extends SplitPane {
 
         table.getSelectionModel().selectedItemProperty().addListener(e -> updateVariant());
         addListener(variantInfo);
-        addListener(formatBox);
+//        addListener(formatBox);
 
     }
 
     public void setFile(File vcfFile) {
         this.vcfFile = vcfFile;
+        vcfHeader = new VCFHeader(vcfFile);
         table.getItems().clear();
         totalLines.set(0);
         try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
@@ -166,7 +166,7 @@ public class VCFTable extends SplitPane {
     private void updateVariant() {
         Variant v = table.getSelectionModel().getSelectedItem();
         // Call listeners
-        listeners.forEach(t -> t.variantChanged(v));
+        listeners.forEach(t -> t.variantChanged(v, vcfHeader));
     }
 
     public void addListener(VariantListener listener) {

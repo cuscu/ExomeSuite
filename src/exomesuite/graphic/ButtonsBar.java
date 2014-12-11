@@ -18,7 +18,6 @@ package exomesuite.graphic;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
-import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -64,7 +63,7 @@ public class ButtonsBar extends FlowPane {
         newProject.setGraphic(new SizableImage("exomesuite/img/add.png", 32));
         newProject.setTooltip(new Tooltip("New project... Ctrl+N"));
         openDatabases.setGraphic(new SizableImage("exomesuite/img/database.png", 32));
-        openDatabases.setTooltip(new Tooltip("Open project... Ctrl+D"));
+        openDatabases.setTooltip(new Tooltip("Databases... Ctrl+D"));
         openFile.setGraphic(new SizableImage("exomesuite/img/file.png", 32));
         openFile.setTooltip(new Tooltip("Open file"));
     }

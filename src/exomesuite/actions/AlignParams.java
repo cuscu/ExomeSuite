@@ -22,6 +22,7 @@ import exomesuite.graphic.FileParam;
 import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
+import java.io.File;
 import java.util.Properties;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -69,10 +70,10 @@ public class AlignParams extends VBox {
         forward.addFilter(FileManager.FASTQ_FILTER);
         reverse.addFilter(FileManager.FASTQ_FILTER);
         if (properties.containsKey("forward")) {
-            forward.setValue(properties.getProperty("forward"));
+            forward.setValue(new File(properties.getProperty("forward")));
         }
         if (properties.containsKey("reverse")) {
-            reverse.setValue(properties.getProperty("reverse"));
+            reverse.setValue(new File(properties.getProperty("reverse")));
         }
         if (properties.containsKey("encoding")) {
             encoding.setValue(properties.getProperty("encoding"));
