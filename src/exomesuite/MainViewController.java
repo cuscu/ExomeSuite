@@ -227,7 +227,7 @@ public class MainViewController {
                     Project project = new Project(name, code, path);
                     File forward = controller.getForward();
                     File reverse = controller.getReverse();
-                    if (forward.exists() && reverse.exists()) {
+                    if (forward != null && reverse != null) {
                         project.getProperties().setProperty(Project.FORWARD_FASTQ, forward.getAbsolutePath());
                         project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse.getAbsolutePath());
                     }

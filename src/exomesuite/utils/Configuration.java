@@ -73,6 +73,8 @@ public class Configuration {
             }
         } else {
             try {
+                File parent = file.getParentFile();
+                parent.mkdirs();
                 file.createNewFile();
             } catch (IOException ex) {
                 MainViewController.printException(ex);

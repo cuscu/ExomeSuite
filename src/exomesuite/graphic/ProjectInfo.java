@@ -134,12 +134,18 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
             this.project = project;
             project.getProperties().addListener(this);
 //            project.addListener(this);
-            forward.setValue(new File(project.getProperties().getProperty(Project.FORWARD_FASTQ)));
-            reverse.setValue(new File(project.getProperties().getProperty(Project.REVERSE_FASTQ)));
+            if (project.getProperties().containsProperty(Project.FORWARD_FASTQ)) {
+                forward.setValue(new File(project.getProperties().getProperty(Project.FORWARD_FASTQ)));
+            }
+            if (project.getProperties().containsProperty(Project.REVERSE_FASTQ)) {
+                reverse.setValue(new File(project.getProperties().getProperty(Project.REVERSE_FASTQ)));
+            }
             name.setValue(project.getProperties().getProperty(Project.NAME));
             code.setValue(project.getProperties().getProperty(Project.CODE));
             description.setValue(project.getProperties().getProperty(Project.DESCRIPTION));
-            path.setValue(new File(project.getProperties().getProperty(Project.PATH)));
+            if (project.getProperties().containsProperty(Project.PATH)) {
+                path.setValue(new File(project.getProperties().getProperty(Project.PATH)));
+            }
             encoding.setOptions(OS.getEncodings());
             encoding.setValue(project.getProperties().getProperty(Project.FASTQ_ENCODING));
             genome.setOptions(OS.getReferenceGenomes());
