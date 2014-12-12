@@ -19,7 +19,7 @@ package exomesuite.graphic;
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
-import exomesuite.project.ProjectListener;
+import exomesuite.utils.Configuration;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -48,7 +48,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class ProjectInfo extends VBox implements ProjectListener {
+public class ProjectInfo extends VBox implements Configuration.ConfigurationListener {
 
     @FXML
     private FileParam forward;
@@ -61,7 +61,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
     @FXML
     private TextParam description;
     @FXML
-    private PathParam path;
+    private Param path;
     @FXML
     private ChoiceParam encoding;
     @FXML
@@ -94,17 +94,17 @@ public class ProjectInfo extends VBox implements ProjectListener {
         // Add listeners to each property change, so every time a property is changed,
         // it is reflected in project.getProperties()
         forward.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getValue().getAbsolutePath()));
+                -> project.getProperties().setProperty(Project.FORWARD_FASTQ, forward.getValue().getAbsolutePath()));
         reverse.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getValue().getAbsolutePath()));
+                -> project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse.getValue().getAbsolutePath()));
         name.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.NAME, name.getValue()));
+                -> project.getProperties().setProperty(Project.NAME, name.getValue()));
         description.setOnValueChanged(event
-                -> project.setProperty(Project.PropertyName.DESCRIPTION, description.getValue()));
-        path.setOnValueChanged(event -> changePath());
-        encoding.setOnValueChanged(event -> project.setProperty(Project.PropertyName.FASTQ_ENCODING,
+                -> project.getProperties().setProperty(Project.DESCRIPTION, description.getValue()));
+//        path.setOnValueChanged(event -> changePath());
+        encoding.setOnValueChanged(event -> project.getProperties().setProperty(Project.FASTQ_ENCODING,
                 encoding.getValue()));
-        genome.setOnValueChanged(event -> project.setProperty(Project.PropertyName.REFERENCE_GENOME,
+        genome.setOnValueChanged(event -> project.getProperties().setProperty(Project.REFERENCE_GENOME,
                 genome.getValue()));
         files.setContextMenu(getFilesContextMenu());
         files.setCellFactory((ListView<String> param) -> new PlainCell());
@@ -128,21 +128,25 @@ public class ProjectInfo extends VBox implements ProjectListener {
             this.project = null;
         } else {
             setVisible(true);
+            if (this.project != null) {
+                this.project.getProperties().removeListener(this);
+            }
             this.project = project;
-            project.addListener(this);
-            forward.setValue(new File(project.getProperty(Project.PropertyName.FORWARD_FASTQ)));
-            reverse.setValue(new File(project.getProperty(Project.PropertyName.REVERSE_FASTQ)));
-            name.setValue(project.getProperty(Project.PropertyName.NAME));
-            code.setValue(project.getProperty(Project.PropertyName.CODE));
-            description.setValue(project.getProperty(Project.PropertyName.DESCRIPTION));
-            path.setValue(new File(project.getProperty(Project.PropertyName.PATH)));
-            encoding.setOptions(OS.getSupportedEncodings());
-            encoding.setValue(project.getProperty(Project.PropertyName.FASTQ_ENCODING));
-            genome.setOptions(OS.getSupportedReferenceGenomes());
-            genome.setValue(project.getProperty(Project.PropertyName.REFERENCE_GENOME));
+            project.getProperties().addListener(this);
+//            project.addListener(this);
+            forward.setValue(new File(project.getProperties().getProperty(Project.FORWARD_FASTQ)));
+            reverse.setValue(new File(project.getProperties().getProperty(Project.REVERSE_FASTQ)));
+            name.setValue(project.getProperties().getProperty(Project.NAME));
+            code.setValue(project.getProperties().getProperty(Project.CODE));
+            description.setValue(project.getProperties().getProperty(Project.DESCRIPTION));
+            path.setValue(new File(project.getProperties().getProperty(Project.PATH)));
+            encoding.setOptions(OS.getEncodings());
+            encoding.setValue(project.getProperties().getProperty(Project.FASTQ_ENCODING));
+            genome.setOptions(OS.getReferenceGenomes());
+            genome.setValue(project.getProperties().getProperty(Project.REFERENCE_GENOME));
             files.getItems().clear();
             // Extra files are stored separated by ;
-            String fs = project.getProperty(Project.PropertyName.FILES);
+            String fs = project.getProperties().getProperty(Project.FILES);
             if (fs != null && !fs.isEmpty()) {
                 files.getItems().setAll(Arrays.asList(fs.split(";")));
             }
@@ -166,7 +170,7 @@ public class ProjectInfo extends VBox implements ProjectListener {
         String f = files.getSelectionModel().getSelectedItem();
         if (FileManager.tripleCheck(f)) {
             File file = new File(f);
-            String grch = project.getProperty(Project.PropertyName.REFERENCE_GENOME);
+            String grch = project.getProperties().getProperty(Project.REFERENCE_GENOME);
             ExomeSuite.getController().showFileContent(file, new File(OS.getGenome(grch)));
         } else {
             MainViewController.printMessage("File " + f + " is not accesible", "warning");
@@ -181,24 +185,23 @@ public class ProjectInfo extends VBox implements ProjectListener {
         project.removeExtraFile(file);
     }
 
-    private void changePath() {
-        // Move files and directories
-        final File from = new File(project.getProperty(Project.PropertyName.PATH));
-        final File to = path.getValue();
-        clone(from, to);
-        // Change properties by replacing path in all properties
-        project.getProperties().forEach((Object t, Object u) -> {
-            String key = (String) t;
-            String value = (String) u;
-            if (value.startsWith(from.getAbsolutePath())) {
-                project.getProperties().setProperty(key,
-                        value.replace(from.getAbsolutePath(), to.getAbsolutePath()));
-            }
-        });
-        // Force properties file to be written
-        project.setProperty(Project.PropertyName.PATH, to.getAbsolutePath());
-    }
-
+//    private void changePath() {
+//        // Move files and directories
+//        final File from = new File(project.getProperties().getProperty(Project.PATH));
+//        final File to = path.getValue();
+//        clone(from, to);
+//        // Change properties by replacing path in all properties
+//        project.getProperties().forEach((Object t, Object u) -> {
+//            String key = (String) t;
+//            String value = (String) u;
+//            if (value.startsWith(from.getAbsolutePath())) {
+//                project.getProperties().setProperty(key,
+//                        value.replace(from.getAbsolutePath(), to.getAbsolutePath()));
+//            }
+//        });
+//        // Force properties file to be written
+//        project.getProperties().setProperty(Project.PATH, to.getAbsolutePath());
+//    }
     private void clone(File from, File to) {
         for (File f : from.listFiles()) {
             if (f.isFile()) {
@@ -224,25 +227,22 @@ public class ProjectInfo extends VBox implements ProjectListener {
         from.delete();
     }
 
-    @Override
-    public void projectChanged(Project.PropertyName property) {
-        // Outside ProjectInfo, only a few properties can be changed.
-        switch (property) {
-            case FILES:
-                files.getItems().clear();
-                String fs = project.getProperty(Project.PropertyName.FILES);
-                if (fs != null && !fs.isEmpty()) {
-                    files.getItems().setAll(Arrays.asList(fs.split(";")));
-                }
-                break;
-
-        }
-    }
-
     private ContextMenu getFilesContextMenu() {
-        MenuItem delete = new MenuItem("Delete", new ImageView("exomesuite/img/cancel4.png"));
+        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/cancel4.png", 16));
         delete.setOnAction(event -> removeFile());
         return new ContextMenu(delete);
+    }
+
+    @Override
+    public void configurationChanged(Configuration configuration, String keyChanged) {
+        System.out.println("Config changed");
+        if (keyChanged.equals(Project.FILES)) {
+            files.getItems().clear();
+            String fs = project.getProperties().getProperty(Project.FILES);
+            if (fs != null && !fs.isEmpty()) {
+                files.getItems().setAll(Arrays.asList(fs.split(";")));
+            }
+        }
     }
 
     private static class PlainCell extends ListCell<String> {

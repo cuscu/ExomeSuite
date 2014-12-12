@@ -86,8 +86,8 @@ public class AlignParams extends VBox {
             handler.handle(event);
         });
         cancel.setOnAction(event -> handler.handle(event));
-        encoding.setOptions(OS.getSupportedEncodings());
-        reference.setOptions(OS.getSupportedReferenceGenomes());
+        encoding.setOptions(OS.getEncodings());
+        reference.setOptions(OS.getReferenceGenomes());
         accept.setGraphic(new SizableImage("exomesuite/img/align.png", 32));
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }

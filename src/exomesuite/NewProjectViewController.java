@@ -73,9 +73,9 @@ public class NewProjectViewController {
         reverse.addFilter(FileManager.FASTQ_FILTER);
         path.setOnValueChanged((EventHandler) (Event event) -> updateFolder());
         // Set genome
-        genome.setOptions(OS.getSupportedReferenceGenomes());
+        genome.setOptions(OS.getReferenceGenomes());
         // Set encoding
-        encoding.setOptions(OS.getSupportedEncodings());
+        encoding.setOptions(OS.getEncodings());
         acceptButton.setOnAction((ActionEvent event) -> handler.handle(event));
         name.setOnValueChanged((EventHandler) (Event event) -> {
             if (!codeChangedManually) {

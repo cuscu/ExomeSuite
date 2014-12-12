@@ -125,8 +125,8 @@ public class MainViewController {
         staticWorkingArea = workingArea;
         infoHBox = infoBox;
         // Open recently opened projects (.config files)
-        final String openedProjects = OS.getProperty("projects");
-        if (openedProjects != null && !openedProjects.isEmpty()) {
+        final String openedProjects = OS.getProperties().getProperty("projects", "");
+        if (!openedProjects.isEmpty()) {
             String[] op = openedProjects.split(";");
             for (String s : op) {
                 openProject(new File(s));
@@ -149,7 +149,7 @@ public class MainViewController {
             projectList.getItems().add(project);
             projectList.getSelectionModel().select(project);
         }
-        printMessage("Project " + project.getProperty(Project.PropertyName.NAME) + " opened", "INFO");
+        printMessage("Project " + project.getProperties().getProperty(Project.NAME) + " opened", "INFO");
         OS.addProject(project);
     }
 
@@ -159,7 +159,7 @@ public class MainViewController {
      *
      */
     public void exitApplication() {
-        if (!OS.containsKey("confirmExit") || OS.getProperty("confirmExit").equals("true")) {
+        if (OS.getProperties().getProperty("confirmExit", "").equals("true")) {
             Dialog.Response resp = new Dialog().showYesNoCancel("Exit application?",
                     "Do you want to exit?", "Exit", "Continue", "Exit and don't ask again");
             if (resp == Dialog.Response.YES) {
@@ -167,7 +167,7 @@ public class MainViewController {
             } else if (resp == Dialog.Response.NO) {
                 printMessage("Good, keep working", "success");
             } else {
-                OS.setProperty("confirmExit", "false");
+                OS.getProperties().setProperty("confirmExit", "false");
                 ExomeSuite.getMainStage().close();
             }
         } else {
@@ -228,16 +228,16 @@ public class MainViewController {
                     File forward = controller.getForward();
                     File reverse = controller.getReverse();
                     if (forward.exists() && reverse.exists()) {
-                        project.setProperty(Project.PropertyName.FORWARD_FASTQ, forward.getAbsolutePath());
-                        project.setProperty(Project.PropertyName.REVERSE_FASTQ, reverse.getAbsolutePath());
+                        project.getProperties().setProperty(Project.FORWARD_FASTQ, forward.getAbsolutePath());
+                        project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse.getAbsolutePath());
                     }
                     String reference = controller.getReference();
                     if (reference != null && !reference.isEmpty()) {
-                        project.setProperty(Project.PropertyName.REFERENCE_GENOME, reference);
+                        project.getProperties().setProperty(Project.REFERENCE_GENOME, reference);
                     }
                     String encoding = controller.getEncoding();
                     if (encoding != null) {
-                        project.setProperty(Project.PropertyName.FASTQ_ENCODING, encoding);
+                        project.getProperties().setProperty(Project.FASTQ_ENCODING, encoding);
                     }
                     projectList.getItems().add(project);
                     projectList.getSelectionModel().select(project);

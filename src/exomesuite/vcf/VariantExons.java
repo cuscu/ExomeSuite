@@ -14,13 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.vcf;
 
 import exomesuite.MainViewController;
 import exomesuite.utils.OS;
-import exomesuite.vcf.VCFHeader;
-import exomesuite.vcf.Variant;
-import exomesuite.vcf.VariantListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,7 +43,7 @@ public class VariantExons extends TableView<String[]> implements VariantListener
 //    @FXML
 //    private TableView<String[]> table;
     public VariantExons() {
-        File exons = new File(OS.getProperty("ensembl"));
+        File exons = new File(OS.getProperties().getProperty("ensembl"));
         Ensembl.initialize(exons);
         initialize();
     }

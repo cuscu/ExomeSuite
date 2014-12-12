@@ -12,7 +12,7 @@
         <SectionTitle title="Properties"  />
         <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />
         <TextParam title="Code" fx:id="code" HBox.hgrow="ALWAYS"  />
-        <PathParam title="Path" fx:id="path" />
+        <Param title="Path" fx:id="path" />
         <TextParam title="Description" fx:id="description" />
         <SectionTitle title="Original data"  />
         <FileParam title="Forward sequences" fx:id="forward" promptText="Forward sequences" />

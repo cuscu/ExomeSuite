@@ -66,8 +66,8 @@ public class ProjectList extends ListView<Project> {
     private void delete(Project project) {
         if (project != null) {
             // Ask user to remove folder content
-            File path = new File(project.getProperty(Project.PropertyName.PATH));
-            File config = project.getConfigFile();
+            File path = new File(project.getProperties().getProperty(Project.PATH));
+            //File config = project.getConfigFile();
             Dialog.Response response = new Dialog().showYesNoCancel("Delete content",
                     "Do you also want to delete everything under" + path + "?",
                     "Delete everything", "Delete only project", "Cancel");
@@ -75,7 +75,7 @@ public class ProjectList extends ListView<Project> {
                 case YES:
                     FileManager.delete(path, true);
                 case NO:
-                    config.delete();
+//                    config.delete();
                     getItems().remove(project);
                     OS.removeProject(project);
             }

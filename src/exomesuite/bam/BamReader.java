@@ -86,7 +86,7 @@ public class BamReader extends VBox {
     private static final int WINDOW_SIZE = 50;
 
     public BamReader(File bamFile, File genome) {
-        Ensembl.setFile(new File(OS.getProperty("ensembl")));
+        Ensembl.setFile(new File(OS.getProperties().getProperty("ensembl")));
         this.bamFile = bamFile;
         this.genome = genome;
         try {

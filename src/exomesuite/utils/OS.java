@@ -3,16 +3,9 @@ package exomesuite.utils;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Contains methods to control application properties (databases, opened projects..) and most
@@ -23,12 +16,44 @@ import java.util.logging.Logger;
  */
 public class OS {
 
-    private static Properties properties;
-    private static File propertiesFile;
+    /**
+     * The name where properties are stored in disk.
+     */
+    private static final String CONFIG_FILE_NAME = "exomesuite.properties";
+    /**
+     * Main application properties in disk.
+     */
+    private static final File propertiesFile = new File(FileManager.getUserPath(), CONFIG_FILE_NAME);
+    /**
+     * Main application properties in memory.
+     */
+    private static final Configuration properties = new Configuration(propertiesFile);
 
-    private static List<String> referenceGenomes;
-    private static List<String> encodings;
-    private static List<String> standardChromosomes;
+    /**
+     * The list of supported reference genomes.
+     */
+    private static final List<String> referenceGenomes = new ArrayList();
+    /**
+     * The list of supported encondings.
+     */
+    private static final List<String> encodings = new ArrayList();
+    /**
+     * The list of ordered standard chromosomes (1-22, X and Y).
+     */
+    private static final List<String> standardChromosomes = new ArrayList();
+
+    /**
+     * Static "Constructor" of the class.
+     */
+    static {
+        final String[] e = {"phred+64", "phred+33"};
+        final String[] r = {"GRCh37", "GRCh38"};
+        final String[] chrs = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
+            "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
+        encodings.addAll(Arrays.asList(e));
+        referenceGenomes.addAll(Arrays.asList(r));
+        standardChromosomes.addAll(Arrays.asList(chrs));
+    }
 
     /**
      * Takes a byte value and convert it to the corresponding human readable unit.
@@ -47,10 +72,6 @@ public class OS {
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
-    public static boolean containsKey(String key) {
-        return getProperties().containsKey(key.toLowerCase());
-    }
-
     /**
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
      * value3] -> value1,value2,value3
@@ -59,7 +80,7 @@ public class OS {
      * @param values a list of values
      * @return the stringified list
      */
-    public static String asString(String separator, String[] values) {
+    public static String asString(String separator, String... values) {
         if (values.length == 0) {
             return "";
         }
@@ -101,72 +122,12 @@ public class OS {
         return getProperties().getProperty(property.toLowerCase());
     }
 
-    private static Properties getProperties() {
-        if (properties == null) {
-            properties = new Properties();
-            propertiesFile = new File(FileManager.getUserPath(), "properties.txt");
-            if (propertiesFile.exists()) {
-                try {
-                    properties.load(new FileInputStream(propertiesFile));
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(OS.class.getName()).log(Level.SEVERE, "Check permissions", ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return properties;
-    }
-
     /**
-     * Get the property value or null if it does not exist.
+     * Get the properties of the application.
      *
-     * @param key the key of the property
-     * @return the property value if contained, null otherwise
+     * @return the properties of application.
      */
-    public static String getProperty(String key) {
-        return getProperties().getProperty(key.toLowerCase());
-    }
-
-    public static void setProperty(String key, String value) {
-        getProperties().setProperty(key.toLowerCase(), value);
-        try {
-            properties.store(new FileOutputStream(propertiesFile), null);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public static List<String> getSupportedReferenceGenomes() {
-        if (referenceGenomes == null) {
-            referenceGenomes = new ArrayList<>();
-            referenceGenomes.add("GRCh37");
-            referenceGenomes.add("GRCh38");
-        }
-        return referenceGenomes;
-    }
-
-    public static List<String> getSupportedEncodings() {
-        if (encodings == null) {
-            encodings = new ArrayList<>();
-            encodings.add("phred+64");
-            encodings.add("phred+33");
-        }
-        return encodings;
-    }
-
-    public static List<String> getStandardChromosomes() {
-        if (standardChromosomes == null) {
-            final String[] chrs = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-                "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
-            standardChromosomes = Arrays.asList(chrs);
-        }
-        return standardChromosomes;
-    }
-
-    public static Properties getProperies() {
+    public static Configuration getProperties() {
         return properties;
     }
 
@@ -180,8 +141,11 @@ public class OS {
         List<String> files = new ArrayList<>(
                 Arrays.asList(properties.getProperty("projects", "").split(";")));
         // Check if project is in the list by trying to remove it
-        if (files.remove(project.getConfigFile().getAbsolutePath())) {
-            setProperty("projects", OS.asString(";", files));
+        String path = project.getProperties().getProperty(Project.PATH);
+        String code = project.getProperties().getProperty(Project.CODE);
+        String configFile = path + File.separator + code + ".config";
+        if (files.remove(configFile)) {
+            properties.setProperty("projects", OS.asString(";", files));
         }
     }
 
@@ -195,10 +159,40 @@ public class OS {
         List<String> projects = new ArrayList<>(
                 Arrays.asList(properties.getProperty("projects", "").split(";")));
         // If project is not yet in the list
-        if (!projects.contains(project.getConfigFile().getAbsolutePath())) {
+        String path = project.getProperties().getProperty(Project.PATH);
+        String code = project.getProperties().getProperty(Project.CODE);
+        String configFile = path + File.separator + code + ".config";
+        if (!projects.contains(configFile)) {
             // Add it
-            projects.add(project.getConfigFile().getAbsolutePath());
-            setProperty("projects", OS.asString(";", projects));
+            projects.add(configFile);
+            properties.setProperty("projects", OS.asString(";", projects));
         }
+    }
+
+    /**
+     * Gets the supported reference genomes.
+     *
+     * @return the list of reference genomes.
+     */
+    public static List<String> getReferenceGenomes() {
+        return referenceGenomes;
+    }
+
+    /**
+     * Gets the list of supported encodings(phred+33 and phred+64).
+     *
+     * @return the supported encodings
+     */
+    public static List<String> getEncodings() {
+        return encodings;
+    }
+
+    /**
+     * Gets the list of standard chromosomes (1-22, X and Y).
+     *
+     * @return the list of chromosomes
+     */
+    public static List<String> getStandardChromosomes() {
+        return standardChromosomes;
     }
 }

@@ -19,7 +19,9 @@ package exomesuite.vcf;
 /**
  * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM,
  * POS, DP...), a connector (greater than, equals...) and a value. When a variant is passed to the
- * filter it is read: variant.field connector value (variant.chrom is equals to 7).
+ * filter it is read: variant.field connector value (variant.chrom is equals to 7). As a particular
+ * case of VCF, a variant can be filtered by its INFO field, so when the selected field is INFO, the
+ * selectedInfo is activated.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -68,22 +70,47 @@ public class VCFFilter {
         return connector;
     }
 
+    /**
+     * Sets the connector
+     *
+     * @param connector the new connector
+     */
     public void setConnector(Connector connector) {
         this.connector = connector;
     }
 
+    /**
+     * Get the selected field
+     *
+     * @return
+     */
     public Field getField() {
         return field;
     }
 
+    /**
+     * Set the selected field
+     *
+     * @param field the new selected field
+     */
     public void setField(Field field) {
         this.field = field;
     }
 
+    /**
+     * gets the current selected info
+     *
+     * @return the selected info
+     */
     public String getSelectedInfo() {
         return selectedInfo;
     }
 
+    /**
+     * Sets the new selected info
+     *
+     * @param selectedInfo the new selected info
+     */
     public void setSelectedInfo(String selectedInfo) {
         this.selectedInfo = selectedInfo;
     }

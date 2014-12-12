@@ -21,12 +21,12 @@ import exomesuite.actions.AlignParams;
 import exomesuite.actions.CallParams;
 import exomesuite.actions.MistParams;
 import exomesuite.project.Project;
-import exomesuite.project.ProjectListener;
 import exomesuite.systemtask.Aligner;
 import exomesuite.systemtask.Caller;
 import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.SamtoolsCaller;
 import exomesuite.systemtask.SystemTask;
+import exomesuite.utils.Configuration;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -58,7 +58,7 @@ import javafx.stage.StageStyle;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class PActions extends HBox implements ProjectListener {
+public class PActions extends HBox implements Configuration.ConfigurationListener {
 
     /**
      * Thec current selected project.
@@ -85,11 +85,6 @@ public class PActions extends HBox implements ProjectListener {
         getChildren().addAll(align, call, mist);
     }
 
-    @Override
-    public void projectChanged(Project.PropertyName property) {
-        setButtons();
-    }
-
     public void setProject(Project project) {
         this.project = project;
         setButtons();
@@ -103,7 +98,7 @@ public class PActions extends HBox implements ProjectListener {
      * Stablishes if buttons are enabled or disabled.
      */
     private void setButtons() {
-        String files = project.getProperty(Project.PropertyName.FILES, "");
+        String files = project.getProperties().getProperty(Project.FILES, "");
         List<String> fs = Arrays.asList(files.split(";"));
         // Mist and call can only be done with a BAM file.
         mist.setDisable(true);
@@ -116,24 +111,24 @@ public class PActions extends HBox implements ProjectListener {
             }
         }
         // Align can be done with both sequences files
-        align.setDisable(!project.contains(Project.PropertyName.FORWARD_FASTQ)
-                || !project.contains(Project.PropertyName.REVERSE_FASTQ));
+        align.setDisable(!project.getProperties().containsProperty(Project.FORWARD_FASTQ)
+                || !project.getProperties().containsProperty(Project.REVERSE_FASTQ));
     }
 
     private void showAlingParams() {
         // Fill known properties.
         Properties properties = new Properties();
-        if (project.contains(Project.PropertyName.FORWARD_FASTQ)) {
-            properties.setProperty("forward", project.getProperty(Project.PropertyName.FORWARD_FASTQ));
+        if (project.getProperties().containsProperty(Project.FORWARD_FASTQ)) {
+            properties.setProperty("forward", project.getProperties().getProperty(Project.FORWARD_FASTQ));
         }
-        if (project.contains(Project.PropertyName.REVERSE_FASTQ)) {
-            properties.setProperty("reverse", project.getProperty(Project.PropertyName.REVERSE_FASTQ));
+        if (project.getProperties().containsProperty(Project.REVERSE_FASTQ)) {
+            properties.setProperty("reverse", project.getProperties().getProperty(Project.REVERSE_FASTQ));
         }
-        if (project.contains(Project.PropertyName.FASTQ_ENCODING)) {
-            properties.setProperty("encoding", project.getProperty(Project.PropertyName.FASTQ_ENCODING));
+        if (project.getProperties().containsProperty(Project.FASTQ_ENCODING)) {
+            properties.setProperty("encoding", project.getProperties().getProperty(Project.FASTQ_ENCODING));
         }
-        if (project.contains(Project.PropertyName.REFERENCE_GENOME)) {
-            properties.setProperty("reference", project.getProperty(Project.PropertyName.REFERENCE_GENOME));
+        if (project.getProperties().containsProperty(Project.REFERENCE_GENOME)) {
+            properties.setProperty("reference", project.getProperties().getProperty(Project.REFERENCE_GENOME));
         }
         // Show the screen with known Properties and call align(properties) when closed and accepted.
         Stage stage = new Stage();
@@ -156,14 +151,14 @@ public class PActions extends HBox implements ProjectListener {
 
     private void showCallParams() {
         Properties properties = new Properties();
-        if (project.contains(Project.PropertyName.REFERENCE_GENOME)) {
-            properties.setProperty("reference", project.getProperty(Project.PropertyName.REFERENCE_GENOME));
+        if (project.getProperties().containsProperty(Project.REFERENCE_GENOME)) {
+            properties.setProperty("reference", project.getProperties().getProperty(Project.REFERENCE_GENOME));
         }
         Stage stage = new Stage();
         CallParams params = new CallParams(properties);
         // Look for the bam files
         List<String> bams = new ArrayList<>();
-        String[] files = project.getProperty(Project.PropertyName.FILES, "").split(";");
+        String[] files = project.getProperties().getProperty(Project.FILES, "").split(";");
         for (String s : files) {
             if (s.endsWith(".bam")) {
                 bams.add(s);
@@ -196,7 +191,7 @@ public class PActions extends HBox implements ProjectListener {
         MistParams params = new MistParams(properties);
         // Look for the bam files
         List<String> bams = new ArrayList<>();
-        String[] files = project.getProperty(Project.PropertyName.FILES, "").split(";");
+        String[] files = project.getProperties().getProperty(Project.FILES, "").split(";");
         for (String s : files) {
             if (s.endsWith(".bam")) {
                 bams.add(s);
@@ -229,13 +224,13 @@ public class PActions extends HBox implements ProjectListener {
         String forward = properties.getProperty("forward");
         String reverse = properties.getProperty("reverse");
         String reference = properties.getProperty("reference");
-        String genome = OS.getProperty(reference);
-        String dbsnp = OS.getProperty("dbsnp");
-        String mills = OS.getProperty("mills");
-        String phase1 = OS.getProperty("phase1");
-        String output = project.getProperty(Project.PropertyName.PATH) + File.separator
-                + project.getProperty(Project.PropertyName.CODE) + ".bam";
-        String name = project.getProperty(Project.PropertyName.NAME);
+        String genome = OS.getProperties().getProperty(reference);
+        String dbsnp = OS.getProperties().getProperty("dbsnp");
+        String mills = OS.getProperties().getProperty("mills");
+        String phase1 = OS.getProperties().getProperty("phase1");
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".bam";
+        String name = project.getProperties().getProperty(Project.NAME);
         boolean illumina = properties.getProperty("encoding").equals("phred+64");
         boolean refine = reference.equalsIgnoreCase("grch37");
         List<String> errors = new ArrayList<>();
@@ -281,8 +276,8 @@ public class PActions extends HBox implements ProjectListener {
      */
     private void call(Properties params) {
         String reference = params.getProperty("reference");
-        String genome = OS.getProperty(reference);
-        String dbsnp = OS.getProperty("dbsnp");
+        String genome = OS.getProperties().getProperty(reference);
+        String dbsnp = OS.getProperties().getProperty("dbsnp");
         String input = params.getProperty("bamFile");
         String algorithm = params.getProperty("algorithm");
         List<String> errors = new ArrayList<>();
@@ -300,8 +295,8 @@ public class PActions extends HBox implements ProjectListener {
             return;
         }
         // path/code.vcf
-        String output = project.getProperty(Project.PropertyName.PATH) + File.separator
-                + project.getProperty(Project.PropertyName.CODE) + ".vcf";
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".vcf";
         SystemTask task;
         task = algorithm.toLowerCase().equals("samtools")
                 ? new SamtoolsCaller(genome, input, output)
@@ -317,7 +312,7 @@ public class PActions extends HBox implements ProjectListener {
 
     private void mist(Properties params) {
 //        String reference = params.getProperty("reference");
-        String ensembl = OS.getProperty("ensembl");
+        String ensembl = OS.getProperties().getProperty("ensembl");
         String input = params.getProperty("bamFile");
         String threshold = params.getProperty("threshold");
         String length = params.getProperty("length");
@@ -326,8 +321,8 @@ public class PActions extends HBox implements ProjectListener {
             intThreshold = Integer.valueOf(threshold);
             intLength = Integer.valueOf(length);
             // path/code.vcf
-            String output = project.getProperty(Project.PropertyName.PATH) + File.separator
-                    + project.getProperty(Project.PropertyName.CODE) + "_dp" + threshold + "_l" + length + ".mist";
+            String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                    + project.getProperties().getProperty(Project.CODE) + "_dp" + threshold + "_l" + length + ".mist";
             Mist task = new Mist(input, output, ensembl, intThreshold, intLength);
             task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
                     Worker.State oldValue, Worker.State newValue) -> {
@@ -424,6 +419,11 @@ public class PActions extends HBox implements ProjectListener {
         } catch (Exception e) {
             MainViewController.printException(e);
         }
+    }
+
+    @Override
+    public void configurationChanged(Configuration configuration, String keyChanged) {
+        setButtons();
     }
 
 }

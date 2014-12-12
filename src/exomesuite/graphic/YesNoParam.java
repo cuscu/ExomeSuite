@@ -17,6 +17,7 @@
 package exomesuite.graphic;
 
 /**
+ * A boolean parameter. yes is true, no is false
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
