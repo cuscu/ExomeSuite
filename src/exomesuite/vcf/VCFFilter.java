@@ -31,6 +31,8 @@ public class VCFFilter {
     private Connector connector;
     private Field field;
     private String selectedInfo;
+    private boolean acceptVoids = true;
+    private boolean active = true;
 
     public VCFFilter() {
         connector = Connector.EQUALS;
@@ -116,6 +118,42 @@ public class VCFFilter {
     }
 
     /**
+     * If true, filter will not throw variants that do not contain the INFO field.
+     *
+     * @return true if accepting void values.
+     */
+    public boolean isAcceptVoids() {
+        return acceptVoids;
+    }
+
+    /**
+     * If true, filter will not throw variants that do not contain the INFO field.
+     *
+     * @param accept true to accept void values
+     */
+    public void setAcceptVoids(boolean accept) {
+        this.acceptVoids = accept;
+    }
+
+    /**
+     * If true it will filter variants, if false it will accept all variants.
+     *
+     * @return true if filter is active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * If true it will filter variants, if false it will accept all variants.
+     *
+     * @param active the new active state
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /**
      * Returns true in case this variant passes this filter or filter can NOT be applied due to
      * field<->connector<->value incompatibilities.
      *
@@ -124,6 +162,9 @@ public class VCFFilter {
      */
     public boolean filter(Variant variant) {
         if (field == null) {
+            return true;
+        }
+        if (!active) {
             return true;
         }
         // Get the value (one of the Field.values())
@@ -214,7 +255,7 @@ public class VCFFilter {
                     return stringValue.matches(value);
                 }
         }
-        return false;
+        return acceptVoids;
     }
 
     /**

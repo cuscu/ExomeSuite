@@ -29,7 +29,7 @@ public class Variant {
     private final String[] samples;
 
     /**
-     * Parses the line and creates a Variant2.
+     * Parses the VCF line and creates a Variant.
      *
      * @param line the line to parse
      */

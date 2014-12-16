@@ -17,6 +17,7 @@
 package exomesuite.vcf;
 
 import exomesuite.graphic.SizableImage;
+import java.util.Collections;
 import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -46,14 +48,24 @@ public class VCFFilterPane extends VBox {
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
     private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
-    private EventHandler onAccept, onDelete;
+    private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", 16));
+    private final Button tag = new Button(null, new SizableImage("exomesuite/img/tag.png", 16));
+
+    private EventHandler onUpdate, onDelete;
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
-    private VCFFilter filter;
+    private final VCFFilter filter;
 
     public VCFFilterPane(List<String> infos) {
         filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
+        Collections.sort(infos);
         info.getItems().addAll(infos);
         initialize();
+        accept.setTooltip(new Tooltip("Accept"));
+        cancel.setTooltip(new Tooltip("Cancel changes"));
+        delete.setTooltip(new Tooltip("Delete filter"));
+        view.setTooltip(new Tooltip("Enable/disble filter"));
+        tag.setTooltip(new Tooltip("Allow/disallow no tagged variants"));
+
     }
 
     private void initialize() {
@@ -64,6 +76,8 @@ public class VCFFilterPane extends VBox {
         setOnMouseClicked(e -> startEdit());
         value.setOnAction(e -> accept());
         delete.setOnAction(e -> delete());
+        view.setOnAction(e -> alternateView());
+        tag.setOnAction(e -> alternateVoids());
         value.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 accept();
@@ -87,14 +101,18 @@ public class VCFFilterPane extends VBox {
         toPassive();
     }
 
+    /**
+     * Get the filter associated.
+     *
+     * @return
+     */
     public VCFFilter getFilter() {
         return filter;
     }
 
-    public void setFilter(VCFFilter filter) {
-        this.filter = filter;
-    }
-
+    /**
+     * User clicked in accept.
+     */
     private void accept() {
         filter.setField(field.getSelectionModel().getSelectedItem());
         filter.setConnector(connector.getSelectionModel().getSelectedItem());
@@ -103,20 +121,26 @@ public class VCFFilterPane extends VBox {
         getChildren().clear();
         setStaticInfo();
         toPassive();
-        if (onAccept != null) {
-            onAccept.handle(new ActionEvent());
+        if (onUpdate != null) {
+            onUpdate.handle(new ActionEvent());
         }
     }
 
+    /**
+     * Show the passive state: only text and buttons.
+     */
     private void toPassive() {
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setVisible(false);
         HBox.setHgrow(separator, Priority.ALWAYS);
-        HBox box = new HBox(staticInfo, separator, delete);
+        HBox box = new HBox(staticInfo, separator, tag, view, delete);
         box.setAlignment(Pos.CENTER);
         getChildren().setAll(box);
     }
 
+    /**
+     * Enables field selectors and textField.
+     */
     private void startEdit() {
         if (info.getSelectionModel().isEmpty()) {
             info.getSelectionModel().select(0);
@@ -131,6 +155,9 @@ public class VCFFilterPane extends VBox {
         value.requestFocus();
     }
 
+    /**
+     * Sets the string inside staticInfo. Example: CHROMOSOME is equals to 7
+     */
     private void setStaticInfo() {
         String f = (filter.getField() == VCFFilter.Field.INFO)
                 ? filter.getSelectedInfo() : filter.getField().name();
@@ -139,18 +166,56 @@ public class VCFFilterPane extends VBox {
         staticInfo.setText(f + " " + filter.getConnector() + " " + v);
     }
 
-    public void setOnAccept(EventHandler onAccept) {
-        this.onAccept = onAccept;
+    /**
+     * Sets what happens when user changes something in the filter. Usually refilter.
+     *
+     * @param onUpdate
+     */
+    public void setOnUpdate(EventHandler onUpdate) {
+        this.onUpdate = onUpdate;
     }
 
+    /**
+     * Sets what happens when user clicks on delete. Usually remove from user view.
+     *
+     * @param onDelete
+     */
     public void setOnDelete(EventHandler onDelete) {
         this.onDelete = onDelete;
     }
 
+    /**
+     * Oh, user clicked on delete.
+     */
     private void delete() {
         if (onDelete != null) {
             onDelete.handle(new ActionEvent());
         }
     }
 
+    /**
+     * Change the view icon and the active flag of filter.
+     */
+    private void alternateView() {
+        boolean act = filter.isActive();
+        filter.setActive(!act);
+        view.setGraphic(act ? new SizableImage("exomesuite/img/noview.png", 16)
+                : new SizableImage("exomesuite/img/view.png", 16));
+        if (onUpdate != null) {
+            onUpdate.handle(new ActionEvent());
+        }
+    }
+
+    /**
+     * Change the acceptVoids flag and the tag icon.
+     */
+    private void alternateVoids() {
+        boolean voids = filter.isAcceptVoids();
+        filter.setAcceptVoids(!voids);
+        tag.setGraphic(voids ? new SizableImage("exomesuite/img/notag.png", 16)
+                : new SizableImage("exomesuite/img/tag.png", 16));
+        if (onUpdate != null) {
+            onUpdate.handle(new ActionEvent());
+        }
+    }
 }

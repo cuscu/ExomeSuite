@@ -17,6 +17,8 @@
 package exomesuite.tsv;
 
 import exomesuite.MainViewController;
+import exomesuite.graphic.IndexCell;
+import exomesuite.graphic.NaturalCell;
 import exomesuite.graphic.SizableImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,13 +53,14 @@ public class TSVReader extends SplitPane {
     @FXML
     private Label infoLabel;
 
-    private File file;
+    private final File file;
     private String[] headers;
 
     private AtomicInteger totalLines = new AtomicInteger();
     private AtomicInteger currentLines = new AtomicInteger();
 
-    public TSVReader() {
+    public TSVReader(File file) {
+        this.file = file;
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TSVReader.fxml"));
             loader.setRoot(this);
@@ -66,6 +69,7 @@ public class TSVReader extends SplitPane {
         } catch (Exception e) {
             MainViewController.printException(e);
         }
+        loadFile();
     }
 
     @FXML
@@ -81,10 +85,10 @@ public class TSVReader extends SplitPane {
             });
             filtersPane.getChildren().add(filterPane);
         });
+
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    private void loadFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             headers = reader.readLine().split("\t");
             generateColumns();
@@ -98,12 +102,14 @@ public class TSVReader extends SplitPane {
     }
 
     private void generateColumns() {
+        TableColumn<String[], String> in = new TableColumn();
+        in.setCellFactory(column -> new IndexCell());
+        table.getColumns().add(in);
         for (int i = 0; i < headers.length; i++) {
             final int index = i;
             TableColumn<String[], String> tc = new TableColumn<>(headers[i]);
-            tc.setCellValueFactory((TableColumn.CellDataFeatures<String[], String> param)
-                    -> new SimpleStringProperty(param.getValue()[index]));
-
+            tc.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[index]));
+            tc.setCellFactory(column -> new NaturalCell());
             table.getColumns().add(tc);
         }
     }
@@ -147,7 +153,8 @@ public class TSVReader extends SplitPane {
             }
         });
         for (int i = 0; i < headers.length; i++) {
-            table.getColumns().get(i).setText(headers[i] + "\n" + uniques[i].size());
+            // Skip index column
+            table.getColumns().get(i + 1).setText(headers[i] + "\n" + uniques[i].size());
         }
     }
 

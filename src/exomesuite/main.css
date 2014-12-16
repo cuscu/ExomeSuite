@@ -20,6 +20,12 @@
     -fx-padding: 2;
 }
 
+.index-cell{
+    -fx-background-color: lightgrey;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: whitesmoke;
+}
+
 // Button with only graphic, whe hover or pressed a border is shown.
 .flat-button {
     -fx-border-width: 1px;

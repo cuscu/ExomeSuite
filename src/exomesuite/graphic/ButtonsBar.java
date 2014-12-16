@@ -55,7 +55,7 @@ public class ButtonsBar extends FlowPane {
     private void initialize() {
         openFile.setOnAction(e -> ExomeSuite.getController().openFile());
         openProject.setOnAction(e -> ExomeSuite.getController().openProject(
-                FileManager.openFile("Select a config file", FileManager.ALL_FILTER)));
+                FileManager.openFile("Select a config file", FileManager.CONFIG_FILTER)));
         openDatabases.setOnAction(e -> ExomeSuite.getController().showDatabasesPane());
         newProject.setOnAction(e -> ExomeSuite.getController().showNewPane());
         openProject.setGraphic(new SizableImage("exomesuite/img/open.png", 32));

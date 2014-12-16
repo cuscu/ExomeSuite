@@ -26,6 +26,7 @@ import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
 import exomesuite.mist.CombineMIST;
 import exomesuite.project.Project;
+import exomesuite.tsv.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.vcf.CombineVariants;
@@ -144,7 +145,14 @@ public class MainViewController {
         if (configFile == null || !configFile.exists()) {
             return;
         }
-        Project project = new Project(configFile);
+        Project project;
+        try {
+            project = new Project(configFile);
+        } catch (Exception e) {
+            printMessage(e.getMessage(), "error");
+            return;
+//            printException(e);
+        }
         if (!projectList.getItems().contains(project)) {
             projectList.getItems().add(project);
             projectList.getSelectionModel().select(project);
@@ -272,6 +280,10 @@ public class MainViewController {
         stage.showAndWait();
     }
 
+    /**
+     * Opens a dialog that let the user select any file, and tries to open it depending on its
+     * extension.
+     */
     public void openFile() {
         File f = FileManager.openFile("Choose any file", FileManager.ALL_FILTER);
         showFileContent(f, null);
@@ -298,12 +310,11 @@ public class MainViewController {
             Tab t = new Tab(file.getName());
             if (file.getName().endsWith(".tsv") || file.getName().endsWith(".mist")) {
                 //t.setContent(new TSVReader(file).get());
-                exomesuite.tsv.TSVReader reader = new exomesuite.tsv.TSVReader();
-                reader.setFile(file);
+                TSVReader reader = new TSVReader(file);
+//                reader.setFile(file);
                 t.setContent(reader);
             } else if (file.getName().endsWith(".vcf")) {
-                VCFTable table = new VCFTable();
-                table.setFile(file);
+                VCFTable table = new VCFTable(file);
                 t.setContent(table);
                 //t.setContent(new VCFReader(file).getView());
             } else if (file.getName().endsWith(".bam")) {
@@ -321,10 +332,18 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Gets the center pane, where new tabs can be added.
+     *
+     * @return
+     */
     public static TabPane getWorkingArea() {
         return staticWorkingArea;
     }
 
+    /**
+     * Opens the dialog of combining MIST files.
+     */
     private void combineMIST() {
         try {
             FXMLLoader loader = new FXMLLoader(CombineMIST.class.getResource("CombineMIST.fxml"));
@@ -343,6 +362,9 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Opens the dialog of combining VCF files.
+     */
     private void combineVCF() {
         try {
             FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"));
@@ -361,6 +383,9 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Shows the about panel.
+     */
     private void showAbout() {
         try {
             FXMLLoader loader = new FXMLLoader(About.class.getResource("About.fxml"));
@@ -398,6 +423,12 @@ public class MainViewController {
         }
     }
 
+    /**
+     * Prints an error message and allocates a 'View details' Button to see the whole stackTrace of
+     * the exception.
+     *
+     * @param e
+     */
     public static void printException(Exception e) {
         Platform.runLater(() -> {
             infoLabel.setText(e.getClass() + " " + e.getMessage());
