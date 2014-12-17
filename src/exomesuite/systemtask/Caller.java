@@ -21,6 +21,7 @@ import exomesuite.utils.FileManager;
 import java.io.File;
 
 /**
+ * The task that call variants with GATK.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -28,6 +29,14 @@ public class Caller extends SystemTask {
 
     private final String genome, output, input, dbsnp;
 
+    /**
+     * Creates a new Caller.
+     *
+     * @param genome the reference genome
+     * @param output the output vcf
+     * @param input the input bam
+     * @param dbsnp the dbsnp vcf file
+     */
     public Caller(String genome, String output, String input, String dbsnp) {
         this.genome = genome;
         this.output = output;

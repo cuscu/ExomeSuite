@@ -14,31 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
-
-import javafx.geometry.Pos;
-import javafx.scene.control.TableCell;
-
 /**
- * A convenient Cell that plots the index of the cell.
+ * Supporting classes.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class IndexCell extends TableCell {
-
-    /**
-     * Creates a new index cell that will have "index-cell" css class and will be centered on the
-     * right.
-     */
-    public IndexCell() {
-        getStyleClass().add("index-cell");
-        setAlignment(Pos.CENTER_RIGHT);
-    }
-
-    @Override
-    protected void updateItem(Object item, boolean empty) {
-        super.updateItem(item, empty);
-        setText(empty ? null : String.valueOf(1 + getIndex()));
-    }
-
-}
+package exomesuite.utils;

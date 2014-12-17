@@ -74,7 +74,7 @@ public class OS {
 
     /**
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
-     * value3] -> value1,value2,value3
+     * value3] to value1,value2,value3
      *
      * @param separator something like "\t" or ","
      * @param values a list of values
@@ -94,7 +94,7 @@ public class OS {
 
     /**
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
-     * value3] -> value1,value2,value3
+     * value3] to value1,value2,value3
      *
      * @param separator something like "\t" or ","
      * @param values a list of values
@@ -112,14 +112,15 @@ public class OS {
         return s + values.get(i);
     }
 
+    /**
+     * Gets the temporary path of the application. (that is userdir/temp).
+     *
+     * @return the temp path.
+     */
     public static String getTempDir() {
         File temp = new File(FileManager.getUserPath(), "temp");
         temp.mkdirs();
         return temp.getAbsolutePath();
-    }
-
-    public static String getGenome(String property) {
-        return getProperties().getProperty(property.toLowerCase());
     }
 
     /**

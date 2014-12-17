@@ -36,7 +36,7 @@ abstract class BamLayer extends Canvas {
     /**
      * Clears and paints the whole layer.
      *
-     * @param bamCanvas
+     * @param bamCanvas the bamCanvas that contains the layer
      */
     public void repaint(BamCanvas bamCanvas) {
         getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
@@ -46,7 +46,7 @@ abstract class BamLayer extends Canvas {
     /**
      * Paints the layer, but do not clear it previously.
      *
-     * @param bamCanvas
+     * @param bamCanvas the bamCanvas that contains the layer
      */
     protected abstract void draw(BamCanvas bamCanvas);
 

@@ -23,6 +23,9 @@ package exomesuite.graphic;
  */
 public class YesNoParam extends Param<Boolean> {
 
+    /**
+     * Creates a YesNoParam with default value TRUE
+     */
     public YesNoParam() {
         setValue(Boolean.TRUE);
     }

@@ -27,12 +27,14 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
+ * The Graphical aspect of a VCFFilter. It has a lot of buttons.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -45,10 +47,17 @@ public class TSVFilterPane extends VBox {
     private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
+    private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", 16));
+    private final Button voids = new Button(null, new SizableImage("exomesuite/img/tag.png", 16));
     private EventHandler onAccept, onDelete;
     private final HBox center = new HBox(field, connector, value, accept, cancel);
     private TSVFilter filter;
 
+    /**
+     * Creates a new TSVFilterPane.
+     *
+     * @param fields options for the combobox
+     */
     public TSVFilterPane(List<String> fields) {
         filter = new TSVFilter();
         field.getItems().addAll(fields);
@@ -56,7 +65,13 @@ public class TSVFilterPane extends VBox {
     }
 
     private void initialize() {
+        getStyleClass().add("filter-box");
+        staticInfo.setText("Click to set the filter");
+        setAlignment(Pos.CENTER);
+        HBox.setHgrow(value, Priority.SOMETIMES);
+        center.setSpacing(3);
         connector.getItems().setAll(TSVFilter.Connector.values());
+
         accept.setOnAction(e -> accept());
         cancel.setOnAction(e -> toPassive());
         setOnMouseClicked(e -> startEdit());
@@ -71,20 +86,33 @@ public class TSVFilterPane extends VBox {
         });
         connector.setOnAction(e -> value.requestFocus());
         field.setOnAction(e -> value.requestFocus());
-        getStyleClass().add("filter-box");
-        staticInfo.setText("Click to set the filter");
-        setAlignment(Pos.CENTER);
+        view.setOnAction(e -> view());
+        voids.setOnAction(e -> voids());
+        accept.setTooltip(new Tooltip("Accept"));
+        cancel.setTooltip(new Tooltip("Cancel changes"));
+        delete.setTooltip(new Tooltip("Delete filter"));
+        view.setTooltip(new Tooltip("Enable/disble filter"));
+        voids.setTooltip(new Tooltip("Allow/disallow incompatible data"));
         toPassive();
-        HBox.setHgrow(value, Priority.SOMETIMES);
-        center.setSpacing(3);
     }
 
+    /**
+     * Gets the wrapped TSVFilter.
+     *
+     * @return the TSVFilter
+     */
     public TSVFilter getFilter() {
         return filter;
     }
 
+    /**
+     * Changes the wrapped filter.
+     *
+     * @param filter the new TSVFilter
+     */
     public void setFilter(TSVFilter filter) {
         this.filter = filter;
+        toPassive();
     }
 
     private void accept() {
@@ -103,7 +131,7 @@ public class TSVFilterPane extends VBox {
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setVisible(false);
         HBox.setHgrow(separator, Priority.ALWAYS);
-        HBox box = new HBox(staticInfo, separator, delete);
+        HBox box = new HBox(staticInfo, separator, voids, view, delete);
         box.setAlignment(Pos.CENTER);
         getChildren().setAll(box);
     }
@@ -126,10 +154,20 @@ public class TSVFilterPane extends VBox {
         staticInfo.setText(f + " " + filter.getSelectedConnector() + " " + v);
     }
 
+    /**
+     * Method when user updates the filter.
+     *
+     * @param onAccept the method to make somethig when user updates the filter
+     */
     public void setOnAccept(EventHandler onAccept) {
         this.onAccept = onAccept;
     }
 
+    /**
+     * Method when user deletes a filter.
+     *
+     * @param onDelete the method to remove the filter
+     */
     public void setOnDelete(EventHandler onDelete) {
         this.onDelete = onDelete;
     }
@@ -137,6 +175,26 @@ public class TSVFilterPane extends VBox {
     private void delete() {
         if (onDelete != null) {
             onDelete.handle(new ActionEvent());
+        }
+    }
+
+    private void view() {
+        boolean b = filter.isActive();
+        filter.setActive(!b);
+        view.setGraphic(b ? new SizableImage("exomesuite/img/noview.png", 16)
+                : new SizableImage("exomesuite/img/view.png", 16));
+        if (onAccept != null) {
+            onAccept.handle(new ActionEvent());
+        }
+    }
+
+    private void voids() {
+        boolean b = filter.isAceptingVoids();
+        filter.setAceptingVoids(!b);
+        voids.setGraphic(b ? new SizableImage("exomesuite/img/notag.png", 16)
+                : new SizableImage("exomesuite/img/tag.png", 16));
+        if (onAccept != null) {
+            onAccept.handle(new ActionEvent());
         }
     }
 

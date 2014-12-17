@@ -19,11 +19,15 @@ package exomesuite.bam;
 import javafx.scene.paint.Color;
 
 /**
+ * Displays a blue box in the selected position.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamSelectLayer extends BamLayer {
 
+    /**
+     * Creates a layer that displays a blue box in the selected position.
+     */
     public BamSelectLayer() {
         getGraphicsContext2D().setFill(Color.LIGHTCYAN);
     }

@@ -108,7 +108,7 @@ public final class Project {
     /**
      * Creates a new Project using data from file. file must exist or Project will not be loaded.
      *
-     * @param file
+     * @param file the project config file
      * @throws IllegalArgumentException if file does not contain a Project properties. At least
      * NAME, CODE and PATH.
      */
@@ -131,6 +131,11 @@ public final class Project {
         }
     }
 
+    /**
+     * Get the properties of the project.
+     *
+     * @return the properties of the project
+     */
     public Configuration getProperties() {
         return properties;
     }
@@ -139,7 +144,7 @@ public final class Project {
      * Adds an extra file to the project. File is added only if it exists and is not already in the
      * list.
      *
-     * @param file
+     * @param file the file to add
      */
     public void addExtraFile(String file) {
         // Valid file?
@@ -157,8 +162,9 @@ public final class Project {
     }
 
     /**
+     * Remove a file from the "files" property.
      *
-     * @param file
+     * @param file the file to remove
      */
     public void removeExtraFile(String file) {
         List<String> files = Arrays.asList(properties.getProperty(FILES).split(";"));

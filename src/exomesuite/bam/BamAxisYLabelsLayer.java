@@ -20,11 +20,15 @@ import javafx.geometry.VPos;
 import javafx.scene.text.TextAlignment;
 
 /**
+ * Display the Y labels.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamAxisYLabelsLayer extends BamLayer {
 
+    /**
+     * Creates a layer that shows the Y labels.
+     */
     public BamAxisYLabelsLayer() {
         getGraphicsContext2D().setTextAlign(TextAlignment.LEFT);
         getGraphicsContext2D().setTextBaseline(VPos.CENTER);

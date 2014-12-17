@@ -34,6 +34,9 @@ public class TextParam extends Param<String> {
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
 
+    /**
+     * Creates a new TextParam.
+     */
     public TextParam() {
         // Accept by button
         accept.setOnAction(e -> endEdit(true, field.getText()));

@@ -23,6 +23,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
+ * The table that shows the INFO of a variant.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -32,6 +33,9 @@ public class VariantInfoTable extends TableView<Info> implements VariantListener
     private final TableColumn<Info, String> value = new TableColumn<>("Value");
     private final TableColumn<Info, String> description = new TableColumn<>("Description");
 
+    /**
+     * Creates a new VariantInfoTable.
+     */
     public VariantInfoTable() {
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
         name.setCellValueFactory(new PropertyValueFactory("name"));

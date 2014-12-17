@@ -26,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
+ * Param to select a number inside a range using a slider. It has a textField associated.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -42,6 +43,9 @@ public class NumberParam extends Param<Double> {
     private boolean onlyInteger = true;
     private boolean fromText = false;
 
+    /**
+     * Creates a parameter that let the user to select a number using a slider or a textField.
+     */
     public NumberParam() {
         accept.setOnAction(e -> endEdit(true, accept()));
         cancel.setOnAction(e -> endEdit(false, null));
@@ -91,26 +95,56 @@ public class NumberParam extends Param<Double> {
         return slider.getValue();
     }
 
+    /**
+     * Set the max value.
+     *
+     * @param maxValue the max value
+     */
     public void setMax(double maxValue) {
         slider.setMax(maxValue);
     }
 
+    /**
+     * Get the max value.
+     *
+     * @return the max value
+     */
     public double getMax() {
         return slider.getMax();
     }
 
+    /**
+     * Sets the min value.
+     *
+     * @param minValue the min value
+     */
     public void setMin(double minValue) {
         slider.setMin(minValue);
     }
 
+    /**
+     * Gets the min value.
+     *
+     * @return themin value
+     */
     public double getMin() {
         return slider.getMin();
     }
 
+    /**
+     * The onlyInteger property allows you to force user to have only Integer values.
+     *
+     * @param onlyInteger true to accept only integer values
+     */
     public void setOnlyInteger(boolean onlyInteger) {
         this.onlyInteger = onlyInteger;
     }
 
+    /**
+     * The onlyInteger property allows you to force user to have only Integer values.
+     *
+     * @return true if number is forced to be integer
+     */
     public boolean isOnlyInteger() {
         return onlyInteger;
     }

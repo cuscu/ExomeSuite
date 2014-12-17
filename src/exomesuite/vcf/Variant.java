@@ -19,7 +19,7 @@ package exomesuite.vcf;
 /**
  * Stores a variant.
  *
- * @author Pascual Lorente Arencibia
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Variant {
 
@@ -56,38 +56,83 @@ public class Variant {
         }
     }
 
+    /**
+     * Gets the chromosome of the variant.
+     *
+     * @return the chromosome of the variant
+     */
     public String getChrom() {
         return chrom;
     }
 
+    /**
+     * Gets the ID of the variant.
+     *
+     * @return the ID of the variant
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Gets the REF value of the variant.
+     *
+     * @return the ref value
+     */
     public String getRef() {
         return ref;
     }
 
+    /**
+     * Gets the ALT value of the variant.
+     *
+     * @return the alt value
+     */
     public String getAlt() {
         return alt;
     }
 
+    /**
+     * Gets the FILTER value of the variant.
+     *
+     * @return the filter value
+     */
     public String getFilter() {
         return filter;
     }
 
+    /**
+     * Gets the INFO value of the variant.
+     *
+     * @return the info value
+     */
     public String getInfo() {
         return info;
     }
 
+    /**
+     * Gets the FORMAT value of the variant.
+     *
+     * @return the format value
+     */
     public String getFormat() {
         return format;
     }
 
+    /**
+     * Gets the position of the variant.
+     *
+     * @return the position
+     */
     public int getPos() {
         return pos;
     }
 
+    /**
+     * Gets the QUAL of the variant.
+     *
+     * @return the quality
+     */
     public double getQual() {
         return qual;
     }

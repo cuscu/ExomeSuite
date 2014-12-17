@@ -30,6 +30,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 /**
+ * The stack pane where all of the layers are put. In this moment there are 9 layers available.
+ * axis, axisX, axisY, axisXLabels, axisYLabels, bars, selector, baseBackground and baseLabel.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gamil.com)
  */
@@ -98,6 +100,9 @@ public class BamCanvas extends StackPane {
     private final BamAxisXlabelsLayer axisXlabelsLayer = new BamAxisXlabelsLayer();
     private final BamAxisYLabelsLayer axisYLabelsLayer = new BamAxisYLabelsLayer();
 
+    /**
+     * Creates a BamLayer which contains 9 layers.
+     */
     public BamCanvas() {
         widthProperty().addListener(object -> repaint());
         heightProperty().addListener(object -> repaint());
@@ -226,10 +231,20 @@ public class BamCanvas extends StackPane {
         return maxYValue;
     }
 
+    /**
+     * Gets the list of pileups that currently must be shown.
+     *
+     * @return the list of current showing pileups
+     */
     public List<PileUp> getAlignments() {
         return alignments;
     }
 
+    /**
+     * Show alleles wil display on top the 5' reads and on bottom the 5' reads.
+     *
+     * @return the showAlleles properties
+     */
     public SimpleBooleanProperty getShowAlleles() {
         return showAlleles;
     }
@@ -335,43 +350,95 @@ public class BamCanvas extends StackPane {
         repaint();
     }
 
+    /**
+     * true if you want to paint all of the bars with their base color, even if they are well
+     * aligned.
+     *
+     * @param activate true to paint all of the bars, false to paint only misalignments
+     */
     public void setBaseColors(boolean activate) {
         baseColors.set(activate);
         repaint();
     }
 
+    /**
+     * true to paint the background with the color of the reference base.
+     *
+     * @param show true to show the background colors
+     */
     public void setShowBackground(boolean show) {
         backgroundLayer.setVisible(show);
     }
 
+    /**
+     * the axis X shows the vertical separators
+     *
+     * @param show true to show vertical separators
+     */
     public void setShowAxisX(boolean show) {
         axisXLayer.setVisible(show);
     }
 
+    /**
+     * The y axis shows the horizontal separators.
+     *
+     * @param show true to show horizontal separators
+     */
     public void setShowAxisY(boolean show) {
         axisYLayer.setVisible(show);
     }
 
+    /**
+     * the main axis
+     *
+     * @param show true to show the main axis
+     */
     public void setShowAxis(boolean show) {
         axisLayer.setVisible(show);
     }
 
+    /**
+     * I do NOT recommend you to disable this layer, but you can do it
+     *
+     * @param show true to show the bars, false to show a nice white canvas, or a canvas with the
+     * colors of the reference.
+     */
     public void setShowBars(boolean show) {
         barsLayer.setVisible(show);
     }
 
+    /**
+     * The selector is the blue box that appears when you click on a nucleotide.
+     *
+     * @param show true to have the selection indicator
+     */
     public void setShowSelect(boolean show) {
         selectLayer.setVisible(show);
     }
 
+    /**
+     * labels on X axis (the positions).
+     *
+     * @param selected true to show the positions
+     */
     void setShowLabelsX(boolean selected) {
         axisXlabelsLayer.setVisible(selected);
     }
 
+    /**
+     * Labels on Y axis (the DPs).
+     *
+     * @param selected true to show the DPs on Y axis
+     */
     void setShowLabelsY(boolean selected) {
         axisYLabelsLayer.setVisible(selected);
     }
 
+    /**
+     * When true, the PileUps are divided into 3' and 5' grpahics.
+     *
+     * @param selected true to show PileUps in different directions for 3' and 5'
+     */
     void setShowAlleles(boolean selected) {
         showAlleles.set(selected);
         computeMaxY();

@@ -45,6 +45,9 @@ public class SectionTitle extends HBox {
     @FXML
     private Separator rightSeparator;
 
+    /**
+     * Creates a new Section title.
+     */
     public SectionTitle() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SectionTitle.fxml"));
         loader.setRoot(this);
@@ -56,27 +59,57 @@ public class SectionTitle extends HBox {
         }
     }
 
+    /**
+     * Gets the text of the section.
+     *
+     * @return the title
+     */
     public String getTitle() {
         return title.getText();
     }
 
+    /**
+     * Sets the text of the title.
+     *
+     * @param title the title
+     */
     public void setTitle(String title) {
         this.title.setText(title);
     }
 
+    /**
+     * hLine will show or not the horizontal lines.
+     *
+     * @param hline true to show the h lines or false to hide them
+     */
     public void setHLine(boolean hline) {
         leftSeparator.setVisible(hline);
         rightSeparator.setVisible(hline);
     }
 
+    /**
+     * hLine will show or not the horizontal lines.
+     *
+     * @return true if hlines are visible
+     */
     public boolean isHLine() {
         return leftSeparator.isVisible();
     }
 
+    /**
+     * The paint of the background.
+     *
+     * @return the current paint of the background
+     */
     public Paint getPaint() {
         return getBackground().getFills().get(0).getFill();
     }
 
+    /**
+     * The paint of the background.
+     *
+     * @param paint the paint of the background
+     */
     public void setPaint(Paint paint) {
         setBackground(new Background(new BackgroundFill(paint, CornerRadii.EMPTY, Insets.EMPTY)));
     }

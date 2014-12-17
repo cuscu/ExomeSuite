@@ -53,6 +53,11 @@ public class AlignParams extends VBox {
     @FXML
     private Button cancel;
 
+    /**
+     * Creates a panel that lets the user select options to align a genome.
+     *
+     * @param properties the initial options
+     */
     public AlignParams(Properties properties) {
         this.properties = properties;
         try {
@@ -92,14 +97,29 @@ public class AlignParams extends VBox {
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }
 
+    /**
+     * If user clicked on accept.
+     *
+     * @return true if user clicked on accpet.
+     */
     public boolean accept() {
         return accepted;
     }
 
+    /**
+     * Get the user options.
+     *
+     * @return the user selected options.
+     */
     public Properties getParams() {
         return properties;
     }
 
+    /**
+     * Event to hear when the user clicked on accept or cancel.
+     *
+     * @param handler method to close the window and read parameters
+     */
     public void setOnClose(EventHandler handler) {
         this.handler = handler;
     }

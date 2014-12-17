@@ -61,6 +61,12 @@ public class ExomeSuite extends Application {
         launch(args);
     }
 
+    /**
+     * Gets the main Stage. Use it to block events when another window is shown or to exit from
+     * application.
+     *
+     * @return the main stage
+     */
     public static Stage getMainStage() {
         return mainStage;
     }
@@ -105,6 +111,11 @@ public class ExomeSuite extends Application {
         event.consume();
     }
 
+    /**
+     * Gets the controller of the main view, which performs the most commom operations.
+     *
+     * @return the controller of the main view
+     */
     public static MainViewController getController() {
         return controller;
     }

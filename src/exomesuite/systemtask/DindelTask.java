@@ -26,43 +26,46 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Calls only indels using Dindel.
  *
  * @author Pascual Lorente Arencibia
  */
 public class DindelTask extends SystemTask {
 
-    private File input, output, temp, dindel, windows, windows2;
-    private String genome, name, dindel_exe;
+    private final File input, output, temp;
+    private final String genome, name;
+    private File windows, windows2;
+    /**
+     * The dindel path (software/dindel).
+     */
+    private final File dindel = new File("software", "dindel");
+    /**
+     * The dindel program (software/dindel/dindel).
+     */
+    private final String dindel_exe = new File(dindel, "dindel").getAbsolutePath();
 
-    public DindelTask(File input, File output, File temp, File dindel, File windows, File windows2,
-            String genome, String name, String dindel_exe) {
+    /**
+     * Creates a new DindelTask.
+     *
+     * @param input the input bam
+     * @param output the output vcf
+     * @param temp the temp folder
+     * @param genome the reference genome
+     * @param name the name of the sample
+     */
+    public DindelTask(File input, File output, File temp, String genome, String name) {
         this.input = input;
         this.output = output;
         this.temp = temp;
-        this.dindel = dindel;
-        this.windows = windows;
-        this.windows2 = windows2;
         this.genome = genome;
         this.name = name;
-        this.dindel_exe = dindel_exe;
     }
 
-//    public boolean configure(Config mainConfig, Config projectConfig) {
-//        String al = projectConfig.getProperty("align_path");
-//        String di = projectConfig.getProperty("dindel_path");
-//        name = projectConfig.getProperty(Config.NAME);
-//        temp = new File(projectConfig.getProperty(Config.PATH_TEMP));
-//        input = new File(al, name + ".bam");
-//        output = new File(di, name + "_dindel.vcf");
-//        genome = mainConfig.getProperty(Config.GENOME);
-//        return input.exists();
-//    }
     @Override
     protected Integer call() throws Exception {
         windows = new File(temp, "windows");
         windows2 = new File(temp, "windows2");
-        dindel = new File("software", "dindel");
-        dindel_exe = new File(dindel, "dindel").getAbsolutePath();
+
         windows.mkdirs();
         windows2.mkdirs();
         int ret;

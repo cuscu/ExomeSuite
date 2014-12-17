@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Call variants using samtools.
  *
  * @author Pascual Lorente Arencibia "pasculorente@gmail.com"
  */
@@ -34,6 +35,13 @@ public class SamtoolsCaller extends SystemTask {
 
     private Process p1, p2, p3, p4;
 
+    /**
+     * Creates a new SamtoolsCaller.
+     *
+     * @param genome the reference genome
+     * @param input the input bam
+     * @param output the output vcf
+     */
     public SamtoolsCaller(String genome, String input, String output) {
         this.genome = genome;
         this.input = input;

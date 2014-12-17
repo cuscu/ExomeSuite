@@ -20,11 +20,15 @@ import java.util.List;
 import javafx.scene.text.TextAlignment;
 
 /**
+ * Display the label of the X axis.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamAxisXlabelsLayer extends BamLayer {
 
+    /**
+     * Creates a layer that displays the labels of the x axis.
+     */
     public BamAxisXlabelsLayer() {
         getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
     }

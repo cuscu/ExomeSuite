@@ -19,11 +19,15 @@ package exomesuite.bam;
 import javafx.scene.text.TextAlignment;
 
 /**
+ * Vertical lines (X ticks)
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamAxisXLayer extends BamLayer {
 
+    /**
+     * Creates a layer that shows X ticks in vertical.
+     */
     public BamAxisXLayer() {
         getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
     }

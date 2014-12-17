@@ -83,6 +83,11 @@ public class VCFTable extends SplitPane {
     private List<String> infos = new ArrayList<>();
     private VCFHeader vcfHeader;
 
+    /**
+     * Creates a new VCFTable to read the vcfFile.
+     *
+     * @param vcfFile the VCF file
+     */
     public VCFTable(File vcfFile) {
         this.vcfFile = vcfFile;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFTable.fxml"));
@@ -150,7 +155,7 @@ public class VCFTable extends SplitPane {
     /**
      * Returns the opened file.
      *
-     * @return
+     * @return the opened file
      */
     public File getFile() {
         return vcfFile;
@@ -172,7 +177,7 @@ public class VCFTable extends SplitPane {
     /**
      * Adds a listener that will listen for changes in the variant selected.
      *
-     * @param listener
+     * @param listener the listener to add
      */
     public void addListener(VariantListener listener) {
         this.listeners.add(listener);
@@ -181,7 +186,7 @@ public class VCFTable extends SplitPane {
     /**
      * Nothing to do here.
      *
-     * @param listener
+     * @param listener the listener to remove
      */
     public void removeListener(VariantListener listener) {
         this.listeners.remove(listener);

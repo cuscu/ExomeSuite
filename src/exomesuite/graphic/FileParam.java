@@ -23,13 +23,27 @@ import java.util.List;
 import javafx.stage.FileChooser;
 
 /**
+ * A Param that allows user to select Files from FileSystem. With OPEN behaviour (default), it
+ * allows user to select an existing file from the FileSystem by calling
+ * {@code FileManager.openFile()}. With SAVE behaviour, it allows user to create a new File, or to
+ * open an existing one.
  *
+ * @see FileManager
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class FileParam extends Param<File> {
 
-    private final List<FileChooser.ExtensionFilter> filters = new ArrayList<>();
+    /**
+     * The list of filters.
+     */
+    private final List<FileChooser.ExtensionFilter> filters = new ArrayList();
+    /**
+     * Flag to display full path or name.
+     */
     private boolean showFullPath = false;
+    /**
+     * OPEN by default.
+     */
     private Behaviour behaviour = Behaviour.OPEN;
 
     @Override
@@ -66,28 +80,66 @@ public class FileParam extends Param<File> {
         return showFullPath ? value.getAbsolutePath() : value.getName();
     }
 
+    /**
+     * Adds a filter for the FileSelector. You can use FileManager.*_FILTER constants.
+     *
+     * @param filter a filter to add to the FileSelector
+     */
     public void addFilter(FileChooser.ExtensionFilter filter) {
         filters.add(filter);
     }
 
+    /**
+     * When showFullPath is true, the passive label displays {@code file.getAbsolutePath()}. When
+     * showFullPath is false {@code file.getName()}.
+     *
+     * @param showFullPath true if you want the FileParam to show the whole path or false for only
+     * the name of the file
+     */
     public void setShowFullPath(boolean showFullPath) {
         this.showFullPath = showFullPath;
     }
 
+    /**
+     * When showFullPath is true, the passive label displays {@code file.getAbsolutePath()}. When
+     * showFullPath is false {@code file.getName()}.
+     *
+     * @return true if the FileParam shows the whole path or false if only the name of the file
+     */
     public boolean isShowFullPath() {
         return showFullPath;
     }
 
+    /**
+     * OPEN to show an openFile dialog or CLOSE to show a saveFile dialog.
+     *
+     * @return the behaviour of the FileParam
+     */
     public Behaviour getBehaviour() {
         return behaviour;
     }
 
+    /**
+     * OPEN to show an openFile dialog or CLOSE to show a saveFile dialog.
+     *
+     * @param behaviour a FileParam.Behaviour value: OPEN or SAVE
+     */
     public void setBehaviour(Behaviour behaviour) {
         this.behaviour = behaviour;
     }
 
+    /**
+     * The behaviour of the FileParam. It can open or save files.
+     */
     public enum Behaviour {
 
-        OPEN, SAVE
+        /**
+         * Indicates FileParam to show an openDialog.
+         */
+        OPEN,
+        /**
+         * Indicates FileParam to show a saveDialog.
+         */
+        SAVE
     }
 }

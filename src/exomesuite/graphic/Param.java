@@ -48,6 +48,13 @@ public class Param<T> extends HBox {
         initialize();
     }
 
+    /**
+     * Creates a basic Param that only shows a value, but does not allow to modify it. Useful to
+     * show properties.
+     *
+     * @param title the name of the param
+     * @param value the initial value
+     */
     public Param(String title, T value) {
         this.titleLabel.setText(title);
         this.value = value;
@@ -124,12 +131,17 @@ public class Param<T> extends HBox {
     /**
      * Take a look at the current promptText
      *
-     * @return
+     * @return the promptText
      */
     public String getPromptText() {
         return promptText;
     }
 
+    /**
+     * Changes the prompt text.
+     *
+     * @param promptText the new prompt text
+     */
     public void setPromptText(String promptText) {
         this.promptText = promptText;
     }
@@ -217,7 +229,7 @@ public class Param<T> extends HBox {
     /**
      * Register event when value is modified.
      *
-     * @param handler
+     * @param handler method to handle the value changed event
      */
     public void setOnValueChanged(EventHandler handler) {
         this.handler = handler;

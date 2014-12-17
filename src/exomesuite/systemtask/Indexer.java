@@ -28,8 +28,16 @@ public class Indexer extends SystemTask {
 
     private final static String[] extensions = {".pac", ".sa", ".amb", ".ann", ".bwt", ".fai"};
 
+    /**
+     * The reference genome
+     */
     private final String genome;
 
+    /**
+     * Creates a new Indexer with the desired genome.
+     *
+     * @param genome the genome to index
+     */
     public Indexer(String genome) {
         this.genome = genome;
     }
@@ -72,6 +80,15 @@ public class Indexer extends SystemTask {
         return ret;
     }
 
+    /**
+     * Checks if a file is already indexed. For a file to be indexed in the same path it may
+     * contaion the following files.
+     * <p>
+     * file.fasta, file.dict, file.pac, file.sa, file.amb, file.ann, file.bwt, file.fai
+     *
+     * @param file the file to check
+     * @return true if there are all of these files
+     */
     public static boolean isIndexed(File file) {
         // Check for GATK index
         boolean isIndexed = new File(file.getAbsolutePath().replace(".fasta", ".fa").replace(".fa", ".dict")).exists();

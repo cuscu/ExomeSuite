@@ -104,7 +104,7 @@ public class Configuration {
     /**
      * Gets the key property.
      *
-     * @param key
+     * @param key the key/name of the property
      * @return the value of the property if exists or null.
      */
     public String getProperty(String key) {

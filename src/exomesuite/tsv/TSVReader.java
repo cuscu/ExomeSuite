@@ -59,6 +59,11 @@ public class TSVReader extends SplitPane {
     private AtomicInteger totalLines = new AtomicInteger();
     private AtomicInteger currentLines = new AtomicInteger();
 
+    /**
+     * Creates a new TSVReader.
+     *
+     * @param file the file to read
+     */
     public TSVReader(File file) {
         this.file = file;
         try {

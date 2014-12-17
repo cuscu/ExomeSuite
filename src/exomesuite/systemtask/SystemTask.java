@@ -45,7 +45,7 @@ public abstract class SystemTask extends Task<Integer> {
      */
     protected PrintStream printStream;
     /**
-     * The Process used by {@code execute{String...&nbsp;args)}. If there is no System command
+     * The Process used by {@code execute(String...&nbsp;args)}. If there is no System command
      * running, it will be null.
      */
     protected Process process;

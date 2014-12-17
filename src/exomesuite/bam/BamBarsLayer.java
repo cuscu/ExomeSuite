@@ -28,14 +28,31 @@ public final class BamBarsLayer extends BamLayer {
 
     private double barRelativeWidth;
 
+    /**
+     * Creates a layer that displays the bars.
+     */
     public BamBarsLayer() {
         this.barRelativeWidth = 0.8;
     }
 
+    /**
+     * A number between 0 and 1 with the maximum space the 4 bars can use on every base. For
+     * instance, a barRelativeWidth of 0.6 will use 60% of the space and each bar will use 15%. By
+     * default it is 0.8.
+     *
+     * @param barRelativeWidth the relative space to use
+     */
     public void setBarRelativeWidth(double barRelativeWidth) {
         this.barRelativeWidth = barRelativeWidth;
     }
 
+    /**
+     * A number between 0 and 1 with the maximum space the 4 bars can use on every base. For
+     * instance, a barRelativeWidth of 0.6 will use 60% of the space and each bar will use 15%. By
+     * default it is 0.8.
+     *
+     * @return the realativeWidth
+     */
     public double getBarRelativeWidth() {
         return barRelativeWidth;
     }
@@ -72,10 +89,10 @@ public final class BamBarsLayer extends BamLayer {
         double x = margin + (1.0 - barRelativeWidth) * 0.5 * baseWidth;
         for (PileUp pileUp : list) {
             if (x < width - margin) {
-                int A = pileUp.getDepth(PileUp.A);
-                int T = pileUp.getDepth(PileUp.T);
-                int C = pileUp.getDepth(PileUp.C);
-                int G = pileUp.getDepth(PileUp.G);
+                int A = pileUp.getDepth('A');
+                int T = pileUp.getDepth('T');
+                int C = pileUp.getDepth('C');
+                int G = pileUp.getDepth('G');
                 int a = pileUp.getDepth('a');
                 int t = pileUp.getDepth('t');
                 int c = pileUp.getDepth('c');
@@ -186,10 +203,10 @@ public final class BamBarsLayer extends BamLayer {
         double x = margin + (1.0 - barRelativeWidth) * 0.5 * baseWidth;
         for (PileUp pileUp : list) {
             if (x < width - margin) {
-                int A = pileUp.getDepth(PileUp.A) + pileUp.getDepth('a');
-                int T = pileUp.getDepth(PileUp.T) + pileUp.getDepth('t');
-                int C = pileUp.getDepth(PileUp.C) + pileUp.getDepth('c');
-                int G = pileUp.getDepth(PileUp.G) + pileUp.getDepth('g');
+                int A = pileUp.getDepth('A') + pileUp.getDepth('a');
+                int T = pileUp.getDepth('T') + pileUp.getDepth('t');
+                int C = pileUp.getDepth('C') + pileUp.getDepth('c');
+                int G = pileUp.getDepth('G') + pileUp.getDepth('g');
                 char reference = pileUp.getReference();
                 // Percentage proportion
                 final double sum = A + T + G + C;

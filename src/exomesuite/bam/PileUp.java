@@ -27,14 +27,15 @@ import java.util.Map;
  */
 public class PileUp {
 
-    public final static char A = 'A';
-    public final static char C = 'C';
-    public final static char T = 'T';
-    public final static char G = 'G';
-    public final static char N = 'N';
+    /**
+     * Character used for the reference whe nhas no value. It is an asterisk. '*'
+     */
     public final static char EMPTY = '*';
 
-    private final Map<Character, Integer> depths = new HashMap<>();
+    /**
+     * Keys are ACTGN and values the DPs
+     */
+    private final Map<Character, Integer> depths = new HashMap();
     /**
      * The reference.
      */
@@ -43,7 +44,7 @@ public class PileUp {
     /**
      * Creates a new PileUp with the given reference
      *
-     * @param reference
+     * @param reference the reference base
      */
     public PileUp(char reference) {
         this.reference = reference;
@@ -78,10 +79,20 @@ public class PileUp {
         depths.put(base, dp + 1);
     }
 
+    /**
+     * Gets the depths as map. the depth of a is {@code getDepths().get('A)}
+     *
+     * @return the depths map
+     */
     public Map<Character, Integer> getDepths() {
         return depths;
     }
 
+    /**
+     * The string representation of the pilepup: A-{T=1,C=2,t=14,c=12}.
+     *
+     * @return the String representation
+     */
     @Override
     public String toString() {
         return String.format("%c->%s", reference, depths);

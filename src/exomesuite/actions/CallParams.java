@@ -46,6 +46,11 @@ public class CallParams extends VBox {
     private boolean accepted = false;
     private Properties params;
 
+    /**
+     * Creates a panel that lets the user select options to call variants.
+     *
+     * @param properties the initial properties
+     */
     public CallParams(Properties properties) {
         this.params = properties;
         try {
@@ -73,22 +78,48 @@ public class CallParams extends VBox {
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
     }
 
+    /**
+     * Which BAMs should we show to the user.
+     *
+     * @param bams the BAM files to show
+     */
     public void setBamOptions(List<String> bams) {
         bamFile.setOptions(bams);
     }
 
+    /**
+     * Method that must close this dialog and read return parameters.
+     *
+     * @param eventHandler the method which will close the dialog
+     */
     public void setOnClose(EventHandler eventHandler) {
         this.acceptEvent = eventHandler;
     }
 
+    /**
+     * The possible algorithms to call variants (GATK or SAMTOOLS).
+     *
+     * @param options the possible algorithms to use for calling variants
+     */
     public void setAlgorithmOptions(List<String> options) {
         algorithm.setOptions(options);
     }
 
+    /**
+     * accept is set to true when user clicks on accept button. Another way the user closed the
+     * dialog, accept will be false.
+     *
+     * @return true if user clicked on accept
+     */
     public boolean accept() {
         return accepted;
     }
 
+    /**
+     * Get the selected params of the user.
+     *
+     * @return the selected params
+     */
     public Properties getParams() {
         params.setProperty("algorithm", algorithm.getValue());
         params.setProperty("bamFile", bamFile.getValue());

@@ -19,11 +19,15 @@ package exomesuite.bam;
 import javafx.scene.paint.Color;
 
 /**
+ * Main axes.
  *
  * @author Pascual Lorente Arencibia
  */
 public class BamAxisLayer extends BamLayer {
 
+    /**
+     * Creates a layer that displays the main axes.
+     */
     public BamAxisLayer() {
         getGraphicsContext2D().setStroke(Color.BLACK);
     }

@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * Recalibrates a VCF using GATK recalibrator.
  *
  * @author Pascual Lorente Arencibia
  */
@@ -29,6 +30,18 @@ public class Recalibrator extends SystemTask {
 
     String input, output, omni, mills, hapmap, dbsnp, genome, temp;
 
+    /**
+     * Creates a new Recalibrator.
+     *
+     * @param input the input vcf
+     * @param output the output vcf
+     * @param omni the OMNI vcf
+     * @param mills the MILLs vcf
+     * @param hapmap the hapmap vcf
+     * @param dbsnp the dbSNP vcf
+     * @param genome the reference genome
+     * @param temp the temp path
+     */
     public Recalibrator(String input, String output, String omni, String mills, String hapmap,
             String dbsnp, String genome, String temp) {
         this.input = input;

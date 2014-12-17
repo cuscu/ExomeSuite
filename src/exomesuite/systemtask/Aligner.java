@@ -32,6 +32,21 @@ public class Aligner extends SystemTask {
             + File.separator + "gatk"
             + File.separator + "GenomeAnalysisTK.jar");
 
+    /**
+     * Creates a new aligner.
+     *
+     * @param temp the temp path
+     * @param forward the forward sequences file
+     * @param reverse the reverse sequences file
+     * @param genome the reference genome
+     * @param dbsnp the dbSNP file
+     * @param mills the MILLS file
+     * @param phase1 the 1000 genome Phase 1 indels
+     * @param output the output file
+     * @param name the name of the smaple
+     * @param illumina true if the encoding is illumin phred+64
+     * @param gatkRefine true if you want to realign with GATK
+     */
     public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
             String mills, String phase1, String output, String name, boolean illumina,
             boolean gatkRefine) {

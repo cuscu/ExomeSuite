@@ -29,10 +29,12 @@ import javafx.scene.layout.Background;
  */
 public class NaturalCell extends TableCell {
 
-    private final TextField textField;
+    private final TextField textField = new TextField();
 
+    /**
+     * Creates a new NaturalCell, which replaces the cell with a non-editable TextField.
+     */
     public NaturalCell() {
-        textField = new TextField();
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);
         textField.setPadding(new Insets(0));

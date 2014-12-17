@@ -100,6 +100,11 @@ public class Ensembl {
         new Thread(task).start();
     }
 
+    /**
+     * Changes the ensmbl file.
+     *
+     * @param file the new Ensembl file
+     */
     public static void setFile(File file) {
         if (!file.equals(Ensembl.file)) {
             Ensembl.file = file;
@@ -116,24 +121,49 @@ public class Ensembl {
         private int end;
         private final String[] line;
 
+        /**
+         * Creates a new exons using the line. Line must be separated by tabs "\t".
+         *
+         * @param line the exon line
+         */
         public Exon(String line) {
             this.line = line.split("\t");
             this.start = Integer.valueOf(this.line[1]);
             this.end = Integer.valueOf(this.line[2]);
         }
 
+        /**
+         * Gets the end position of the exon.
+         *
+         * @return the end position
+         */
         public int getEnd() {
             return end;
         }
 
+        /**
+         * Gets the whole line of the Exon.
+         *
+         * @return the line
+         */
         public String[] getLine() {
             return line;
         }
 
+        /**
+         * Gets the start position of the exon.
+         *
+         * @return the start position of the exon
+         */
         public int getStart() {
             return start;
         }
 
+        /**
+         * Gets the chromosome of the exon.
+         *
+         * @return the chromosome
+         */
         public String getChromosome() {
             return line[0];
         }

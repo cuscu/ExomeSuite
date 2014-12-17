@@ -215,17 +215,24 @@ public final class FileManager {
         return f;
     }
 
+    /**
+     * Opens a dialog that let the user to select one or more files.
+     *
+     * @param title the title of the window
+     * @param filters the filters to use
+     * @return the list of selected files or null
+     */
     public static List<File> openFiles(String title, ExtensionFilter... filters) {
         return openFiles(title, lastPath, Arrays.asList(filters));
     }
 
     /**
-     * Opens a dialog window (FileChooser) and lets the user select a single File.
+     * Opens a dialog window (FileChooser) and lets the user select multiple Files.
      *
      * @param title the title of the FileChooser
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
-     * @return the selected file or null
+     * @return the selected files or null
      */
     public static List<File> openFiles(String title, File initDir, List<ExtensionFilter> filters) {
         FileChooser chooser = new FileChooser();
@@ -304,7 +311,7 @@ public final class FileManager {
      * name. If the user do not write the file extension, the default will be the first of the
      * selected ExtensionFilter.
      *
-     * @param textField
+     * @param textField the textField
      * @param title dialog title
      * @param filters any number of ExtensionFilters
      * @return the selected file or null
@@ -318,7 +325,7 @@ public final class FileManager {
      * name. If the user do not write the file extension, the default will be the first of the
      * selected ExtensionFilter.
      *
-     * @param textField
+     * @param textField the textField
      * @param title dialog title
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilters
@@ -338,7 +345,7 @@ public final class FileManager {
      * modified when the open or save operation is successfully completed. First time this method is
      * called, it will be used @code{getUsrHomePath}.
      *
-     * @return
+     * @return the last path
      */
     public static File getLastPath() {
         if (FileManager.lastPath == null) {
@@ -395,7 +402,7 @@ public final class FileManager {
      * exists.
      *
      * @param parameter a string that represents a File
-     * @return parameter != null && !parameter.isEmpty() && new File(parameter).exists()
+     * @return parameter not null and parameter is not empty and file exists
      */
     public static boolean tripleCheck(String parameter) {
         return parameter != null && !parameter.isEmpty() && new File(parameter).exists();

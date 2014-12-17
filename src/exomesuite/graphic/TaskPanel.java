@@ -48,18 +48,38 @@ public class TaskPanel {
         cancel.setText(null);
     }
 
+    /**
+     * Gets the message label.
+     *
+     * @return the message
+     */
     public Label getMessage() {
         return message;
     }
 
+    /**
+     * Gets the progress bar.
+     *
+     * @return the progress bar
+     */
     public ProgressBar getProgress() {
         return progress;
     }
 
+    /**
+     * Gets the text area
+     *
+     * @return the text area
+     */
     public TextArea getTextArea() {
         return textArea;
     }
 
+    /**
+     * Gets the cancel button
+     *
+     * @return the cancel button
+     */
     public Button getCancelButton() {
         return cancel;
     }

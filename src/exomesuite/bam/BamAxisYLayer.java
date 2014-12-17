@@ -21,11 +21,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 /**
+ * Displays the Y lines (horizontal)
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamAxisYLayer extends BamLayer {
 
+    /**
+     * Creates a layer that displays the Y lines (horizontal dividers).
+     */
     public BamAxisYLayer() {
         getGraphicsContext2D().setStroke(Color.GRAY);
         getGraphicsContext2D().setTextAlign(TextAlignment.LEFT);

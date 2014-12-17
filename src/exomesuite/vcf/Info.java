@@ -17,7 +17,8 @@
 package exomesuite.vcf;
 
 /**
- * Encapsulates name, value and description of a VCF INFO field.
+ * Encapsulates name, value and description of a VCF INFO field. Use it on variant INFO table. This
+ * is a final class and fields will not be modified.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -27,20 +28,43 @@ public final class Info {
     private final String value;
     private final String description;
 
+    // IS IT REALLY NECESSARY TO WRITE THE SAME WORDS ALWAYS?. I'M TIRED OF WRITING DOC. SIGH
+    /**
+     * Creates a new Info.
+     *
+     * @param name the name of the info
+     * @param value the value of the info
+     * @param description the description of the info
+     */
     public Info(String name, String value, String description) {
         this.name = name;
         this.value = value;
         this.description = description;
     }
 
+    /**
+     * Gets the description. Table will need this methos to display it.
+     *
+     * @return the description
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Gets the name of the info.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Gets the value of the INFO.
+     *
+     * @return the value
+     */
     public String getValue() {
         return value;
     }

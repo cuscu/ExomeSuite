@@ -40,6 +40,5 @@
             </children>
         </HBox>
         <Separator orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS" />
-        <VBox fx:id="settings" />
     </children>
 </fx:root>

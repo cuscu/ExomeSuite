@@ -73,6 +73,9 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
 
     private Project project;
 
+    /**
+     * Creates a Projet Info pane with the properties of the project.
+     */
     public ProjectInfo() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectInfo.fxml"));
         loader.setRoot(this);
@@ -122,6 +125,11 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
         addButton.setOnAction(event -> addFile());
     }
 
+    /**
+     * Changes the project for whose properties are being displayed.
+     *
+     * @param project the new project
+     */
     public void setProject(Project project) {
         if (project == null) {
             setVisible(false);
@@ -177,7 +185,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
         if (FileManager.tripleCheck(f)) {
             File file = new File(f);
             String grch = project.getProperties().getProperty(Project.REFERENCE_GENOME);
-            ExomeSuite.getController().showFileContent(file, new File(OS.getGenome(grch)));
+            ExomeSuite.getController().showFileContent(file, new File(OS.getProperties().getProperty(grch)));
         } else {
             MainViewController.printMessage("File " + f + " is not accesible", "warning");
         }
@@ -234,7 +242,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
     }
 
     private ContextMenu getFilesContextMenu() {
-        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/cancel4.png", 16));
+        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/cancel.png", 16));
         delete.setOnAction(event -> removeFile());
         return new ContextMenu(delete);
     }

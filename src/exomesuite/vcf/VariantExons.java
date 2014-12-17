@@ -34,14 +34,15 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 /**
- * FXML Controller class. This is the panel under the variants table.
+ * This is the panel under the variants table.
  *
  * @author Pascual Lorente Arencibia
  */
 public class VariantExons extends TableView<String[]> implements VariantListener {
 
-//    @FXML
-//    private TableView<String[]> table;
+    /**
+     * Creates a new VariantExons.
+     */
     public VariantExons() {
         File exons = new File(OS.getProperties().getProperty("ensembl"));
         Ensembl.initialize(exons);

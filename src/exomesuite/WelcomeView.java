@@ -18,20 +18,19 @@ package exomesuite;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 
 /**
- * FXML Controller class. Its a simple FXML document to put on right panel when application starts
+ * Its a simple FXML document to put on center panel when application starts.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class WelcomeView extends VBox {
 
-    @FXML
-    private VBox settings;
-
+    /**
+     * Creates a WelcomeView Panel.
+     */
     public WelcomeView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("WelcomeView.fxml"));
@@ -41,17 +40,6 @@ public class WelcomeView extends VBox {
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
         }
-    }
-
-    /**
-     * Initializes the controller class.
-     */
-    @FXML
-    public void initialize() {
-    }
-
-    public VBox getSettings() {
-        return settings;
     }
 
 }

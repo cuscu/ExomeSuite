@@ -44,6 +44,10 @@ public class Dialog extends VBox {
     private static final String DEFAULT_CANCEL = "Cancel";
     private final Stage stage = new Stage();
 
+    /**
+     * Creates an instance of dialog. Use {@code showYesNo()} or {@code showYesNoCancel()} to make
+     * the Dialog visible.
+     */
     public Dialog() {
         setMinWidth(350);
         getChildren().setAll(message, hbox);
@@ -70,13 +74,15 @@ public class Dialog extends VBox {
     }
 
     /**
-     * Prompts a yes/no question
+     * Prompts a yes/no question. If no texts are provided for any of the alternative texts, or they
+     * are set to null, "Yes", "No" and "Cancel" strings will be used. Empty Strings are valid as
+     * alternative text.
      *
      * @param title title for stage
      * @param text quetion text
      * @param yesText an alternative text for yes
      * @param noText an alternative text for no
-     * @return
+     * @return YES, NO or CANCEL
      */
     public Response showYesNo(String title, String text, String yesText, String noText) {
         hbox.getChildren().setAll(yes, no);
@@ -94,7 +100,7 @@ public class Dialog extends VBox {
      * @param yesText an alternative text for yes
      * @param noText an alternative text for no
      * @param cancelText alternative text for cancel
-     * @return
+     * @return YES, NO or CANCEL
      */
     public Response showYesNoCancel(String title, String text, String yesText, String noText, String cancelText) {
         hbox.getChildren().setAll(yes, no, cancel);
@@ -115,9 +121,23 @@ public class Dialog extends VBox {
         stage.showAndWait();
     }
 
+    /**
+     * Dialog result: YES, NO and CANCEL.
+     */
     public enum Response {
 
-        YES, NO, CANCEL
+        /**
+         * When a dialog window is accepted (normally by clicking on "Yes" button.
+         */
+        YES,
+        /**
+         * When a dialog window is denied (normally by clicking on "No" button.
+         */
+        NO,
+        /**
+         * When a dialog window is canceled (by clicking on "Cancel" or closing the dialog).
+         */
+        CANCEL
     };
 
 }

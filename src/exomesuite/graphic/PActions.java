@@ -61,7 +61,7 @@ import javafx.stage.StageStyle;
 public class PActions extends HBox implements Configuration.ConfigurationListener {
 
     /**
-     * Thec current selected project.
+     * The current selected project.
      */
     private Project project;
 
@@ -69,6 +69,9 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
     private final Button call = new Button("Call", new SizableImage("exomesuite/img/call.png", 32));
     private final Button mist = new Button("Mist", new SizableImage("exomesuite/img/mist.png", 32));
 
+    /**
+     * Creates a new Project Actions pane.
+     */
     public PActions() {
         align.setOnAction(event -> showAlingParams());
         call.setOnAction(event -> showCallParams());
@@ -85,11 +88,21 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         getChildren().addAll(align, call, mist);
     }
 
+    /**
+     * Changes the project.
+     *
+     * @param project the project of the panel
+     */
     public void setProject(Project project) {
         this.project = project;
         setButtons();
     }
 
+    /**
+     * Gets the project.
+     *
+     * @return the current project
+     */
     public Project getProject() {
         return project;
     }

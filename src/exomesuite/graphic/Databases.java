@@ -60,6 +60,9 @@ public class Databases extends VBox {
     private final static String GRCH37 = "GRCh37";
     private final static String GRCH38 = "GRCh38";
 
+    /**
+     * Creates and shows the panel for selecting the databases.
+     */
     public Databases() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Databases.fxml"));

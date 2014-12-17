@@ -35,6 +35,11 @@ public class VCFHeader {
 
     private List<Map<String, String>> infos = new ArrayList<>();
 
+    /**
+     * Creates a new VCFHeader using the info of the vcfFile.
+     *
+     * @param vcfFile the vcfFile to parse
+     */
     public VCFHeader(File vcfFile) {
         try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile))) {
             String line;
@@ -106,6 +111,12 @@ public class VCFHeader {
 
     }
 
+    /**
+     * Gets the list of infos. Each info is a map (key=value), as the VCF ##INFO= line. Use
+     * {@code getInfos().get("ID")} to get th ID.
+     *
+     * @return the list of infos.
+     */
     public List<Map<String, String>> getInfos() {
         return infos;
     }

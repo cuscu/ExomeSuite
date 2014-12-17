@@ -28,6 +28,14 @@ public class TSVFilter {
     private int selectedIndex = -1;
 
     /**
+     * Active is true when the filter is working. If active is set to false, the filter will always
+     * return true.
+     */
+    private boolean active = true;
+
+    private boolean aceptingVoids = true;
+
+    /**
      * Gets the value of the filter.
      *
      * @return the value of the filter.
@@ -39,7 +47,7 @@ public class TSVFilter {
     /**
      * Sets a value for the filter.
      *
-     * @param value
+     * @param value the new value
      */
     public void setValue(String value) {
         this.value = value;
@@ -48,33 +56,92 @@ public class TSVFilter {
     /**
      * The selectedConnector of the filter.
      *
-     * @return
+     * @return the current Connector
      */
     public Connector getSelectedConnector() {
         return selectedConnector;
     }
 
+    /**
+     * Changes the connector.
+     *
+     * @param selectedConnector the new connector
+     */
     public void setSelectedConnector(Connector selectedConnector) {
         this.selectedConnector = selectedConnector;
     }
 
+    /**
+     * Gets the selected index of the INFO, if no info is selected, return -1.
+     *
+     * @return the selected index or -1
+     */
     public int getSelectedIndex() {
         return selectedIndex;
     }
 
+    /**
+     * Changes the selected index.
+     *
+     * @param selectedIndex the new selected index
+     */
     public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
     }
 
     /**
-     * Returns true in case this line passes this filter or this filter can NOT be applied due to
-     * field<->selectedConnector<->value incompatibilities.
+     * Active is true when the filter is working. If active is set to false, the filter will always
+     * return true.
      *
-     * @param line
+     * @return true if filter is active
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Active is true when the filter is working. If active is set to false, the filter will always
+     * return true.
+     *
+     * @param active true if you want to activate the filter.
+     */
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    /**
+     * A void is a data incompatible with a filter. For instance, you specify that a column must be
+     * greater than, but the filter cannot convert the value of a cell to a Double.
+     *
+     * @return true if when the data is incompatible with the filter, the data pass the filter,
+     * false otherwise
+     */
+    public boolean isAceptingVoids() {
+        return aceptingVoids;
+    }
+
+    /**
+     * A void is a data incompatible with a filter. For instance, you specify that a column must be
+     * greater than, but the filter cannot convert the value of a cell to a Double.
+     *
+     * @param aceptingVoids true if you want to keep incompatible data, false if you want to drop it
+     */
+    public void setAceptingVoids(boolean aceptingVoids) {
+        this.aceptingVoids = aceptingVoids;
+    }
+
+    /**
+     * Returns true in case this line passes this filter or this filter can NOT be applied due to
+     * field/selectedConnector/value incompatibilities.
+     *
+     * @param line the line to filter
      * @return true if passes the filter or the filter cannot be applied, false otherwise.
      */
     public boolean filter(String[] line) {
         if (selectedIndex < 0) {
+            return true;
+        }
+        if (!active) {
             return true;
         }
         String stringValue = line[selectedIndex];
@@ -128,7 +195,7 @@ public class TSVFilter {
                     return stringValue.matches(value);
                 }
         }
-        return false;
+        return aceptingVoids;
     }
 
     /**

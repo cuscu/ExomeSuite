@@ -22,5 +22,11 @@ package exomesuite.vcf;
  */
 public interface VariantListener {
 
+    /**
+     * Called when the user has selected a different variant inthe variants table.
+     *
+     * @param variant the new variant
+     * @param header the headers of the VCF file
+     */
     public void variantChanged(Variant variant, VCFHeader header);
 }

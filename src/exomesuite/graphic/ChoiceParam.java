@@ -23,6 +23,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 
 /**
+ * A Param with a combobox as editor.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -32,6 +33,10 @@ public class ChoiceParam extends Param<String> {
     private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
 
+    /**
+     * Create a new ChoiceParam. Call {@code setOtions(List options)} to fill the combobox.
+     *
+     */
     public ChoiceParam() {
         accept.setOnAction(e -> endEdit(true, options.getValue()));
         cancel.setOnAction(e -> endEdit(false, null));
@@ -43,6 +48,11 @@ public class ChoiceParam extends Param<String> {
         return new HBox(options, accept, cancel);
     }
 
+    /**
+     * Set the list of options.
+     *
+     * @param options the new list of options
+     */
     public void setOptions(List<String> options) {
         this.options.getItems().setAll(options);
         this.options.getSelectionModel().select(0);

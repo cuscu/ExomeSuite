@@ -26,11 +26,15 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 
 /**
+ * The list of projects.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class ProjectList extends ListView<Project> {
 
+    /**
+     * Creates the list of projects.
+     */
     public ProjectList() {
         initialize();
     }

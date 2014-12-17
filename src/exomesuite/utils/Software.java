@@ -27,6 +27,11 @@ import java.util.logging.Logger;
  */
 public class Software {
 
+    /**
+     * Checks if samtools is installed in System.
+     *
+     * @return true if a call to samtools in the system returns a code different from 126 or 127
+     */
     public static boolean isSamtoolsInstalled() {
         ProcessBuilder pb = new ProcessBuilder("samtools");
         Process p;
@@ -41,6 +46,11 @@ public class Software {
         return false;
     }
 
+    /**
+     * Checks if bwa is installed in System.
+     *
+     * @return true if a call to bwa in the system returns a code different from 126 or 127
+     */
     public static boolean isBwaInstalled() {
         ProcessBuilder pb = new ProcessBuilder("bwa");
         Process p;
@@ -55,6 +65,11 @@ public class Software {
         return false;
     }
 
+    /**
+     * Checks if gatk is installed in System.
+     *
+     * @return true if a call to gatk in the system returns a code different from 126 or 127
+     */
     public static boolean isGatkInstalled() {
         ProcessBuilder pb = new ProcessBuilder("software/jre1.7.0_71/bin/java", "-jar",
                 "software/gatk/GenomeAnalysisTK.jar");

@@ -40,6 +40,9 @@ public class ButtonsBar extends FlowPane {
     @FXML
     private Button openDatabases;
 
+    /**
+     * The top bar which contain quick links to some operations.
+     */
     public ButtonsBar() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("ButtonsBar.fxml"));

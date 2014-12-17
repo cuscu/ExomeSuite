@@ -35,6 +35,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
+ * Graphical wrapper of a VCFFilter. (uhmmm, wrappers, gnom gnom).
  *
  * @author Pascual Lorente Arencibia
  */
@@ -55,6 +56,11 @@ public class VCFFilterPane extends VBox {
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
     private final VCFFilter filter;
 
+    /**
+     * Creates a new VCFFilterPane.
+     *
+     * @param infos the infos list
+     */
     public VCFFilterPane(List<String> infos) {
         filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
         Collections.sort(infos);
@@ -104,7 +110,7 @@ public class VCFFilterPane extends VBox {
     /**
      * Get the filter associated.
      *
-     * @return
+     * @return the VCFFilter
      */
     public VCFFilter getFilter() {
         return filter;
@@ -169,7 +175,7 @@ public class VCFFilterPane extends VBox {
     /**
      * Sets what happens when user changes something in the filter. Usually refilter.
      *
-     * @param onUpdate
+     * @param onUpdate the method to call when the user updates the filter
      */
     public void setOnUpdate(EventHandler onUpdate) {
         this.onUpdate = onUpdate;
@@ -178,7 +184,7 @@ public class VCFFilterPane extends VBox {
     /**
      * Sets what happens when user clicks on delete. Usually remove from user view.
      *
-     * @param onDelete
+     * @param onDelete the method to call when user deletes the filter
      */
     public void setOnDelete(EventHandler onDelete) {
         this.onDelete = onDelete;

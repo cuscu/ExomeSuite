@@ -139,7 +139,7 @@ public class MainViewController {
      * Opens a FileChooser and lets the user open a .config file. If returned file is not null, it
      * will call {@code addProjectTab}.
      *
-     * @param configFile
+     * @param configFile the config file of the project
      */
     public void openProject(File configFile) {
         if (configFile == null || !configFile.exists()) {
@@ -335,7 +335,7 @@ public class MainViewController {
     /**
      * Gets the center pane, where new tabs can be added.
      *
-     * @return
+     * @return the TabPane of the working area
      */
     public static TabPane getWorkingArea() {
         return staticWorkingArea;
@@ -406,8 +406,8 @@ public class MainViewController {
     /**
      * Type must be one of INFO, ERROR, WARNING, SUCCESS, info, error, success and warning.
      *
-     * @param message
-     * @param type
+     * @param message the message to print
+     * @param type one of the "info", "error", "warning" and "success" String
      */
     public static void printMessage(String message, String type) {
         infoLabel.setText(message);
@@ -427,7 +427,7 @@ public class MainViewController {
      * Prints an error message and allocates a 'View details' Button to see the whole stackTrace of
      * the exception.
      *
-     * @param e
+     * @param e the exeption to print
      */
     public static void printException(Exception e) {
         Platform.runLater(() -> {

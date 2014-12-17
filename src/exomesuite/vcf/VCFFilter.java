@@ -18,7 +18,7 @@ package exomesuite.vcf;
 
 /**
  * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM,
- * POS, DP...), a connector (greater than, equals...) and a value. When a variant is passed to the
+ * POS, INFO...), a connector (greater than, equals...) and a value. When a variant is passed to the
  * filter it is read: variant.field connector value (variant.chrom is equals to 7). As a particular
  * case of VCF, a variant can be filtered by its INFO field, so when the selected field is INFO, the
  * selectedInfo is activated.
@@ -34,11 +34,21 @@ public class VCFFilter {
     private boolean acceptVoids = true;
     private boolean active = true;
 
+    /**
+     * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
+     */
     public VCFFilter() {
         connector = Connector.EQUALS;
         field = Field.CHROMOSOME;
     }
 
+    /**
+     * Creates a new VCFFilter with the given connector and field. If field is not INFO.
+     *
+     * @param connector the selected connector
+     * @param field the selected field
+     * @param selectedInfo the selected info in case INFO is selected as field
+     */
     public VCFFilter(Connector connector, Field field, String selectedInfo) {
         this.connector = connector;
         this.field = field;
@@ -57,7 +67,7 @@ public class VCFFilter {
     /**
      * Sets a value for the filter.
      *
-     * @param value
+     * @param value the value
      */
     public void setValue(String value) {
         this.value = value;
@@ -66,7 +76,7 @@ public class VCFFilter {
     /**
      * The connector of the filter.
      *
-     * @return
+     * @return the connector
      */
     public Connector getConnector() {
         return connector;
@@ -84,7 +94,7 @@ public class VCFFilter {
     /**
      * Get the selected field
      *
-     * @return
+     * @return the selected field
      */
     public Field getField() {
         return field;
@@ -155,7 +165,7 @@ public class VCFFilter {
 
     /**
      * Returns true in case this variant passes this filter or filter can NOT be applied due to
-     * field<->connector<->value incompatibilities.
+     * field/connector/value incompatibilities.
      *
      * @param variant the variant to filter.
      * @return true if passes the filter or the filter cannot be applied, false otherwise.
@@ -335,11 +345,29 @@ public class VCFFilter {
      */
     public enum Field {
 
+        /**
+         * CHROM fields of the VCF.
+         */
         CHROMOSOME,
+        /**
+         * POS field of the VCF.
+         */
         POSITION,
+        /**
+         * QUAL field of the VCF.
+         */
         QUALITY,
+        /**
+         * INFO field of the VCF.
+         */
         INFO,
+        /**
+         * FILTER field of the VCF.
+         */
         FILTER,
+        /**
+         * ID field of the VCF.
+         */
         ID
     }
 

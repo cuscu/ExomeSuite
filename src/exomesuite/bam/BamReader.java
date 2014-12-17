@@ -85,6 +85,13 @@ public class BamReader extends VBox {
     String windowChromosome = "";
     private static final int WINDOW_SIZE = 50;
 
+    /**
+     * Creates a pane that contains a BamCanvas and some controls, such as the position selection or
+     * the showing options.
+     *
+     * @param bamFile file to show
+     * @param genome reference genome
+     */
     public BamReader(File bamFile, File genome) {
         Ensembl.setFile(new File(OS.getProperties().getProperty("ensembl")));
         this.bamFile = bamFile;

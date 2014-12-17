@@ -54,6 +54,11 @@ public class MistParams extends VBox {
 
     private boolean accepted = false;
 
+    /**
+     * Creates a dialog that let the user to select MISt options.
+     *
+     * @param properties the initial properties
+     */
     public MistParams(Properties properties) {
         this.properties = properties;
         try {
@@ -92,22 +97,35 @@ public class MistParams extends VBox {
     /**
      * Provide options for the bam param.
      *
-     * @param options
+     * @param options the options
      */
     public void setBamOptions(List<String> options) {
         bamFile.setOptions(options);
     }
 
-    public void enableAccept() {
+    /**
+     * Enables tha accept button only if a bamfile is selected.
+     */
+    private void enableAccept() {
         if (bamFile.getValue() != null && !bamFile.getValue().isEmpty()) {
             accept.setDisable(false);
         }
     }
 
+    /**
+     * Event to close this window and read parameters.
+     *
+     * @param eventHandler the method that closes this window and read user selected params
+     */
     public void setOnAccept(EventHandler eventHandler) {
         closeEvent = eventHandler;
     }
 
+    /**
+     * Accept is true when the user clicks on the Accept button. otherwise is false.
+     *
+     * @return true if user clicked on accept
+     */
     public boolean accept() {
         return accepted;
     }

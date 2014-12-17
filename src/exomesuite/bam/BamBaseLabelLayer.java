@@ -21,11 +21,15 @@ import javafx.geometry.VPos;
 import javafx.scene.text.TextAlignment;
 
 /**
+ * Layer that displays the reference bases on top of the Canvas.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
 public class BamBaseLabelLayer extends BamLayer {
 
+    /**
+     * Creates a layer that displays the nucleotides of the reference.
+     */
     public BamBaseLabelLayer() {
         getGraphicsContext2D().setTextAlign(TextAlignment.CENTER);
         getGraphicsContext2D().setTextBaseline(VPos.BOTTOM);
@@ -36,16 +40,12 @@ public class BamBaseLabelLayer extends BamLayer {
         final double margin = bamCanvas.getAxisMargin().get();
         final double baseWidth = bamCanvas.getBaseWidth().get();
         final double textMargin = bamCanvas.getTextMargin().get();
-//        final List<Character> reference = bamCanvas.getReference();
         final double textWidth = baseWidth - 2 * textMargin;
         final List<PileUp> list = bamCanvas.getAlignments();
         int i = 0;
         double x = margin + baseWidth * 0.5;
         while (i < list.size() && x < bamCanvas.getWidth() - margin) {
             switch (list.get(i).getReference()) {
-//        while (i < reference.size() && x < bamCanvas.getWidth() - margin) {
-//            String nucleotide = String.valueOf(reference.get(i++));
-//            switch (nucleotide) {
                 case 'A':
                     getGraphicsContext2D().setFill(A_COLOR);
                     break;

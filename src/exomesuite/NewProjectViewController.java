@@ -140,19 +140,40 @@ public class NewProjectViewController {
         return reverse.getValue();
     }
 
+    /**
+     * Gets the selected reference.
+     *
+     * @return the selected reference
+     */
     public String getReference() {
         return genome.getValue();
     }
 
+    /**
+     * Gets the selected encoding.
+     *
+     * @return the selected encoding
+     */
     public String getEncoding() {
         return encoding.getValue();
     }
 
+    /**
+     * Sets a handler for the accpet button. Use this to close the dialog and start reading the user
+     * selections.
+     *
+     * @param handler the handler method to close the stage and read user options
+     */
     public void setHandler(EventHandler handler) {
         this.handler = handler;
     }
 
-    String getCode() {
+    /**
+     * Gets the code for the project.
+     *
+     * @return the written code of the project
+     */
+    public String getCode() {
         return code.getValue();
     }
 
