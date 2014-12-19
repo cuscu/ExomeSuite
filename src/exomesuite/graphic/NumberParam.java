@@ -16,7 +16,6 @@
  */
 package exomesuite.graphic;
 
-import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -57,17 +56,16 @@ public class NumberParam extends Param<Double> {
         VBox buttons = new VBox(up, down);
         VBox values = new VBox(textField, slider);
         pane = new HBox(buttons, values, accept, cancel);
-        slider.valueProperty().addListener((ObservableValue<? extends Number> observable,
-                Number oldValue, Number newValue) -> {
-                    if (onlyInteger) {
-                        slider.valueProperty().set(Math.round(newValue.doubleValue()));
-                    }
-                    if (!fromText) {
-                        textField.setText(String.valueOf(slider.getValue()));
-                    } else {
-                        fromText = false;
-                    }
-                });
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (onlyInteger) {
+                slider.valueProperty().set(Math.round(newValue.doubleValue()));
+            }
+            if (!fromText) {
+                textField.setText(String.valueOf(slider.getValue()));
+            } else {
+                fromText = false;
+            }
+        });
         textField.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 // Enter key terminates editing with true

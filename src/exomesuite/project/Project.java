@@ -25,8 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Contains the properties of a project.
  *
- * @author Pascual Lorente Arencibia
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public final class Project {
 
@@ -75,7 +76,6 @@ public final class Project {
      */
     private final Configuration properties;
 
-//    private final List<ProjectListener> listeners = new ArrayList<>();
     /**
      * Creates a new ProjectData with the name and the code. If an existing project with the same
      * code is present, project data will be loaded from disk and name will NOT be changed. If
@@ -90,18 +90,14 @@ public final class Project {
         File file = new File(path, code + ".config");
         if (file.exists()) {
             properties = new Configuration(file);
-//            // If file code.conf exists, data is loaded and no changes are done.
-//            loadFromDisk();
+            // If file code.conf exists, data is loaded and no changes are done.
         } else {
-            // If file do no exist, path is created (parent/code)
+            // If file does no exist, path is created (parent/code)
             // and PATH, NAME and CODE are updated.
-//            File path = new File(parent, code);
             properties = new Configuration(file);
-//            path.mkdirs();
             properties.setProperty(PATH, path.getAbsolutePath());
             properties.setProperty(NAME, name);
             properties.setProperty(CODE, code);
-//            saveToDisk();
         }
     }
 
@@ -114,8 +110,6 @@ public final class Project {
      */
     public Project(File file) throws IllegalArgumentException {
         properties = new Configuration(file);
-//        properties = new Properties();
-//        loadFromDisk();
         if (!properties.containsProperty(CODE)) {
             throw new IllegalArgumentException("File " + file.getAbsolutePath()
                     + " does not contain CODE");
@@ -167,7 +161,7 @@ public final class Project {
      * @param file the file to remove
      */
     public void removeExtraFile(String file) {
-        List<String> files = Arrays.asList(properties.getProperty(FILES).split(";"));
+        List<String> files = new ArrayList(Arrays.asList(properties.getProperty(FILES).split(";")));
         if (files.remove(file)) {
             String newFiles = OS.asString(";", files);
             properties.setProperty(FILES, newFiles);

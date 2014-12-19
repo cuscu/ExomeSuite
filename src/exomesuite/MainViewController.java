@@ -30,7 +30,7 @@ import exomesuite.tsv.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.vcf.CombineVariants;
-import exomesuite.vcf.VCFTable;
+import exomesuite.vcf.VCFReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -297,7 +297,7 @@ public class MainViewController {
      * @param file the file to open
      * @param secondary a second file if needed
      */
-    public void showFileContent(File file, File secondary) {
+    public static void showFileContent(File file, File secondary) {
         if (file != null) {
             /* Check if the file is already opened */
             for (Tab t : staticWorkingArea.getTabs()) {
@@ -314,7 +314,7 @@ public class MainViewController {
 //                reader.setFile(file);
                 t.setContent(reader);
             } else if (file.getName().endsWith(".vcf")) {
-                VCFTable table = new VCFTable(file);
+                VCFReader table = new VCFReader(file);
                 t.setContent(table);
                 //t.setContent(new VCFReader(file).getView());
             } else if (file.getName().endsWith(".bam")) {

@@ -139,7 +139,7 @@ public class OS {
      */
     public static void removeProject(Project project) {
         // Import projects
-        List<String> files = new ArrayList<>(
+        List<String> files = new ArrayList(
                 Arrays.asList(properties.getProperty("projects", "").split(";")));
         // Check if project is in the list by trying to remove it
         String path = project.getProperties().getProperty(Project.PATH);
@@ -157,7 +157,7 @@ public class OS {
      */
     public static void addProject(Project project) {
         // Import projects
-        List<String> projects = new ArrayList<>(
+        List<String> projects = new ArrayList(
                 Arrays.asList(properties.getProperty("projects", "").split(";")));
         // If project is not yet in the list
         String path = project.getProperties().getProperty(Project.PATH);

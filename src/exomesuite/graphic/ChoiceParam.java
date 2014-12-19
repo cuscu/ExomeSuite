@@ -30,7 +30,6 @@ import javafx.scene.layout.HBox;
 public class ChoiceParam extends Param<String> {
 
     final ComboBox<String> options = new ComboBox<>();
-    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
 
     /**
@@ -38,14 +37,16 @@ public class ChoiceParam extends Param<String> {
      *
      */
     public ChoiceParam() {
-        accept.setOnAction(e -> endEdit(true, options.getValue()));
         cancel.setOnAction(e -> endEdit(false, null));
+        options.setOnAction(e -> endEdit(true, options.getValue()));
+        cancel.getStyleClass().add("graphic-button");
     }
 
     @Override
     protected Node getEditingPane() {
         options.getSelectionModel().select(getValue());
-        return new HBox(options, accept, cancel);
+//        options.show();
+        return new HBox(options, cancel);
     }
 
     /**

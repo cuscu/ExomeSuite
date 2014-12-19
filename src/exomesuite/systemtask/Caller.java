@@ -18,12 +18,15 @@ package exomesuite.systemtask;
 
 import exomesuite.MainViewController;
 import exomesuite.utils.FileManager;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * The task that call variants with GATK.
  *
- * @author Pascual Lorente Arencibia
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Caller extends SystemTask {
 
@@ -69,16 +72,55 @@ public class Caller extends SystemTask {
         }
         // So easy, only one command.
         updateTitle("Calling " + new File(output).getName());
-        String gatk = "software" + File.separator + "gatk" + File.separator
-                + "GenomeAnalysisTK.jar";
-        updateProgress(50, 100);
         updateMessage("Calling SNPs and indels...");
-        int ret = execute("software/jre1.7.0_71/bin/java", "-jar", gatk,
-                "-T", "HaplotypeCaller", "-R", genome,
-                "-I", input, "-o", output,
-                "--dbsnp", dbsnp);
+        int ret = haplotypeCaller(genome, dbsnp, input, output);
         updateMessage("Done.");
         updateProgress(1, 1);
         return ret;
+    }
+
+    private int haplotypeCaller(String genome, String dbsnp, String input, String output) {
+        final String gatk = "software" + File.separator + "gatk" + File.separator
+                + "GenomeAnalysisTK.jar";
+        /* java -jar GenomeAnalysisTK.jar -T HaplotypeCaller \
+         * -R genome -I input.bam -o output.vcf \
+         * --dbsnp dbsnp.vcf
+         */
+        ProcessBuilder pb = new ProcessBuilder(
+                "software/jre1.7.0_71/bin/java", "-jar", gatk,
+                "-T", "HaplotypeCaller", "-R", genome,
+                "-I", input, "-o", output,
+                "--dbsnp", dbsnp);
+        pb.redirectErrorStream(true);
+        try {
+            process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            reader.lines().forEach(line -> {
+                printStream.println(line);
+//                updateMessage(line);
+                calculateProgress(line);
+            });
+            return process.waitFor();
+        } catch (IOException | InterruptedException ex) {
+            MainViewController.printException(ex);
+        }
+        return -1;
+    }
+
+    private void calculateProgress(String line) {
+        int posOfP = line.indexOf("%");
+        if (posOfP == -1) {
+            return;
+        }
+        int j = posOfP;
+        while (j > 0) {
+            if (line.charAt(j) == ' ') {
+                break;
+            }
+            j--;
+        }
+        double progress = Double.valueOf(line.substring(j + 1, posOfP));
+        System.out.println("progress: " + progress);
+        updateProgress(progress, 100.);
     }
 }

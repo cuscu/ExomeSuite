@@ -16,6 +16,8 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.utils.OS;
+
 /**
  * Stores a variant.
  *
@@ -147,6 +149,15 @@ public class Variant {
      */
     public String[] getSamples() {
         return samples;
+    }
+
+    @Override
+    public String toString() {
+        String formats = "";
+        if (format != null) {
+            formats = "\t" + format + OS.asString("\t", samples);
+        }
+        return String.format("%s\t%d\t%s\t%s\t%s\t%f\t%s\t%s\t%s", chrom, pos, id, ref, alt, qual, filter, info, formats);
     }
 
 }

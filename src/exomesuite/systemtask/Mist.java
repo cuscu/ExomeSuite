@@ -105,10 +105,15 @@ public class Mist extends SystemTask {
         println("Threshold = " + threshold);
         println("Length    = " + length);
         println("Output    = " + output.getAbsolutePath());
-        startMIST();
+        int ret = startMIST();
         updateProgress(1, 1);
-        updateMessage("Successful");
-        return 0;
+        if (ret == 0) {
+            updateMessage("Successful");
+            return 0;
+        } else {
+            updateMessage("Canceled");
+            return 0;
+        }
     }
 
     /*
@@ -118,7 +123,7 @@ public class Mist extends SystemTask {
      * 4: Locate mist regions.
      * 5: save mist regions
      */
-    private void startMIST() {
+    private int startMIST() {
         updateTitle("Finding MIST " + input.getName());
         updateProgress(0, 1);
         chromosomes = readBamHeaders(input);
@@ -177,11 +182,13 @@ public class Mist extends SystemTask {
                 }
                 // Call next step
                 matches.addAndGet(computeMistAreas(exon, dp));
-
             });
         } catch (Exception e) {
-            MainViewController.printException(e);
+            // Dont do anything, someone canceled the stream
+            //MainViewController.printException(e);
+            return 1;
         }
+        return 0;
     }
 
     /**
@@ -225,7 +232,7 @@ public class Mist extends SystemTask {
         AtomicInteger mistEnd = new AtomicInteger();
         AtomicBoolean inMist = new AtomicBoolean(false);
         AtomicInteger matches = new AtomicInteger();
-        depths.forEach((Integer position, Integer depth) -> {
+        depths.forEach((position, depth) -> {
             if (depth < threshold) {
                 // If the depth is under the threshold, and previously no mist region,
                 // set the start of the mist region

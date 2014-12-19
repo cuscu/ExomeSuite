@@ -50,6 +50,9 @@ public class NaturalCell extends TableCell {
         if (!empty) {
             textField.setText(item.toString());
             setTooltip(new Tooltip(item.toString()));
+            setGraphic(textField);
+        } else {
+            setGraphic(null);
         }
     }
 }

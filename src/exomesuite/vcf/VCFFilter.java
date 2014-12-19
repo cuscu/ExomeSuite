@@ -195,6 +195,13 @@ public class VCFFilter {
                 break;
             case ID:
                 stringValue = variant.getId();
+                break;
+            case REF:
+                stringValue = variant.getRef();
+                break;
+            case ALT:
+                stringValue = variant.getAlt();
+                break;
             case INFO:
                 String[] content = variant.getInfo().split(";");
                 // variant.getInfo = "DP=10;MQ=23,43;H2"
@@ -368,7 +375,15 @@ public class VCFFilter {
         /**
          * ID field of the VCF.
          */
-        ID
+        ID,
+        /**
+         * REF field of the VCF.
+         */
+        REF,
+        /**
+         * ALT field of the VCF
+         */
+        ALT
     }
 
 }

@@ -10,9 +10,14 @@
 <fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
     <items>
         <TableView fx:id="table" />
-        <VBox alignment="TOP_RIGHT"  >
+        <VBox alignment="TOP_LEFT"  >
             <children>
-                <Label fx:id="infoLabel"  />
+                <HBox alignment="CENTER_LEFT" >
+                    <children>
+                        <Label fx:id="infoLabel"  />
+                        <Button fx:id="export" styleClass="graphic-button"/>
+                    </children>
+                </HBox>
                 <VBox spacing="5" styleClass="niceBox" alignment="TOP_CENTER" >
                     <children>
                         <SectionTitle hLine="false" title="FILTERS" />

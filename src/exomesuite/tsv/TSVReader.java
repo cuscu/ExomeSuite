@@ -20,16 +20,24 @@ import exomesuite.MainViewController;
 import exomesuite.graphic.IndexCell;
 import exomesuite.graphic.NaturalCell;
 import exomesuite.graphic.SizableImage;
+import exomesuite.utils.FileManager;
+import exomesuite.utils.OS;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -39,6 +47,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
 /**
+ * A pane that shows a Tab Separated Values file.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -52,6 +61,8 @@ public class TSVReader extends SplitPane {
     private Button addFilter;
     @FXML
     private Label infoLabel;
+    @FXML
+    private Button export;
 
     private final File file;
     private String[] headers;
@@ -80,6 +91,7 @@ public class TSVReader extends SplitPane {
     @FXML
     private void initialize() {
         addFilter.setGraphic(new SizableImage("exomesuite/img/new.png", 16));
+        export.setGraphic(new SizableImage("exomesuite/img/save.png", 16));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         addFilter.setOnAction(event -> {
             TSVFilterPane filterPane = new TSVFilterPane(Arrays.asList(headers));
@@ -90,7 +102,7 @@ public class TSVReader extends SplitPane {
             });
             filtersPane.getChildren().add(filterPane);
         });
-
+        export.setOnAction(event -> exportOnAction(event));
     }
 
     private void loadFile() {
@@ -159,7 +171,44 @@ public class TSVReader extends SplitPane {
         });
         for (int i = 0; i < headers.length; i++) {
             // Skip index column
-            table.getColumns().get(i + 1).setText(headers[i] + "\n" + uniques[i].size());
+            VBox box = (VBox) table.getColumns().get(i + 1).getGraphic();
+            if (box == null) {
+                Label name = new Label(table.getColumns().get(i + 1).getText());
+                Label size = new Label(uniques[i].size() + "");
+                box = new VBox(name, size);
+                box.setAlignment(Pos.CENTER);
+                table.getColumns().get(i + 1).setGraphic(box);
+                table.getColumns().get(i + 1).setText(null);
+            }
+            Label size = (Label) box.getChildren().get(1);
+            size.setText(uniques[i].size() + "");
+//            table.getColumns().get(i + 1).setText(headers[i] + "\n" + uniques[i].size());
+        }
+    }
+
+    /**
+     * Ask user to open a file.
+     *
+     * @param event
+     */
+    private void exportOnAction(ActionEvent event) {
+        File output = FileManager.saveFile("Select output file", FileManager.ALL_FILTER);
+        if (output != null) {
+            exportTo(output);
+        }
+    }
+
+    /**
+     * Exports headers and table.getItems to the given file.
+     *
+     * @param output the output file
+     */
+    private void exportTo(File output) {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
+            writer.println(OS.asString("\t", headers));
+            table.getItems().forEach(line -> writer.println(OS.asString("\t", line)));
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
         }
     }
 

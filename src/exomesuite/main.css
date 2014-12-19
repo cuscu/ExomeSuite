@@ -10,10 +10,6 @@
     -fx-background-color: white;
 }
 
-#newToggle {
-    -fx-background-color: transparent;
-}
-
 .tool {
     -fx-border-color: lightgray;
     -fx-border-width: 2;
@@ -100,10 +96,19 @@
     -fx-border-radius: 16px;
 }
 
-
+// Clear the end of lists
 .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-width: 0;
+}
+
+// Clear the bottom of tables
+.table-row-cell:empty {
+    -fx-background-color: white;
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0px;
 }
 
 .root {
@@ -158,4 +163,10 @@
     -fx-border-width: 1px;
     -fx-border-insets: 2px;
     -fx-border-radius: 5px;
+}
+
+.combo-box {
+
+    -fx-padding: 0;
+    -fx-border-width: 0;
 }

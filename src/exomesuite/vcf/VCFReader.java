@@ -16,19 +16,25 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.MainViewController;
 import exomesuite.graphic.IndexCell;
 import exomesuite.graphic.NaturalCell;
 import exomesuite.graphic.SizableImage;
+import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -44,7 +50,7 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia
  */
-public class VCFTable extends SplitPane {
+public class VCFReader extends SplitPane {
 
     @FXML
     private TableView<Variant> table;
@@ -58,6 +64,8 @@ public class VCFTable extends SplitPane {
     private Button addFilter;
     @FXML
     private Label infoLabel;
+    @FXML
+    private Button export;
 
     /**
      * The VCF file.
@@ -72,15 +80,16 @@ public class VCFTable extends SplitPane {
      */
     private final AtomicInteger lines = new AtomicInteger();
 
-    private final TableColumn<Variant, String> lineNumber = new TableColumn<>();
-    private final TableColumn<Variant, String> chrom = new TableColumn<>("Chrom");
-    private final TableColumn<Variant, String> position = new TableColumn<>("Position");
-    private final TableColumn<Variant, String> variant = new TableColumn<>("Variant");
-    private final TableColumn<Variant, String> rsId = new TableColumn<>("ID");
-    private final TableColumn<Variant, String> qual = new TableColumn<>("Qual");
-    private final TableColumn<Variant, String> filter = new TableColumn<>("Filter");
-    private final List<VariantListener> listeners = new ArrayList<>();
-    private List<String> infos = new ArrayList<>();
+    private final TableColumn<Variant, String> lineNumber = new TableColumn();
+    private final TableColumn<Variant, String> chrom = new TableColumn("Chrom");
+    private final TableColumn<Variant, String> position = new TableColumn("Position");
+    private final TableColumn<Variant, String> variant = new TableColumn("Variant");
+    private final TableColumn<Variant, String> rsId = new TableColumn("ID");
+    private final TableColumn<Variant, String> qual = new TableColumn("Qual");
+    private final TableColumn<Variant, String> filter = new TableColumn("Filter");
+    private final List<VariantListener> listeners = new ArrayList();
+    private List<String> infos = new ArrayList();
+    private List<String> headers = new ArrayList();
     private VCFHeader vcfHeader;
 
     /**
@@ -88,15 +97,15 @@ public class VCFTable extends SplitPane {
      *
      * @param vcfFile the VCF file
      */
-    public VCFTable(File vcfFile) {
+    public VCFReader(File vcfFile) {
         this.vcfFile = vcfFile;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFTable.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFReader.fxml"));
         loader.setRoot(this);
         loader.setController(this);
         try {
             loader.load();
         } catch (IOException ex) {
-            Logger.getLogger(VCFTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -106,7 +115,9 @@ public class VCFTable extends SplitPane {
     @FXML
     public void initialize() {
         addFilter.setGraphic(new SizableImage("/exomesuite/img/new.png", 16));
+        export.setGraphic(new SizableImage("exomesuite/img/save.png", 16));
         addFilter.setOnAction(e -> addFilter());
+        export.setOnAction(event -> exportOnAction(event));
         table.setSortPolicy(view -> false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().addAll(lineNumber, chrom, position, rsId, variant, qual, filter);
@@ -146,7 +157,7 @@ public class VCFTable extends SplitPane {
                 }
             });
         } catch (Exception ex) {
-            Logger.getLogger(VCFTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         lines.set(totalLines.get());
         updateInfo();
@@ -223,7 +234,7 @@ public class VCFTable extends SplitPane {
                 }
             });
         } catch (Exception ex) {
-            Logger.getLogger(VCFTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
         }
         updateInfo();
     }
@@ -253,12 +264,32 @@ public class VCFTable extends SplitPane {
     }
 
     private void addHeader(String line) {
+        headers.add(line);
         if (line.startsWith("##INFO=<")) {
             // ##INFO=<ID=DP,...
             String[] row = line.substring(8).split(",");
             // ID=DP
             String name = row[0].split("=")[1];
             infos.add(name);
+        }
+    }
+
+    private void exportOnAction(ActionEvent event) {
+        File output = FileManager.saveFile("Select output file", FileManager.VCF_FILTER);
+        if (output != null) {
+            exportTo(output);
+            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
+            // Too big files, cause header repeats for every variant
+            //VCF2JSON.vcf2Json(vcfFile, json);
+        }
+    }
+
+    private void exportTo(File output) {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
+            headers.forEach(writer::println);
+            table.getItems().forEach(writer::println);
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
         }
     }
 

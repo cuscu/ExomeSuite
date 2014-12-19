@@ -13,9 +13,10 @@
         <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" />
         <VBox >
             <children>
-                <HBox alignment="TOP_LEFT">
+                <HBox alignment="CENTER_LEFT">
                     <children>
                         <Label fx:id="infoLabel" />
+                        <Button fx:id="export" styleClass="graphic-button" />
                     </children>
                 </HBox>
                 <!-- GENOTYPE -->

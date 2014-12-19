@@ -16,7 +16,6 @@
  */
 package exomesuite.graphic;
 
-import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.utils.Configuration;
@@ -185,7 +184,12 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
         if (FileManager.tripleCheck(f)) {
             File file = new File(f);
             String grch = project.getProperties().getProperty(Project.REFERENCE_GENOME);
-            ExomeSuite.getController().showFileContent(file, new File(OS.getProperties().getProperty(grch)));
+            String refgen = OS.getProperties().getProperty(grch);
+            File secondary = null;
+            if (refgen != null) {
+                secondary = new File(refgen);
+            }
+            MainViewController.showFileContent(file, secondary);
         } else {
             MainViewController.printMessage("File " + f + " is not accesible", "warning");
         }

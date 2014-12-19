@@ -17,12 +17,8 @@
         <SectionTitle title="Additional information" hLine="true" />
         <FileParam fx:id="forward" title="Forward sequences" promptText="Select forward sequences" />
         <FileParam fx:id="reverse" title="Reverse sequences" promptText="Select reverse sequences" />
-        <HBox maxWidth="9999">
-            <children>
-                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="genome" title="Reference genome" promptText="Select a reference genome" />
-                <ChoiceParam HBox.hgrow="ALWAYS" fx:id="encoding" title="Base encoding" promptText="Select a base encoding" />
-            </children>
-        </HBox>
+        <ChoiceParam fx:id="genome" title="Reference genome" promptText="Select a reference genome" />
+        <ChoiceParam fx:id="encoding" title="Base encoding" promptText="Select a base encoding" />
         <Button fx:id="acceptButton" text="Create" />
     </children>
 </VBox>

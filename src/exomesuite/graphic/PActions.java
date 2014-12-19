@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -314,12 +313,11 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         task = algorithm.toLowerCase().equals("samtools")
                 ? new SamtoolsCaller(genome, input, output)
                 : new Caller(genome, output, input, dbsnp);
-        task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
-                Worker.State oldValue, Worker.State newValue) -> {
-                    if (newValue == Worker.State.SUCCEEDED) {
-                        project.addExtraFile(output);
-                    }
-                });
+        task.stateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == Worker.State.SUCCEEDED) {
+                project.addExtraFile(output);
+            }
+        });
         bindAndStart(task);
     }
 
@@ -337,18 +335,16 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
             String output = project.getProperties().getProperty(Project.PATH) + File.separator
                     + project.getProperties().getProperty(Project.CODE) + "_dp" + threshold + "_l" + length + ".mist";
             Mist task = new Mist(input, output, ensembl, intThreshold, intLength);
-            task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
-                    Worker.State oldValue, Worker.State newValue) -> {
-                        if (newValue == Worker.State.SUCCEEDED) {
-                            project.addExtraFile(output);
-                        }
-                    });
-            task.stateProperty().addListener((ObservableValue<? extends Worker.State> observable,
-                    Worker.State oldValue, Worker.State newValue) -> {
-                        if (newValue == Worker.State.SUCCEEDED) {
-                            project.addExtraFile(output);
-                        }
-                    });
+            task.stateProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == Worker.State.SUCCEEDED) {
+                    project.addExtraFile(output);
+                }
+            });
+            task.stateProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == Worker.State.SUCCEEDED) {
+                    project.addExtraFile(output);
+                }
+            });
             bindAndStart(task);
         } catch (Exception e) {
             MainViewController.printException(e);
@@ -386,8 +382,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         }));
         // Title is binded to the tab text
         Tab t = new Tab(task.getTitle());
-        task.titleProperty().addListener((ObservableValue<? extends String> observable,
-                String oldValue, String newValue) -> t.setText(newValue));
+        task.titleProperty().addListener((observable, oldValue, newValue) -> t.setText(newValue));
         // When closed, process is killed
         t.setOnCloseRequest(e -> {
             if (task.isRunning()) {
@@ -405,18 +400,19 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
 
         });
         // inform user about the victory
-        task.setOnSucceeded(event
-                -> {
-                    MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
-                    taskPanel.getProgress().setVisible(false);
-                    taskPanel.getCancelButton().setVisible(false);
-                });
+        task.setOnSucceeded(event -> {
+            MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
+            taskPanel.getProgress().setVisible(false);
+            taskPanel.getCancelButton().setVisible(false);
+        });
         taskPanel.getCancelButton().setOnAction(e -> {
             if (!task.cancel(true)) {
                 MainViewController.printMessage("Imposible to stop task", "warning");
             }
         });
         task.setOnCancelled(event -> {
+            taskPanel.getProgress().setVisible(false);
+            taskPanel.getCancelButton().setVisible(false);
             MainViewController.printMessage("Task " + task.getTitle() + " canceled by user", "info");
         });
         // Fill the tab
