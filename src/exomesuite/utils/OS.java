@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Contains methods to control application properties (databases, opened projects..) and most
@@ -41,6 +42,10 @@ public class OS {
      * The list of ordered standard chromosomes (1-22, X and Y).
      */
     private static final List<String> standardChromosomes = new ArrayList();
+    /**
+     * The list of available locales.
+     */
+    private static final List<Locale> locales = new ArrayList();
 
     /**
      * Static "Constructor" of the class.
@@ -53,6 +58,9 @@ public class OS {
         encodings.addAll(Arrays.asList(e));
         referenceGenomes.addAll(Arrays.asList(r));
         standardChromosomes.addAll(Arrays.asList(chrs));
+        locales.add(new Locale("es", "ES"));
+        locales.add(new Locale("en", "US"));
+        locales.add(new Locale("en", "UK"));
     }
 
     /**
@@ -195,5 +203,9 @@ public class OS {
      */
     public static List<String> getStandardChromosomes() {
         return standardChromosomes;
+    }
+
+    public static List<Locale> getAvailableLocales() {
+        return locales;
     }
 }

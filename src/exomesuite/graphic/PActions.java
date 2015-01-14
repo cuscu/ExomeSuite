@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.AlignParams;
 import exomesuite.actions.CallParams;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
@@ -63,6 +65,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      * The current selected project.
      */
     private Project project;
+    ResourceBundle bundle;
 
     private final Button align = new Button("Align", new SizableImage("exomesuite/img/align.png", 32));
     private final Button call = new Button("Call", new SizableImage("exomesuite/img/call.png", 32));
@@ -70,6 +73,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
 
     /**
      * Creates a new Project Actions pane.
+     *
      */
     public PActions() {
         align.setOnAction(event -> showAlingParams());
@@ -85,6 +89,8 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         call.getStyleClass().add("graphic-button");
         mist.getStyleClass().add("graphic-button");
         getChildren().addAll(align, call, mist);
+        align.setText(ExomeSuite.getResourceBundle().getString("align"));
+
     }
 
     /**
@@ -278,6 +284,11 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         }
         SystemTask aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
                 output, name, illumina, refine);
+        aligner.setOnSucceeded(event -> {
+            if (aligner.getValue() == 0) {
+                project.addExtraFile(output);
+            }
+        });
         bindAndStart(aligner);
     }
 
@@ -340,11 +351,11 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
                     project.addExtraFile(output);
                 }
             });
-            task.stateProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(output);
-                }
-            });
+//            task.stateProperty().addListener((observable, oldValue, newValue) -> {
+//                if (newValue == Worker.State.SUCCEEDED) {
+//                    project.addExtraFile(output);
+//                }
+//            });
             bindAndStart(task);
         } catch (Exception e) {
             MainViewController.printException(e);
@@ -401,7 +412,11 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         });
         // inform user about the victory
         task.setOnSucceeded(event -> {
-            MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
+            if (task.getValue() == 0) {
+                MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
+            } else {
+                MainViewController.printMessage("Task " + task.getTitle() + " finished with errors", "error");
+            }
             taskPanel.getProgress().setVisible(false);
             taskPanel.getCancelButton().setVisible(false);
         });

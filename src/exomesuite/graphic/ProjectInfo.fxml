@@ -6,8 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+<?import java.net.*?>
 
 <fx:root styleClass="root" type="javafx.scene.layout.VBox" spacing="3" alignment="TOP_CENTER"  xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <children>
         <SectionTitle title="Properties"  />
         <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />

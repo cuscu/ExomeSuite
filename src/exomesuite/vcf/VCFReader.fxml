@@ -3,12 +3,16 @@
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
+<?import java.net.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
 <fx:root dividerPositions="0.5" orientation="VERTICAL" type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <items>
         <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" />
         <VBox >

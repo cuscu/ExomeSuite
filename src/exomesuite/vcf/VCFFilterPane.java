@@ -50,7 +50,7 @@ public class VCFFilterPane extends VBox {
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
     private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
     private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", 16));
-    private final Button tag = new Button(null, new SizableImage("exomesuite/img/tag.png", 16));
+    private final Button tag = new Button(null, new SizableImage("exomesuite/img/circle.png", 16));
 
     private EventHandler onUpdate, onDelete;
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
@@ -69,9 +69,8 @@ public class VCFFilterPane extends VBox {
         accept.setTooltip(new Tooltip("Accept"));
         cancel.setTooltip(new Tooltip("Cancel changes"));
         delete.setTooltip(new Tooltip("Delete filter"));
-        view.setTooltip(new Tooltip("Enable/disble filter"));
-        tag.setTooltip(new Tooltip("Allow/disallow no tagged variants"));
-
+        view.setTooltip(new Tooltip("Enable/disable filter"));
+        tag.setTooltip(new Tooltip("Strict/Non-strict"));
     }
 
     private void initialize() {
@@ -83,7 +82,7 @@ public class VCFFilterPane extends VBox {
         value.setOnAction(e -> accept());
         delete.setOnAction(e -> delete());
         view.setOnAction(e -> alternateView());
-        tag.setOnAction(e -> alternateVoids());
+        tag.setOnAction(e -> alternateStrictness());
         value.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 accept();
@@ -203,8 +202,8 @@ public class VCFFilterPane extends VBox {
      * Change the view icon and the active flag of filter.
      */
     private void alternateView() {
-        boolean act = filter.isActive();
-        filter.setActive(!act);
+        boolean act = filter.isEnable();
+        filter.setEnable(!act);
         view.setGraphic(act ? new SizableImage("exomesuite/img/noview.png", 16)
                 : new SizableImage("exomesuite/img/view.png", 16));
         if (onUpdate != null) {
@@ -215,11 +214,11 @@ public class VCFFilterPane extends VBox {
     /**
      * Change the acceptVoids flag and the tag icon.
      */
-    private void alternateVoids() {
-        boolean voids = filter.isAcceptVoids();
-        filter.setAcceptVoids(!voids);
-        tag.setGraphic(voids ? new SizableImage("exomesuite/img/notag.png", 16)
-                : new SizableImage("exomesuite/img/tag.png", 16));
+    private void alternateStrictness() {
+        boolean strict = filter.isStrict();
+        filter.setStrict(!strict);
+        tag.setGraphic(strict ? new SizableImage("exomesuite/img/nocircle.png", 16)
+                : new SizableImage("exomesuite/img/circle.png", 16));
         if (onUpdate != null) {
             onUpdate.handle(new ActionEvent());
         }

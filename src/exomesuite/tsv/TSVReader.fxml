@@ -5,9 +5,13 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import java.net.*?>
 <?import exomesuite.graphic.*?>
 
 <fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <items>
         <TableView fx:id="table" />
         <VBox alignment="TOP_LEFT"  >

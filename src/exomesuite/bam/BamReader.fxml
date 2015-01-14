@@ -6,8 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+<?import java.net.*?>
 
 <fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <children>
         <exomesuite.bam.BamCanvas fx:id="bamCanvas" />
         <HBox >

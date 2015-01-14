@@ -7,6 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+
 <fx:root type="VBox" prefWidth="350" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" >
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>

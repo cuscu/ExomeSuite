@@ -5,9 +5,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+<?import java.net.*?>
 
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
             xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController" id="main">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <center>
         <SplitPane orientation="HORIZONTAL" dividerPositions="0.3" >
             <items>
@@ -16,7 +20,7 @@
                         <!-- List of Projects -->
                         <VBox alignment="TOP_CENTER" >
                             <children>
-                                <SectionTitle  title="Projects"/>
+                                <SectionTitle  title="%projects"/>
                                 <ProjectList fx:id="projectList" />
                             </children>
                         </VBox>
@@ -43,25 +47,26 @@
             <children>
                 <MenuBar xmlns:fx="http://javafx.com/fxml">
                     <menus>
-                        <Menu mnemonicParsing="true" text="_Menu">
+                        <Menu mnemonicParsing="true" text="%menu">
                             <items>
-                                <MenuItem fx:id="openMenu" text="Open project" />
-                                <MenuItem fx:id="newMenu" text="New project" />
+                                <MenuItem fx:id="openMenu" text="%open.project" />
+                                <MenuItem fx:id="newMenu" text="%new.project" />
                                 <SeparatorMenuItem />
-                                <MenuItem fx:id="databaseMenu" text="Select databases" />
+                                <MenuItem fx:id="databaseMenu" text="%open.databases" />
                                 <SeparatorMenuItem />
-                                <MenuItem fx:id="openFile" text="Open file" />
+                                <MenuItem fx:id="openFile" text="%open.file" />
                             </items>
                         </Menu>
-                        <Menu text="_Operations" mnemonicParsing="true" >
+                        <Menu text="%operations" mnemonicParsing="true" >
                             <items>
-                                <MenuItem fx:id="combineVCFMenu" text="Combine VCF"/>
-                                <MenuItem fx:id="intersectMIST" text="Combine MIST"/>
+                                <MenuItem fx:id="combineVCFMenu" text="%combine.vcf"/>
+                                <MenuItem fx:id="intersectMIST" text="%combine.mist"/>
                             </items>
                         </Menu>
-                        <Menu text="_Help" mnemonicParsing="true">
+                        <Menu text="%help" mnemonicParsing="true">
                             <items>
-                                <MenuItem fx:id="about" text="About" />
+                                <MenuItem fx:id="about" text="%about" />
+                                <Menu fx:id="language" text="%language"/>
                             </items>
                         </Menu>
                     </menus>

@@ -31,8 +31,8 @@ public class VCFFilter {
     private Connector connector;
     private Field field;
     private String selectedInfo;
-    private boolean acceptVoids = true;
-    private boolean active = true;
+    private boolean strict = true;
+    private boolean enable = true;
 
     /**
      * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
@@ -132,8 +132,8 @@ public class VCFFilter {
      *
      * @return true if accepting void values.
      */
-    public boolean isAcceptVoids() {
-        return acceptVoids;
+    public boolean isStrict() {
+        return strict;
     }
 
     /**
@@ -141,26 +141,26 @@ public class VCFFilter {
      *
      * @param accept true to accept void values
      */
-    public void setAcceptVoids(boolean accept) {
-        this.acceptVoids = accept;
+    public void setStrict(boolean accept) {
+        this.strict = accept;
     }
 
     /**
      * If true it will filter variants, if false it will accept all variants.
      *
-     * @return true if filter is active
+     * @return true if filter is enable
      */
-    public boolean isActive() {
-        return active;
+    public boolean isEnable() {
+        return enable;
     }
 
     /**
      * If true it will filter variants, if false it will accept all variants.
      *
-     * @param active the new active state
+     * @param enable the new enable state
      */
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     /**
@@ -174,7 +174,7 @@ public class VCFFilter {
         if (field == null) {
             return true;
         }
-        if (!active) {
+        if (!enable) {
             return true;
         }
         // Get the value (one of the Field.values())
@@ -272,7 +272,7 @@ public class VCFFilter {
                     return stringValue.matches(value);
                 }
         }
-        return acceptVoids;
+        return strict;
     }
 
     /**

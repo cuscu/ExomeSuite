@@ -17,6 +17,12 @@
 package exomesuite;
 
 import exomesuite.utils.Software;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -34,17 +40,18 @@ public class ExomeSuite extends Application {
 
     private static Stage mainStage;
     private static MainViewController controller;
+    private static ResourceBundle resources;
 
     @Override
     public void start(Stage stage) throws Exception {
+        resources = ResourceBundle.getBundle("exomesuite.language.ExomeSuite");
         testVars();
         testSoftware();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainView.fxml"), resources);
         Parent root = loader.load();
         controller = loader.getController();
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("main.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setTitle("Exome Suite");
@@ -97,9 +104,9 @@ public class ExomeSuite extends Application {
     }
 
     private void testSoftware() {
-        System.out.print("Checking samtools... ");
+        System.out.print(resources.getString("check.samtools"));
         System.out.println(Software.isSamtoolsInstalled());
-        System.out.print("Checking bwa... ");
+        System.out.print(resources.getString("check.bwa"));
         System.out.println(Software.isSamtoolsInstalled());
         System.out.print("Checking GATK... ");
         System.out.println(Software.isGatkInstalled());
@@ -118,6 +125,53 @@ public class ExomeSuite extends Application {
      */
     public static MainViewController getController() {
         return controller;
+    }
+
+    /**
+     * Gets the current ResourceBundle.
+     *
+     * @return the current resource bundle.
+     */
+    public static ResourceBundle getResourceBundle() {
+        return resources;
+    }
+
+    /**
+     * Gets the current locale.
+     *
+     * @return the current locale.
+     */
+    public static Locale getLocale() {
+        return resources.getLocale();
+    }
+
+    /**
+     * Changes the current system locale.
+     *
+     * @param locale
+     */
+    public static void changeLocale(Locale locale) {
+        resources = ResourceBundle.getBundle("exomesuite.language.ExomeSuite", locale);
+        FXMLLoader loader = new FXMLLoader(MainViewController.class.getResource("MainView.fxml"), resources);
+        try {
+            loader.load();
+            mainStage.setScene(new Scene(loader.getRoot()));
+        } catch (IOException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Formats the String key from resources (the current ResourceBundle) using a MessageFormat
+     * which will have args.
+     *
+     * @param key the key of the string
+     * @param args the arguments of the string
+     * @return the resulting string using the current locale
+     */
+    public static String getStringFormatted(String key, Object... args) {
+        MessageFormat formatter = new MessageFormat(resources.getString(key), resources.getLocale());
+        return formatter.format(args);
     }
 
 }

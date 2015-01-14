@@ -24,6 +24,7 @@ import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
 import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.ProjectList;
+import exomesuite.graphic.SizableImage;
 import exomesuite.mist.CombineMIST;
 import exomesuite.project.Project;
 import exomesuite.tsv.TSVReader;
@@ -36,10 +37,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -49,6 +50,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -109,19 +111,21 @@ public class MainViewController {
     private BorderPane root;
     @FXML
     private ButtonsBar toolbar;
+    @FXML
+    private Menu language;
 
+    // My ResourceBundle
+//    StringRepository repository = new StringRepository();
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
      */
     public void initialize() {
         setMenus();
-        projectList.getSelectionModel().selectedItemProperty().addListener((
-                ObservableValue<? extends Project> observable, Project oldValue, Project newValue)
-                -> {
+        projectList.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
 //                    projectActions.setProject(newValue);
-                    pactions.setProject(newValue);
-                    projectInfo.setProject(newValue);
-                });
+            pactions.setProject(newValue);
+            projectInfo.setProject(newValue);
+        });
         infoLabel = info;
         staticWorkingArea = workingArea;
         infoHBox = infoBox;
@@ -133,6 +137,7 @@ public class MainViewController {
                 openProject(new File(s));
             }
         }
+        setLocales();
     }
 
     /**
@@ -157,7 +162,9 @@ public class MainViewController {
             projectList.getItems().add(project);
             projectList.getSelectionModel().select(project);
         }
-        printMessage("Project " + project.getProperties().getProperty(Project.NAME) + " opened", "INFO");
+        String message = ExomeSuite.getStringFormatted("project.opened",
+                project.getProperties().getProperty(Project.NAME));
+        printMessage(message, "info");
         OS.addProject(project);
     }
 
@@ -167,15 +174,20 @@ public class MainViewController {
      *
      */
     public void exitApplication() {
-        if (OS.getProperties().getProperty("confirmExit", "").equals("true")) {
-            Dialog.Response resp = new Dialog().showYesNoCancel("Exit application?",
-                    "Do you want to exit?", "Exit", "Continue", "Exit and don't ask again");
+        if (OS.getProperties().getProperty("confirmexit", "true").equals("true")) {
+            ResourceBundle resources = ExomeSuite.getResourceBundle();
+            String title = resources.getString("exit.app.title");
+            String question = resources.getString("exit.app.question");
+            String yes = resources.getString("exit.app.yes");
+            String no = resources.getString("exit.app.no");
+            String never = resources.getString("exit.app.neverask");
+            Dialog.Response resp = new Dialog().showYesNoCancel(title, question, yes, no, never);
             if (resp == Dialog.Response.YES) {
                 ExomeSuite.getMainStage().close();
             } else if (resp == Dialog.Response.NO) {
-                printMessage("Good, keep working", "success");
+                printMessage(resources.getString("keep.work"), "success");
             } else {
-                OS.getProperties().setProperty("confirmExit", "false");
+                OS.getProperties().setProperty("confirmexit", "false");
                 ExomeSuite.getMainStage().close();
             }
         } else {
@@ -211,6 +223,7 @@ public class MainViewController {
         intersectMIST.setGraphic(new ImageView("exomesuite/img/documents_mist.png"));
         // About
         about.setOnAction(e -> showAbout());
+        language.setGraphic(new SizableImage("exomesuite/img/world.png", 16));
     }
 
     /**
@@ -458,6 +471,20 @@ public class MainViewController {
                 stage.showAndWait();
             });
             infoHBox.getChildren().setAll(infoLabel, view);
+        });
+    }
+
+    /**
+     * Fills the locales menu. Each locale is shown in its own locale: Español (España), English
+     * (UK). If you want to display all languages in the current locale use
+     * {@code getDisplayName(ExomeSuite.getLocale())}.
+     */
+    private void setLocales() {
+        language.getItems().clear();
+        OS.getAvailableLocales().forEach(locale -> {
+            MenuItem mi = new MenuItem(locale.getDisplayName(locale));
+            mi.setOnAction(event -> ExomeSuite.changeLocale(locale));
+            language.getItems().add(mi);
         });
     }
 

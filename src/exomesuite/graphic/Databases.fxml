@@ -6,8 +6,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+<?import java.net.*?>
 
 <fx:root type="javafx.scene.layout.VBox" spacing="5"  xmlns:fx="http://javafx.com/fxml/1" maxHeight="600" >
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <children>
         <!-- Standard databases -->
         <SectionTitle title="Variant databases"/>

@@ -4,19 +4,19 @@
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import java.net.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
 <fx:root type="VBox" alignment="CENTER" spacing="5" prefWidth="350" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css"/>
+    </stylesheets>
     <children>
         <FileParam fx:id="forward" title="Forward sequences" />
         <FileParam fx:id="reverse" title="Reverse sequences" />
-        <HBox spacing="5"  >
-            <children>
-                <ChoiceParam fx:id="encoding" title="Encoding" HBox.hgrow="SOMETIMES"  />
-                <ChoiceParam fx:id="reference" title="Reference genome" HBox.hgrow="SOMETIMES" />
-            </children>
-        </HBox>
+        <ChoiceParam fx:id="encoding" title="Encoding" HBox.hgrow="SOMETIMES"  />
+        <ChoiceParam fx:id="reference" title="Reference genome" HBox.hgrow="SOMETIMES" />
         <HBox alignment="TOP_RIGHT" spacing="5"  >
             <children>
                 <Button fx:id="cancel" text="Cancel"/>
