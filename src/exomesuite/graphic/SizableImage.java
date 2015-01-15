@@ -27,6 +27,19 @@ import javafx.scene.image.ImageView;
 public class SizableImage extends ImageView {
 
     /**
+     * 16x16.
+     */
+    public final static double SMALL_SIZE = 16;
+    /**
+     * 32x32.
+     */
+    public final static double MEDIUM_SIZE = 32;
+    /**
+     * 48x48.
+     */
+    public final static double LARGE_SIZE = 48;
+
+    /**
      * Creates a new SizableImage using the url as icon and resizing to size width and preserving
      * aspect ratio.
      *

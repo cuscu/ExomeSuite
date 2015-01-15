@@ -8,17 +8,17 @@
 
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
     <children>
-        <SectionTitle title="Required"/>
-        <TextParam title="Project name" fx:id="name" prefWidth="400"  />
-        <TextParam title="Code" fx:id="code" />
-        <PathParam title="Project path" fx:id="path"/>
+        <SectionTitle title="%required"/>
+        <TextParam title="%project.name" fx:id="name" prefWidth="400"  />
+        <TextParam title="%code" fx:id="code" />
+        <PathParam title="%project.path" fx:id="path"/>
 
         <Label fx:id="finalPath" />
-        <SectionTitle title="Additional information" hLine="true" />
-        <FileParam fx:id="forward" title="Forward sequences" promptText="Select forward sequences" />
-        <FileParam fx:id="reverse" title="Reverse sequences" promptText="Select reverse sequences" />
-        <ChoiceParam fx:id="genome" title="Reference genome" promptText="Select a reference genome" />
-        <ChoiceParam fx:id="encoding" title="Base encoding" promptText="Select a base encoding" />
-        <Button fx:id="acceptButton" text="Create" />
+        <SectionTitle title="%additional.information" hLine="true" />
+        <FileParam fx:id="forward" title="%forward.sequences" promptText="%select.forward" />
+        <FileParam fx:id="reverse" title="%reverse.sequences" promptText="%select.reverse" />
+        <ChoiceParam fx:id="genome" title="%reference.genome" promptText="%select.reference" />
+        <ChoiceParam fx:id="encoding" title="%encoding" promptText="%select.encoding" />
+        <Button fx:id="acceptButton" text="%create" />
     </children>
 </VBox>

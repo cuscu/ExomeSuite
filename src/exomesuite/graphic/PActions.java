@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
@@ -65,7 +64,6 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      * The current selected project.
      */
     private Project project;
-    ResourceBundle bundle;
 
     private final Button align = new Button("Align", new SizableImage("exomesuite/img/align.png", 32));
     private final Button call = new Button("Call", new SizableImage("exomesuite/img/call.png", 32));
@@ -89,8 +87,9 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         call.getStyleClass().add("graphic-button");
         mist.getStyleClass().add("graphic-button");
         getChildren().addAll(align, call, mist);
-        align.setText(ExomeSuite.getResourceBundle().getString("align"));
-
+        align.setText(ExomeSuite.getResources().getString("align"));
+        call.setText(ExomeSuite.getResources().getString("call"));
+        mist.setText(ExomeSuite.getResources().getString("mist"));
     }
 
     /**
@@ -100,7 +99,9 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      */
     public void setProject(Project project) {
         this.project = project;
-        setButtons();
+        if (project != null) {
+            setButtons();
+        }
     }
 
     /**
@@ -397,12 +398,15 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         // When closed, process is killed
         t.setOnCloseRequest(e -> {
             if (task.isRunning()) {
-                Dialog.Response response = new Dialog().showYesNo("The task is still running",
-                        "If you close the tab, the task will be canceled.",
-                        "Cancel task", "Continue task");
+                String title = ExomeSuite.getResources().getString("cancel.task.title");
+                String message = ExomeSuite.getResources().getString("cancel.task.message");
+                String yes = ExomeSuite.getResources().getString("cancel.task.yes");
+                String no = ExomeSuite.getResources().getString("cancel.task.no");
+
+                Dialog.Response response = new Dialog().showYesNo(title, message, yes, no);
                 if (response == Dialog.Response.YES) {
                     if (task.cancel(true)) {
-
+                        // Nothing, perhaps print a message
                     }
                 } else {
                     e.consume();
@@ -413,22 +417,25 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         // inform user about the victory
         task.setOnSucceeded(event -> {
             if (task.getValue() == 0) {
-                MainViewController.printMessage("Task " + task.getTitle() + " finished", "success");
+                String message = ExomeSuite.getStringFormatted("task.finished.ok", task.getTitle());
+                MainViewController.printMessage(message, "success");
             } else {
-                MainViewController.printMessage("Task " + task.getTitle() + " finished with errors", "error");
+                String message = ExomeSuite.getStringFormatted("task.finished.error", task.getTitle());
+                MainViewController.printMessage(message, "error");
             }
             taskPanel.getProgress().setVisible(false);
             taskPanel.getCancelButton().setVisible(false);
         });
         taskPanel.getCancelButton().setOnAction(e -> {
             if (!task.cancel(true)) {
-                MainViewController.printMessage("Imposible to stop task", "warning");
+                MainViewController.printMessage(ExomeSuite.getResources().getString("impossible.stop.task"), "warning");
             }
         });
         task.setOnCancelled(event -> {
             taskPanel.getProgress().setVisible(false);
             taskPanel.getCancelButton().setVisible(false);
-            MainViewController.printMessage("Task " + task.getTitle() + " canceled by user", "info");
+            String message = ExomeSuite.getStringFormatted("user.canceled.task", task.getTitle());
+            MainViewController.printMessage(message, "info");
         });
         // Fill the tab
         Parent parent = loader.getRoot();
@@ -437,7 +444,8 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         MainViewController.getWorkingArea().getTabs().add(t);
         MainViewController.getWorkingArea().getSelectionModel().select(t);
         // Launch the task
-        MainViewController.printMessage("Task " + task.getTitle() + " started", "info");
+        String message = ExomeSuite.getStringFormatted("task.started", task.getTitle());
+        MainViewController.printMessage(message, "info");
         try {
             new Thread(task).start();
         } catch (Exception e) {

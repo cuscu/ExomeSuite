@@ -13,18 +13,18 @@
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
     <children>
-        <SectionTitle title="Properties"  />
-        <TextParam title="Name" fx:id="name" HBox.hgrow="ALWAYS" />
-        <TextParam title="Code" fx:id="code" HBox.hgrow="ALWAYS"  />
-        <Param title="Path" fx:id="path" />
-        <TextParam title="Description" fx:id="description" />
-        <SectionTitle title="Original data"  />
-        <FileParam title="Forward sequences" fx:id="forward" promptText="Forward sequences" />
-        <FileParam title="Reverse sequences" fx:id="reverse" promptText="Reverse sequences" />
-        <ChoiceParam title="Base encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
-        <ChoiceParam title="Reference genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
-        <SectionTitle title="Processed data" />
-        <Button fx:id="addButton" text="Add a file" styleClass="graphic-button" />
+        <SectionTitle title="%properties"  />
+        <TextParam title="%name" fx:id="name" HBox.hgrow="ALWAYS" />
+        <TextParam title="%code" fx:id="code" HBox.hgrow="ALWAYS"  />
+        <Param title="%path" fx:id="path" />
+        <TextParam title="%description" fx:id="description" />
+        <SectionTitle title="%original.data"  />
+        <FileParam title="%forward.sequences" fx:id="forward" promptText="%forward.sequences" />
+        <FileParam title="%reverse.sequences" fx:id="reverse" promptText="%reverse.sequences" />
+        <ChoiceParam title="%encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
+        <ChoiceParam title="%reference.genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
+        <SectionTitle title="%processed.data" />
+        <Button fx:id="addButton" text="%add.file" styleClass="graphic-button" />
         <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />
     </children>
 

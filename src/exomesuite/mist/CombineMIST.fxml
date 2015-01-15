@@ -10,11 +10,11 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600.0" alignment="TOP_CENTER"
       fx:controller="exomesuite.mist.CombineMIST">
     <children>
-        <SectionTitle title="Select files"/>
+        <SectionTitle title="%select.files"/>
         <ListView fx:id="fileList" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-        <Button fx:id="addButton" text="Add files" styleClass="graphic-button" />
-        <FileParam fx:id="output" title="Output" behaviour="SAVE"  />
-        <Button fx:id="startButton" text="Start" styleClass="graphic-button"/>
+        <Button fx:id="addButton" text="%add.files" styleClass="graphic-button" />
+        <FileParam fx:id="output" title="%output" behaviour="SAVE"  />
+        <Button fx:id="startButton" text="%start" styleClass="graphic-button"/>
     </children>
 
 </VBox>

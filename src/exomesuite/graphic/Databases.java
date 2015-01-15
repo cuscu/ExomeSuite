@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -65,7 +66,7 @@ public class Databases extends VBox {
      */
     public Databases() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Databases.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Databases.fxml"), ExomeSuite.getResources());
             loader.setRoot(this);
             loader.setController(this);
             getStylesheets().add("/exomesuite/main.css");

@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.utils.FileManager;
 import java.io.File;
 
@@ -31,7 +32,8 @@ public class PathParam extends Param<File> {
         if (getValue() != null) {
             parent = getValue().getParentFile();
         }
-        File file = FileManager.openDirectory("Select " + getTitle(), parent);
+        String message = ExomeSuite.getStringFormatted("select.file", getTitle());
+        File file = FileManager.openDirectory(message, parent);
         return file;
     }
 

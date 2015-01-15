@@ -27,8 +27,8 @@ import javafx.scene.control.TableCell;
 public class IndexCell extends TableCell {
 
     /**
-     * Creates a new index cell that will have "index-cell" css class and will be centered on the
-     * right.
+     * Creates a new index cell that will have "index-cell" css class and will be aligned on the
+     * center right.
      */
     public IndexCell() {
         getStyleClass().add("index-cell");

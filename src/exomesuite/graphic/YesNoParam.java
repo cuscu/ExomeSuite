@@ -16,6 +16,8 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
+
 /**
  * A boolean parameter. yes is true, no is false
  *
@@ -38,9 +40,10 @@ public class YesNoParam extends Param<Boolean> {
     @Override
     protected String toLabel(Boolean value) {
         if (value == null) {
-            return "NO";
+            return ExomeSuite.getResources().getString("no");
         }
-        return value ? "YES" : "NO";
+        return value ? ExomeSuite.getResources().getString("yes")
+                : ExomeSuite.getResources().getString("no");
     }
 
 }

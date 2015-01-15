@@ -16,8 +16,10 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -25,6 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  * Prompt questions.
@@ -33,15 +36,15 @@ import javafx.stage.Stage;
  */
 public class Dialog extends VBox {
 
-    private final Button yes = new Button("Yes");
-    private final Button no = new Button("No");
-    private final Button cancel = new Button("Cancel");
+    private final Button yes = new Button();
+    private final Button no = new Button();
+    private final Button cancel = new Button();
     private final Label message = new Label("Yes or no?");
     private final HBox hbox = new HBox();
     private Response response = Response.CANCEL;
-    private static final String DEFAULT_YES = "Yes";
-    private static final String DEFAULT_NO = "No";
-    private static final String DEFAULT_CANCEL = "Cancel";
+    private static final String DEFAULT_YES = ExomeSuite.getResources().getString("yes");
+    private static final String DEFAULT_NO = ExomeSuite.getResources().getString("no");
+    private static final String DEFAULT_CANCEL = ExomeSuite.getResources().getString("cancel");
     private final Stage stage = new Stage();
 
     /**
@@ -93,7 +96,7 @@ public class Dialog extends VBox {
     }
 
     /**
-     * Prompts a yes/no/cancel question
+     * Prompts a yes/no/cancel question.
      *
      * @param title title for stage
      * @param text quetion text
@@ -117,8 +120,36 @@ public class Dialog extends VBox {
         response = Response.CANCEL;
         stage.centerOnScreen();
         stage.setAlwaysOnTop(true);
+        stage.initStyle(StageStyle.UTILITY);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
+    }
+
+    /**
+     * Sets an icon for the yes button.
+     *
+     * @param icon the icon
+     */
+    public void setYesIcon(Node icon) {
+        yes.setGraphic(icon);
+    }
+
+    /**
+     * Sets an icon for the no button.
+     *
+     * @param icon the icon
+     */
+    public void setNoIcon(Node icon) {
+        no.setGraphic(icon);
+    }
+
+    /**
+     * Sets an icon for the cancel button.
+     *
+     * @param icon the icon
+     */
+    public void setCancelIcon(Node icon) {
+        cancel.setGraphic(icon);
     }
 
     /**

@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.project.Project;
 import exomesuite.utils.Configuration;
@@ -37,7 +38,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
@@ -76,7 +76,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
      * Creates a Projet Info pane with the properties of the project.
      */
     public ProjectInfo() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectInfo.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ProjectInfo.fxml"), ExomeSuite.getResources());
         loader.setRoot(this);
         loader.setController(this);
         try {
@@ -109,7 +109,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
         genome.setOnValueChanged(event -> project.getProperties().setProperty(Project.REFERENCE_GENOME,
                 genome.getValue()));
         files.setContextMenu(getFilesContextMenu());
-        files.setCellFactory((ListView<String> param) -> new PlainCell());
+        files.setCellFactory(listview -> new PlainCell());
         files.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                 showFile();
@@ -120,7 +120,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
                 showFile();
             }
         });
-        addButton.setGraphic(new ImageView("exomesuite/img/addFile.png"));
+        addButton.setGraphic(new SizableImage("exomesuite/img/addFile.png", SizableImage.SMALL_SIZE));
         addButton.setOnAction(event -> addFile());
     }
 
@@ -170,7 +170,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
      * Opens a dialog to select a File and, if not null, adds it to the project.
      */
     private void addFile() {
-        File f = FileManager.openFile("Select a file", FileManager.ALL_FILTER);
+        File f = FileManager.openFile("%select.file", FileManager.ALL_FILTER);
         if (f != null) {
             project.addExtraFile(f.getAbsolutePath());
         }
@@ -191,7 +191,8 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
             }
             MainViewController.showFileContent(file, secondary);
         } else {
-            MainViewController.printMessage("File " + f + " is not accesible", "warning");
+            String message = ExomeSuite.getStringFormatted("file.not.accesible", f);
+            MainViewController.printMessage(message, "warning");
         }
     }
 
@@ -246,14 +247,14 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
     }
 
     private ContextMenu getFilesContextMenu() {
-        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/cancel.png", 16));
+        MenuItem delete = new MenuItem(ExomeSuite.getResources().getString("delete"),
+                new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
         delete.setOnAction(event -> removeFile());
         return new ContextMenu(delete);
     }
 
     @Override
     public void configurationChanged(Configuration configuration, String keyChanged) {
-        System.out.println("Config changed");
         if (keyChanged.equals(Project.FILES)) {
             files.getItems().clear();
             String fs = project.getProperties().getProperty(Project.FILES);

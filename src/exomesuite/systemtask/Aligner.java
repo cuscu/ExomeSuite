@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.ExomeSuite;
 import java.io.File;
 
 /**
@@ -67,7 +68,7 @@ public class Aligner extends SystemTask {
 
     @Override
     protected Integer call() throws Exception {
-        System.out.println("Alingment parameters");
+        System.out.println(ExomeSuite.getResources().getString("alignment.params"));
         System.out.println("temp=" + temp);
         System.out.println("forward=" + forward);
         System.out.println("reverse=" + reverse);

@@ -58,17 +58,18 @@ public class ButtonsBar extends FlowPane {
     private void initialize() {
         openFile.setOnAction(e -> ExomeSuite.getController().openFile());
         openProject.setOnAction(e -> ExomeSuite.getController().openProject(
-                FileManager.openFile("Select a config file", FileManager.CONFIG_FILTER)));
+                FileManager.openFile(ExomeSuite.getResources().getString("select.config"),
+                        FileManager.CONFIG_FILTER)));
         openDatabases.setOnAction(e -> ExomeSuite.getController().showDatabasesPane());
         newProject.setOnAction(e -> ExomeSuite.getController().showNewPane());
-        openProject.setGraphic(new SizableImage("exomesuite/img/open.png", 32));
-        openProject.setTooltip(new Tooltip("Open project... Ctrl+O"));
-        newProject.setGraphic(new SizableImage("exomesuite/img/add.png", 32));
-        newProject.setTooltip(new Tooltip("New project... Ctrl+N"));
-        openDatabases.setGraphic(new SizableImage("exomesuite/img/database.png", 32));
-        openDatabases.setTooltip(new Tooltip("Databases... Ctrl+D"));
-        openFile.setGraphic(new SizableImage("exomesuite/img/file.png", 32));
-        openFile.setTooltip(new Tooltip("Open file"));
+        openProject.setGraphic(new SizableImage("exomesuite/img/open.png", SizableImage.MEDIUM_SIZE));
+        openProject.setTooltip(new Tooltip(ExomeSuite.getResources().getString("open.project")));
+        newProject.setGraphic(new SizableImage("exomesuite/img/add.png", SizableImage.MEDIUM_SIZE));
+        newProject.setTooltip(new Tooltip(ExomeSuite.getResources().getString("new.project")));
+        openDatabases.setGraphic(new SizableImage("exomesuite/img/database.png", SizableImage.MEDIUM_SIZE));
+        openDatabases.setTooltip(new Tooltip(ExomeSuite.getResources().getString("open.databases")));
+        openFile.setGraphic(new SizableImage("exomesuite/img/file.png", SizableImage.MEDIUM_SIZE));
+        openFile.setTooltip(new Tooltip(ExomeSuite.getResources().getString("open.file")));
     }
 
 }

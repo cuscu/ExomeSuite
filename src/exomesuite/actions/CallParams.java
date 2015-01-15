@@ -16,6 +16,7 @@
  */
 package exomesuite.actions;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.SizableImage;
@@ -54,7 +55,7 @@ public class CallParams extends VBox {
     public CallParams(Properties properties) {
         this.params = properties;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("CallParams.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("CallParams.fxml"), ExomeSuite.getResources());
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
@@ -74,8 +75,8 @@ public class CallParams extends VBox {
         cancel.setOnAction(event -> acceptEvent.handle(event));
         bamFile.setOnValueChanged(event -> params.put("bamFile", bamFile.getValue()));
         algorithm.setOnValueChanged(event -> params.put("algorithm", algorithm.getValue()));
-        accept.setGraphic(new SizableImage("exomesuite/img/call.png", 32));
-        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
+        accept.setGraphic(new SizableImage("exomesuite/img/call.png", SizableImage.SMALL_SIZE));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
     }
 
     /**

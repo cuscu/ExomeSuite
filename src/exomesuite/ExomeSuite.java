@@ -108,7 +108,7 @@ public class ExomeSuite extends Application {
         System.out.println(Software.isSamtoolsInstalled());
         System.out.print(resources.getString("check.bwa"));
         System.out.println(Software.isSamtoolsInstalled());
-        System.out.print("Checking GATK... ");
+        System.out.print(resources.getString("check.gatk"));
         System.out.println(Software.isGatkInstalled());
 //        GenomeIndexer.index(new File("/home/unidad03/DNA_Sequencing/HomoSapiensGRCh38/genome.fasta"));
     }
@@ -132,7 +132,7 @@ public class ExomeSuite extends Application {
      *
      * @return the current resource bundle.
      */
-    public static ResourceBundle getResourceBundle() {
+    public static ResourceBundle getResources() {
         return resources;
     }
 

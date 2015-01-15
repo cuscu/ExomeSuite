@@ -16,6 +16,7 @@
  */
 package exomesuite.actions;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.FileParam;
@@ -61,7 +62,7 @@ public class AlignParams extends VBox {
     public AlignParams(Properties properties) {
         this.properties = properties;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignParams.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignParams.fxml"), ExomeSuite.getResources());
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
@@ -93,8 +94,8 @@ public class AlignParams extends VBox {
         cancel.setOnAction(event -> handler.handle(event));
         encoding.setOptions(OS.getEncodings());
         reference.setOptions(OS.getReferenceGenomes());
-        accept.setGraphic(new SizableImage("exomesuite/img/align.png", 32));
-        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
+        accept.setGraphic(new SizableImage("exomesuite/img/align.png", SizableImage.SMALL_SIZE));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
     }
 
     /**

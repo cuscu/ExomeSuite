@@ -16,14 +16,17 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.project.Project;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.FlowPane;
 
 /**
  * The list of projects.
@@ -40,16 +43,26 @@ public class ProjectList extends ListView<Project> {
     }
 
     private void initialize() {
-        setPlaceholder(new Label("Open or create a project."));
+        String message = ExomeSuite.getResources().getString("no.projects");
+        FlowPane placeholder = new FlowPane();
+        String[] words = message.split(" ");
+        for (String word : words) {
+            placeholder.getChildren().add(new Label(word + " "));
+        }
+//        placeholder.setDisable(true);
+        setPlaceholder(placeholder);
         // Context menu
-        MenuItem close = new MenuItem("Close", new SizableImage("exomesuite/img/cancel.png", 16));
-        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/delete.png", 16));
+        MenuItem close = new MenuItem("Close", new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
         close.setOnAction(event -> close(getSelectionModel().getSelectedItem()));
         delete.setOnAction(event -> delete(getSelectionModel().getSelectedItem()));
         final ContextMenu contextMenu = new ContextMenu(close, delete);
-        setContextMenu(contextMenu);
+        //setContextMenu(contextMenu);
         // Cell factory
         setEditable(false);
+        getItems().addListener((ListChangeListener.Change<? extends Project> c) -> {
+            setContextMenu(getItems().isEmpty() ? null : contextMenu);
+        });
     }
 
     /**
@@ -58,8 +71,10 @@ public class ProjectList extends ListView<Project> {
      * @param project the project to remove from list
      */
     private void close(Project project) {
-        getItems().remove(project);
-        OS.removeProject(project);
+        if (project != null) {
+            getItems().remove(project);
+            OS.removeProject(project);
+        }
     }
 
     /**
@@ -72,9 +87,12 @@ public class ProjectList extends ListView<Project> {
             // Ask user to remove folder content
             File path = new File(project.getProperties().getProperty(Project.PATH));
             //File config = project.getConfigFile();
-            Dialog.Response response = new Dialog().showYesNoCancel("Delete content",
-                    "Do you also want to delete everything under" + path + "?",
-                    "Delete everything", "Delete only project", "Cancel");
+            String title = ExomeSuite.getResources().getString("delete.project.title");
+            String message = ExomeSuite.getStringFormatted("delete.project.message", path.toString());
+            String yes = ExomeSuite.getResources().getString("delete.project.yes");
+            String no = ExomeSuite.getResources().getString("delete.project.no");
+            String cancel = ExomeSuite.getResources().getString("cancel");
+            Dialog.Response response = new Dialog().showYesNoCancel(title, message, yes, no, cancel);
             switch (response) {
                 case YES:
                     FileManager.delete(path, true);

@@ -13,13 +13,13 @@
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
     <children>
-        <ChoiceParam fx:id="bamFile" title="Alignments file" promptText="Select a BAM file"/>
-        <TextParam fx:id="threshold" title="Threshold" value="10" />
-        <NumberParam fx:id="length"  title="Length" value="1" max="50" min="1" />
+        <ChoiceParam fx:id="bamFile" title="%alignments" promptText="Select a BAM file"/>
+        <TextParam fx:id="threshold" title="%threshold" value="10" />
+        <NumberParam fx:id="length"  title="%length" value="1" max="50" min="1" />
         <HBox alignment="TOP_RIGHT" spacing="5" >
             <children>
-                <Button text="Cancel" fx:id="cancel"/>
-                <Button text="Start" fx:id="accept"/>
+                <Button text="%cancel" fx:id="cancel"/>
+                <Button text="%start" fx:id="accept"/>
             </children>
         </HBox>
     </children>

@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import exomesuite.utils.FileManager;
 import java.io.File;
 import java.util.ArrayList;
@@ -53,19 +54,20 @@ public class FileParam extends Param<File> {
             parent = getValue().getParentFile();
         }
         File file;
+        String message = ExomeSuite.getStringFormatted("select.file", getTitle());
         switch (behaviour) {
             case OPEN:
                 if (parent != null) {
-                    file = FileManager.openFile("Select " + getTitle(), parent, filters);
+                    file = FileManager.openFile(message, parent, filters);
                 } else {
-                    file = FileManager.openFile("Select " + getTitle(), filters);
+                    file = FileManager.openFile(message, filters);
                 }
                 return file;
             case SAVE:
                 if (parent != null) {
-                    file = FileManager.saveFile("Select " + getTitle(), parent, filters);
+                    file = FileManager.saveFile(message, parent, filters);
                 } else {
-                    file = FileManager.saveFile("Select " + getTitle(), filters);
+                    file = FileManager.saveFile(message, filters);
                 }
                 return file;
         }

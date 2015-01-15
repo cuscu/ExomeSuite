@@ -16,6 +16,7 @@
  */
 package exomesuite.mist;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.graphic.FileParam;
 import exomesuite.graphic.SizableImage;
@@ -84,8 +85,8 @@ public class CombineMIST {
     public void initialize() {
         // The add Button can add multilpe files.
         addButton.setOnAction(e -> {
-            List<File> f = FileManager.openFiles("Select MIST", FileManager.MIST_FILTER,
-                    FileManager.ALL_FILTER);
+            List<File> f = FileManager.openFiles(ExomeSuite.getResources().getString("select.mist"),
+                    FileManager.MIST_FILTER, FileManager.ALL_FILTER);
             if (f != null) {
                 fileList.getItems().addAll(f);
             }
@@ -95,8 +96,8 @@ public class CombineMIST {
         output.setOnValueChanged(e -> startButton.setDisable(false));
         output.addFilter(FileManager.MIST_FILTER);
         startButton.setOnAction(e -> intersect(fileList.getItems(), output.getValue()));
-        addButton.setGraphic(new SizableImage("exomesuite/img/new.png", 32));
-        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", 32));
+        addButton.setGraphic(new SizableImage("exomesuite/img/new.png", SizableImage.MEDIUM_SIZE));
+        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", SizableImage.MEDIUM_SIZE));
     }
 
     /**
@@ -138,8 +139,8 @@ public class CombineMIST {
         } catch (Exception ex) {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
-        MainViewController.printMessage("Success: file " + output + " generated (" + m + " matches)",
-                "success");
+        String message = ExomeSuite.getStringFormatted("combine.mist.success", output.getAbsolutePath(), m);
+        MainViewController.printMessage(message, "success");
     }
 
     /**

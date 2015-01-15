@@ -16,6 +16,7 @@
  */
 package exomesuite.actions;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.graphic.ChoiceParam;
 import exomesuite.graphic.NumberParam;
@@ -62,7 +63,7 @@ public class MistParams extends VBox {
     public MistParams(Properties properties) {
         this.properties = properties;
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("MistParams.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("MistParams.fxml"), ExomeSuite.getResources());
             loader.setRoot(this);
             loader.setController(this);
             loader.load();
@@ -90,8 +91,8 @@ public class MistParams extends VBox {
             closeEvent.handle(event);
         });
         cancel.setOnAction(event -> closeEvent.handle(event));
-        accept.setGraphic(new SizableImage("exomesuite/img/mist.png", 32));
-        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 32));
+        accept.setGraphic(new SizableImage("exomesuite/img/mist.png", SizableImage.SMALL_SIZE));
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
     }
 
     /**

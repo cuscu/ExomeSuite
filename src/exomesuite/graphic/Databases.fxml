@@ -14,15 +14,15 @@
     </stylesheets>
     <children>
         <!-- Standard databases -->
-        <SectionTitle title="Variant databases"/>
-        <FileParam  title="Mills and 1000G indels" fx:id="mills"/>
-        <FileParam title="1000G phase 1 indels" fx:id="phase1" />
-        <FileParam title="1000G OMNI" fx:id="omni" />
-        <FileParam title="Hapmap" fx:id="hapmap" />
-        <FileParam title="dbSNP" fx:id="dbsnp" />
-        <FileParam title="Ensembl exons" fx:id="ensembl"/>
+        <SectionTitle title="%variant.databases"/>
+        <FileParam  title="%mills" fx:id="mills"/>
+        <FileParam title="%pahse1" fx:id="phase1" />
+        <FileParam title="%omni" fx:id="omni" />
+        <FileParam title="%hapmap" fx:id="hapmap" />
+        <FileParam title="%dbsnp" fx:id="dbsnp" />
+        <FileParam title="%ensembl.exons" fx:id="ensembl"/>
         <!-- Reference genomes -->
-        <SectionTitle title="Reference genome" />
+        <SectionTitle title="%reference.genome" />
         <FileParam title="GRCHv37 (hg19)" fx:id="grch37"/>
         <FileParam title="GRCHv38" fx:id="grch38" />
 

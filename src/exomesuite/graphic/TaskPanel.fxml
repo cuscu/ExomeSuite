@@ -16,7 +16,7 @@
         <HBox alignment="CENTER_LEFT">
             <children>
                 <ProgressBar fx:id="progress" maxWidth="9999" HBox.hgrow="SOMETIMES"  />
-                <Button fx:id="cancel" text="Cancel" styleClass="graphic-box"/>
+                <Button fx:id="cancel" text="%cancel" styleClass="graphic-box"/>
             </children>
         </HBox>
         <TextArea fx:id="textArea" VBox.vgrow="SOMETIMES" editable="false"  />

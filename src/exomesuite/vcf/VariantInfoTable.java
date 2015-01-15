@@ -16,6 +16,7 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.ExomeSuite;
 import exomesuite.graphic.NaturalCell;
 import java.util.Map;
 import javafx.scene.control.TableColumn;
@@ -29,9 +30,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class VariantInfoTable extends TableView<Info> implements VariantListener {
 
-    private final TableColumn<Info, String> name = new TableColumn<>("Name");
-    private final TableColumn<Info, String> value = new TableColumn<>("Value");
-    private final TableColumn<Info, String> description = new TableColumn<>("Description");
+    private final TableColumn<Info, String> name = new TableColumn(ExomeSuite.getResources().getString("name"));
+    private final TableColumn<Info, String> value = new TableColumn(ExomeSuite.getResources().getString("value"));
+    private final TableColumn<Info, String> description = new TableColumn(ExomeSuite.getResources().getString("description"));
 
     /**
      * Creates a new VariantInfoTable.

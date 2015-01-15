@@ -33,10 +33,10 @@ public class NumberParam extends Param<Double> {
 
     private final Slider slider = new Slider();
     private final TextField textField = new TextField();
-    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
-    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
-    private final Button up = new Button(null, new SizableImage("exomesuite/img/up.png", 16));
-    private final Button down = new Button(null, new SizableImage("exomesuite/img/down.png", 16));
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button up = new Button(null, new SizableImage("exomesuite/img/up.png", SizableImage.SMALL_SIZE));
+    private final Button down = new Button(null, new SizableImage("exomesuite/img/down.png", SizableImage.SMALL_SIZE));
 
     private final HBox pane;
     private boolean onlyInteger = true;

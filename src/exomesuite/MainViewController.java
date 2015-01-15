@@ -41,8 +41,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -56,7 +54,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -121,7 +118,7 @@ public class MainViewController {
      */
     public void initialize() {
         setMenus();
-        projectList.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
+        projectList.getSelectionModel().selectedItemProperty().addListener((obs, old, newValue) -> {
 //                    projectActions.setProject(newValue);
             pactions.setProject(newValue);
             projectInfo.setProject(newValue);
@@ -169,26 +166,31 @@ public class MainViewController {
     }
 
     /**
-     * Checks if all projects can be close. Iterates over projectList, if any of the projects
+     * Checks if all projects can be closed. Iterates over projectList, if any of the projects
      * couldn't be closed, returns false.
      *
      */
     public void exitApplication() {
-        if (OS.getProperties().getProperty("confirmexit", "true").equals("true")) {
-            ResourceBundle resources = ExomeSuite.getResourceBundle();
+        if (OS.getProperties().getProperty("confirm.exit", "true").equals("true")) {
+            ResourceBundle resources = ExomeSuite.getResources();
             String title = resources.getString("exit.app.title");
             String question = resources.getString("exit.app.question");
             String yes = resources.getString("exit.app.yes");
             String no = resources.getString("exit.app.no");
             String never = resources.getString("exit.app.neverask");
-            Dialog.Response resp = new Dialog().showYesNoCancel(title, question, yes, no, never);
+            Dialog d = new Dialog();
+            d.setYesIcon(new SizableImage("exomesuite/img/exit.png", SizableImage.SMALL_SIZE));
+            Dialog.Response resp = d.showYesNoCancel(title, question, yes, never, no);
             if (resp == Dialog.Response.YES) {
                 ExomeSuite.getMainStage().close();
-            } else if (resp == Dialog.Response.NO) {
+            } else if (resp == Dialog.Response.CANCEL) {
                 printMessage(resources.getString("keep.work"), "success");
-            } else {
-                OS.getProperties().setProperty("confirmexit", "false");
+            } else if (resp == Dialog.Response.NO) {
+                OS.getProperties().setProperty("confirm.exit", "false");
                 ExomeSuite.getMainStage().close();
+            } else {
+                // User closed dialog
+                printMessage(resources.getString("keep.work"), "success");
             }
         } else {
             ExomeSuite.getMainStage().close();
@@ -200,30 +202,30 @@ public class MainViewController {
      */
     private void setMenus() {
         // Open menu
-        openMenu.setOnAction(e -> openProject(FileManager.openFile("Config file",
-                FileManager.CONFIG_FILTER)));
-        openMenu.setGraphic(new ImageView("exomesuite/img/open.png"));
+        openMenu.setOnAction(e -> openProject(FileManager.openFile(
+                ExomeSuite.getResources().getString("config.file"), FileManager.CONFIG_FILTER)));
+        openMenu.setGraphic(new SizableImage("exomesuite/img/open.png", SizableImage.SMALL_SIZE));
         openMenu.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         // New menu
         newMenu.setOnAction(e -> showNewPane());
-        newMenu.setGraphic(new ImageView("exomesuite/img/add.png"));
+        newMenu.setGraphic(new SizableImage("exomesuite/img/add.png", SizableImage.SMALL_SIZE));
         newMenu.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
         // Databases menu
         databaseMenu.setOnAction(e -> showDatabasesPane());
-        databaseMenu.setGraphic(new ImageView("exomesuite/img/database.png"));
+        databaseMenu.setGraphic(new SizableImage("exomesuite/img/database.png", SizableImage.SMALL_SIZE));
         databaseMenu.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN));
         // Open TSV
-        openFile.setGraphic(new ImageView("exomesuite/img/file.png"));
+        openFile.setGraphic(new SizableImage("exomesuite/img/file.png", SizableImage.SMALL_SIZE));
         openFile.setOnAction(e -> openFile());
         // VCF menu
         combineVCFMenu.setOnAction(e -> combineVCF());
-        combineVCFMenu.setGraphic(new ImageView("exomesuite/img/documents_vcf.png"));
+        combineVCFMenu.setGraphic(new SizableImage("exomesuite/img/documents_vcf.png", SizableImage.SMALL_SIZE));
         // Mist Menu
         intersectMIST.setOnAction(e -> combineMIST());
-        intersectMIST.setGraphic(new ImageView("exomesuite/img/documents_mist.png"));
+        intersectMIST.setGraphic(new SizableImage("exomesuite/img/documents_mist.png", SizableImage.SMALL_SIZE));
         // About
         about.setOnAction(e -> showAbout());
-        language.setGraphic(new SizableImage("exomesuite/img/world.png", 16));
+        language.setGraphic(new SizableImage("exomesuite/img/world.png", SizableImage.SMALL_SIZE));
     }
 
     /**
@@ -231,15 +233,15 @@ public class MainViewController {
      */
     public void showNewPane() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"), ExomeSuite.getResources());
             loader.load();
             NewProjectViewController controller = loader.getController();
             Stage stage = new Stage();
             Scene scen = new Scene(loader.getRoot());
             stage.setScene(scen);
-            stage.setTitle("Create new project");
+            stage.setTitle(ExomeSuite.getResources().getString("create.project"));
             stage.initModality(Modality.APPLICATION_MODAL);
-            controller.setHandler((EventHandler) (Event event) -> {
+            controller.setHandler(event -> {
                 String name = controller.getName();
                 String code = controller.getCode();
                 File path = controller.getPath();
@@ -267,8 +269,7 @@ public class MainViewController {
             });
             stage.showAndWait();
         } catch (IOException ex) {
-            printMessage("Problem loading new project pane", "error");
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+            printException(ex);
         }
     }
 
@@ -288,7 +289,7 @@ public class MainViewController {
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.setAlwaysOnTop(true);
-        stage.setTitle("Databases manager");
+        stage.setTitle(ExomeSuite.getResources().getString("database.manager"));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
     }
@@ -298,7 +299,7 @@ public class MainViewController {
      * extension.
      */
     public void openFile() {
-        File f = FileManager.openFile("Choose any file", FileManager.ALL_FILTER);
+        File f = FileManager.openFile(ExomeSuite.getResources().getString("choose.file"), FileManager.ALL_FILTER);
         showFileContent(f, null);
     }
 
@@ -332,14 +333,16 @@ public class MainViewController {
                 //t.setContent(new VCFReader(file).getView());
             } else if (file.getName().endsWith(".bam")) {
                 if (secondary == null) {
-                    secondary = FileManager.openFile("Select reference genome", FileManager.FASTA_FILTER);
+                    secondary = FileManager.openFile(ExomeSuite.getResources().getString("select.genome"), FileManager.FASTA_FILTER);
                 }
                 t.setContent(new BamReader(file, secondary));
             } else {
-                printMessage("File extension not compatible (" + file.getName() + ")", "warning");
+                String message = ExomeSuite.getStringFormatted("extension.unsupported", file.getName());
+                printMessage(message, "warning");
                 return;
             }
-            printMessage(file + " opened", "success");
+            String message = ExomeSuite.getStringFormatted("file.opened", file.getAbsolutePath());
+            printMessage(message, "success");
             staticWorkingArea.getTabs().add(t);
             staticWorkingArea.getSelectionModel().select(t);
         }
@@ -359,7 +362,7 @@ public class MainViewController {
      */
     private void combineMIST() {
         try {
-            FXMLLoader loader = new FXMLLoader(CombineMIST.class.getResource("CombineMIST.fxml"));
+            FXMLLoader loader = new FXMLLoader(CombineMIST.class.getResource("CombineMIST.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
@@ -368,7 +371,7 @@ public class MainViewController {
             stage.centerOnScreen();
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Intersect MIST files");
+            stage.setTitle(ExomeSuite.getResources().getString("combine.mist"));
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -380,7 +383,7 @@ public class MainViewController {
      */
     private void combineVCF() {
         try {
-            FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"));
+            FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
@@ -389,7 +392,7 @@ public class MainViewController {
             stage.centerOnScreen();
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Intersect VCF files");
+            stage.setTitle(ExomeSuite.getResources().getString("combine.vcf"));
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -401,7 +404,7 @@ public class MainViewController {
      */
     private void showAbout() {
         try {
-            FXMLLoader loader = new FXMLLoader(About.class.getResource("About.fxml"));
+            FXMLLoader loader = new FXMLLoader(About.class.getResource("About.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
@@ -462,14 +465,13 @@ public class MainViewController {
                     });
                 }
             }));
-            Button view = new Button("View details");
+            Button view = new Button(ExomeSuite.getResources().getString("view.details"));
             Stage stage = new Stage();
             Scene scene = new Scene(area);
+            stage.setTitle(ExomeSuite.getResources().getString("exception"));
             stage.centerOnScreen();
             stage.setScene(scene);
-            view.setOnAction(event -> {
-                stage.showAndWait();
-            });
+            view.setOnAction(event -> stage.showAndWait());
             infoHBox.getChildren().setAll(infoLabel, view);
         });
     }

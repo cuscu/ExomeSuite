@@ -16,6 +16,7 @@
  */
 package exomesuite.graphic;
 
+import exomesuite.ExomeSuite;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -43,9 +44,8 @@ public class TaskPanel {
      * Initializes the controller class.
      */
     public void initialize() {
-        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", 16));
-        cancel.setTooltip(new Tooltip(cancel.getText()));
-        cancel.setText(null);
+        cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+        cancel.setTooltip(new Tooltip(ExomeSuite.getResources().getString("cancel")));
     }
 
     /**

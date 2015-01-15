@@ -31,8 +31,8 @@ import javafx.scene.layout.HBox;
 public class TextParam extends Param<String> {
 
     private final TextField field = new TextField();
-    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
-    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
 
     /**
      * Creates a new TextParam.
