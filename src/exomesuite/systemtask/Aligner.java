@@ -26,7 +26,7 @@ import java.io.File;
 public class Aligner extends SystemTask {
 
     private final String temp, forward, reverse, genome, dbsnp, mills, phase1, output, name;
-    private final boolean illumina, gatkRefine;
+    private final boolean phred64, gatkRefine;
     private final int cores;
     private final String java7 = "software/jre1.7.0_71/bin/java";
     private final File gatk = new File("software"
@@ -45,11 +45,11 @@ public class Aligner extends SystemTask {
      * @param phase1 the 1000 genome Phase 1 indels
      * @param output the output file
      * @param name the name of the smaple
-     * @param illumina true if the encoding is illumin phred+64
+     * @param phred64 true if the encoding is illumin phred+64
      * @param gatkRefine true if you want to realign with GATK
      */
     public Aligner(String temp, String forward, String reverse, String genome, String dbsnp,
-            String mills, String phase1, String output, String name, boolean illumina,
+            String mills, String phase1, String output, String name, boolean phred64,
             boolean gatkRefine) {
         this.temp = temp;
         this.forward = forward;
@@ -60,7 +60,7 @@ public class Aligner extends SystemTask {
         this.phase1 = phase1;
         this.output = output;
         this.name = name;
-        this.illumina = illumina;
+        this.phred64 = phred64;
         this.gatkRefine = gatkRefine;
         this.cores = Runtime.getRuntime().availableProcessors();
 
@@ -77,7 +77,7 @@ public class Aligner extends SystemTask {
         println("mills=" + mills);
         println("phase1=" + phase1);
         println("output=" + output);
-        println("illumina=" + illumina);
+        println("illumina=" + phred64);
         updateTitle("Aligning " + new File(output).getName());
         // Check if genome is already indexed.
         if (!Indexer.isIndexed(new File(genome))) {
@@ -133,7 +133,7 @@ public class Aligner extends SystemTask {
         int ret;
         updateMessage(new File(forward).getName() + "...");
         updateProgress(2, 100);
-        if (illumina) {
+        if (phred64) {
             if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), "-I",
                     genome, forward, "-f", seq1)) != 0) {
                 return ret;
@@ -146,7 +146,7 @@ public class Aligner extends SystemTask {
         }
         updateMessage(new File(reverse).getName() + "...");
         updateProgress(12, 100);
-        if (illumina) {
+        if (phred64) {
             if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), "-I",
                     genome, reverse, "-f", seq2)) != 0) {
                 return ret;

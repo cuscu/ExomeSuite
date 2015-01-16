@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.*?>
+
+<VBox prefWidth="700"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.AlignerParameters">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css" />
+    </stylesheets>
+    <children>
+        <GridPane hgap="5.0" maxWidth="1.7976931348623157E308" vgap="5.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <children>
+                <Label text="%forward.sequences" />
+                <Label text="%reverse.sequences" GridPane.rowIndex="1" />
+                <Label text="%reference.genome" GridPane.rowIndex="3" />
+                <Label text="%encoding" GridPane.rowIndex="2" />
+                <HBox GridPane.columnIndex="1">
+                    <children>
+                        <TextField fx:id="forward" editable="false" promptText="%choose.file"  GridPane.columnIndex="1" HBox.hgrow="SOMETIMES" />
+                        <Button fx:id="browseForward" mnemonicParsing="false" text="%browse" />
+                    </children>
+                </HBox>
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <children>
+                        <TextField fx:id="reverse" editable="false" promptText="%choose.file"  GridPane.columnIndex="1" GridPane.rowIndex="1" HBox.hgrow="SOMETIMES" />
+                        <Button fx:id="browseReverse" mnemonicParsing="false" text="%browse" />
+                    </children>
+                </HBox>
+                <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            </children>
+        </GridPane>
+        <HBox alignment="TOP_RIGHT" spacing="5">
+            <children>
+                <Button fx:id="cancel" text="%cancel" />
+                <Button fx:id="accept" text="%align" />
+            </children>
+        </HBox>
+
+    </children>
+    <padding>
+        <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
+    </padding>
+</VBox>

@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox  xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.graphic.TaskPanel" fillWidth="true">
+<VBox spacing="5"  xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.graphic.TaskPanel" fillWidth="true">
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
