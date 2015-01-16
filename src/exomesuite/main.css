@@ -170,3 +170,21 @@
     -fx-padding: 0;
     -fx-border-width: 0;
 }
+
+// Progress bar
+.progress-bar{
+    -fx-background-radius: 5;
+    -fx-background-color: lightgrey;
+    -fx-border-color: grey;
+    -fx-border-radius: 5;
+}
+
+.progress-bar>*.track{
+    -fx-background-color: transparent;
+}
+
+.progress-bar>*.bar{
+    -fx-background-color: lightblue;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5  ;
+}

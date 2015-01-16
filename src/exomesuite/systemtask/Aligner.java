@@ -68,16 +68,16 @@ public class Aligner extends SystemTask {
 
     @Override
     protected Integer call() throws Exception {
-        System.out.println(ExomeSuite.getResources().getString("alignment.params"));
-        System.out.println("temp=" + temp);
-        System.out.println("forward=" + forward);
-        System.out.println("reverse=" + reverse);
-        System.out.println("genome=" + genome);
-        System.out.println("dbsnp=" + dbsnp);
-        System.out.println("mills=" + mills);
-        System.out.println("phase1=" + phase1);
-        System.out.println("output=" + output);
-        System.out.println("illumina=" + illumina);
+        println(ExomeSuite.getResources().getString("alignment.params"));
+        println("temp=" + temp);
+        println("forward=" + forward);
+        println("reverse=" + reverse);
+        println("genome=" + genome);
+        println("dbsnp=" + dbsnp);
+        println("mills=" + mills);
+        println("phase1=" + phase1);
+        println("output=" + output);
+        println("illumina=" + illumina);
         updateTitle("Aligning " + new File(output).getName());
         // Check if genome is already indexed.
         if (!Indexer.isIndexed(new File(genome))) {
@@ -108,7 +108,7 @@ public class Aligner extends SystemTask {
         }
         updateMessage("Done");
         updateProgress(1, 1);
-        return ret;
+        return 0;
 
     }
 
@@ -148,12 +148,12 @@ public class Aligner extends SystemTask {
         updateProgress(12, 100);
         if (illumina) {
             if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores), "-I",
-                    genome, forward, "-f", seq2)) != 0) {
+                    genome, reverse, "-f", seq2)) != 0) {
                 return ret;
             }
         } else {
             if ((ret = execute("bwa", "aln", "-t", String.valueOf(cores),
-                    genome, forward, "-f", seq2)) != 0) {
+                    genome, reverse, "-f", seq2)) != 0) {
                 return ret;
             }
         }

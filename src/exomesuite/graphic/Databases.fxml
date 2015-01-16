@@ -16,7 +16,7 @@
         <!-- Standard databases -->
         <SectionTitle title="%variant.databases"/>
         <FileParam  title="%mills" fx:id="mills"/>
-        <FileParam title="%pahse1" fx:id="phase1" />
+        <FileParam title="%phase1" fx:id="phase1" />
         <FileParam title="%omni" fx:id="omni" />
         <FileParam title="%hapmap" fx:id="hapmap" />
         <FileParam title="%dbsnp" fx:id="dbsnp" />

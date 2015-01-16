@@ -252,7 +252,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         String name = project.getProperties().getProperty(Project.NAME);
         boolean illumina = properties.getProperty("encoding").equals("phred+64");
         boolean refine = reference.equalsIgnoreCase("grch37");
-        List<String> errors = new ArrayList<>();
+        List<String> errors = new ArrayList();
         // Check that parameters are ok.
         if (refine) {
 //            errors.addAll(FileManager.tripleCheck(dbsnp, mills, phase1));
@@ -304,19 +304,20 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         String dbsnp = OS.getProperties().getProperty("dbsnp");
         String input = params.getProperty("bamFile");
         String algorithm = params.getProperty("algorithm");
-        List<String> errors = new ArrayList<>();
+        List<String> errors = new ArrayList();
         if (!FileManager.tripleCheck(genome)) {
-            errors.add("Reference genome");
-        }
-        if (!FileManager.tripleCheck(dbsnp)) {
-            errors.add("dbSNP");
+            errors.add(ExomeSuite.getResources().getString("reference.genome"));
         }
         if (!FileManager.tripleCheck(input)) {
-            errors.add("Input bam");
+            errors.add(ExomeSuite.getResources().getString("alignments"));
+        }
+        if (!FileManager.tripleCheck(dbsnp)) {
+            errors.add(ExomeSuite.getResources().getString("dbsnp"));
         }
         if (!errors.isEmpty()) {
-            MainViewController.printMessage("There is one or more arguments not specifierd:\n" + errors, "warning");
-            return;
+            String message = ExomeSuite.getResources().getString("missing.arguments") + "\n"
+                    + ": [" + OS.asString(",", errors) + "]";
+            MainViewController.printMessage(message, "warning");
         }
         // path/code.vcf
         String output = project.getProperties().getProperty(Project.PATH) + File.separator
@@ -342,21 +343,16 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         int intThreshold, intLength;
         try {
             intThreshold = Integer.valueOf(threshold);
-            intLength = Integer.valueOf(length);
+            intLength = Double.valueOf(length).intValue();
             // path/code.vcf
             String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                    + project.getProperties().getProperty(Project.CODE) + "_dp" + threshold + "_l" + length + ".mist";
+                    + project.getProperties().getProperty(Project.CODE) + "_dp" + threshold + "_l" + intLength + ".mist";
             Mist task = new Mist(input, output, ensembl, intThreshold, intLength);
             task.stateProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
                     project.addExtraFile(output);
                 }
             });
-//            task.stateProperty().addListener((observable, oldValue, newValue) -> {
-//                if (newValue == Worker.State.SUCCEEDED) {
-//                    project.addExtraFile(output);
-//                }
-//            });
             bindAndStart(task);
         } catch (Exception e) {
             MainViewController.printException(e);
@@ -371,7 +367,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      */
     private void bindAndStart(SystemTask task) {
         // Get a new TaskPanel
-        FXMLLoader loader = new FXMLLoader(TaskPanel.class.getResource("TaskPanel.fxml"));
+        FXMLLoader loader = new FXMLLoader(TaskPanel.class.getResource("TaskPanel.fxml"), ExomeSuite.getResources());
         try {
             loader.load();
         } catch (IOException ex) {

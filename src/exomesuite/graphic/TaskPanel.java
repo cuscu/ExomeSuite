@@ -39,6 +39,8 @@ public class TaskPanel {
     private TextArea textArea;
     @FXML
     private Button cancel;
+    @FXML
+    private Label progressLabel;
 
     /**
      * Initializes the controller class.
@@ -46,6 +48,16 @@ public class TaskPanel {
     public void initialize() {
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
         cancel.setTooltip(new Tooltip(ExomeSuite.getResources().getString("cancel")));
+        progress.progressProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.doubleValue() >= 0 && newValue.doubleValue() <= 1) {
+                progressLabel.setText(String.format("%.2f%%", newValue.doubleValue() * 100.0));
+            } else {
+                progressLabel.setText(null);
+            }
+        });
+        progress.visibleProperty().addListener((obs, oldValue, newValue) -> {
+            progressLabel.setVisible(newValue);
+        });
     }
 
     /**

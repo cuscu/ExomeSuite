@@ -453,6 +453,7 @@ public class MainViewController {
             infoLabel.getStyleClass().add("error-label");
             infoHBox.getStyleClass().add("error-box");
             TextArea area = new TextArea();
+            area.setEditable(false);
             area.getStyleClass().add("error-label");
             e.printStackTrace(new PrintStream(new OutputStream() {
 

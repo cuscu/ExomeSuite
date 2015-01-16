@@ -132,9 +132,9 @@ public class Mist extends SystemTask {
         startTime = System.currentTimeMillis();
 
         // Name of chromosome loaded in memory
-        AtomicReference<String> currentChromosome = new AtomicReference<>("0");
+        AtomicReference<String> currentChromosome = new AtomicReference("0");
         // Chromosome in memory, an array of ints
-        AtomicReference<int[]> depths = new AtomicReference<>();
+        AtomicReference<int[]> depths = new AtomicReference();
         // Counter for matches
         AtomicInteger matches = new AtomicInteger();
 
@@ -176,7 +176,7 @@ public class Mist extends SystemTask {
                     windowEnd = depths.get().length - 1;
                 }
                 // Fill a TreeMap with <pos, dp>
-                TreeMap<Integer, Integer> dp = new TreeMap<>();
+                TreeMap<Integer, Integer> dp = new TreeMap();
                 for (int i = windowStart; i <= windowEnd && i < depths.get().length; i++) {
                     dp.put(i, depths.get()[i]);
                 }
@@ -260,63 +260,6 @@ public class Mist extends SystemTask {
     }
 
     /**
-     * Calculates the mist regions and for each one, prints a line in the output. This method
-     * suposes that the depths correspond to the exon, it does not check that depths position are
-     * inside the exon.
-     *
-     * @param exon the exon been analized
-     * @param depths the depths of the exon
-     */
-//    private int computeMistAreas(String[] exon, int[] depths) {
-//        int start = Integer.valueOf(exon[1]);
-//        int end = Integer.valueOf(exon[2]);
-//        // Set the window size [start - WS, end + WS]
-//        // Start can not be smaller than 1
-//        int windowStart = start - WINDOW_SIZE;
-//        if (windowStart < 1) {
-//            windowStart = 1;
-//        }
-//        // End cannot be greater than chromosome
-//        int windowEnd = end + WINDOW_SIZE;
-//        if (windowEnd >= depths.length) {
-//            windowEnd = depths.length - 1;
-//        }
-//        int mistStart = 0;
-//        int mistEnd = 0;
-//        boolean inMist = false;
-//        int matches = 0;
-//        for (int pos = windowStart; pos < windowEnd; pos++) {
-//            if (depths[pos] < threshold) {
-//                // If the depth is under the threshold, and previously no mist region,
-//                // set the start of the mist region
-//                if (!inMist) {
-//                    inMist = true;
-//                    mist
-//                }
-//                if (inMist.compareAndSet(false, true)) {
-//                    mistStart.set(pos);
-//                } else {
-//                    // If the depth is over threshold, and a mist region was in progress
-//                    // Set the end of the region and inform
-//                    if (inMist.compareAndSet(true, false)) {
-//                        mistEnd.set(pos);
-//                        if (printMist(exon, mistStart.get(), mistEnd.get())) {
-//                            matches.incrementAndGet();
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (inMist.get()) {
-//            mistEnd.set(depths[windowEnd]);
-//            if (printMist(exon, mistStart.get(), mistEnd.get())) {
-//                matches.incrementAndGet();
-//            }
-//        }
-//        return matches.get();
-//    }
-    /**
      * Stores a MIST region only if its length is greater than the length parameter.
      *
      * @param exon the TSV exon
@@ -377,8 +320,7 @@ public class Mist extends SystemTask {
         long remaining = genomeLength * time / gpos.get() - time;
         String elapsed = humanReadableTime(time);
         String rem = humanReadableTime(remaining);
-        updateMessage(String.format("%s (%s:%,d) %d matches (%.2f%%, %s)", elapsed, chr, pos,
-                matches, percentage, rem));
+        updateMessage(String.format("%s (%s:%,d) %d matches (%s)", elapsed, chr, pos, matches, rem));
 //        println(String.format("%.2f\t%s:%,d\t%s", percentage, chr, pos, matches, elapsed, rem));
         updateProgress(percentage, 100.0);
     }

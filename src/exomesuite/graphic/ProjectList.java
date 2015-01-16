@@ -49,20 +49,20 @@ public class ProjectList extends ListView<Project> {
         for (String word : words) {
             placeholder.getChildren().add(new Label(word + " "));
         }
-//        placeholder.setDisable(true);
         setPlaceholder(placeholder);
         // Context menu
-        MenuItem close = new MenuItem("Close", new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
-        MenuItem delete = new MenuItem("Delete", new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
+        MenuItem close = new MenuItem(ExomeSuite.getResources().getString("close"),
+                new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+        MenuItem delete = new MenuItem(ExomeSuite.getResources().getString("delete"),
+                new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
         close.setOnAction(event -> close(getSelectionModel().getSelectedItem()));
         delete.setOnAction(event -> delete(getSelectionModel().getSelectedItem()));
         final ContextMenu contextMenu = new ContextMenu(close, delete);
         //setContextMenu(contextMenu);
         // Cell factory
         setEditable(false);
-        getItems().addListener((ListChangeListener.Change<? extends Project> c) -> {
-            setContextMenu(getItems().isEmpty() ? null : contextMenu);
-        });
+        getItems().addListener((ListChangeListener.Change<? extends Project> c)
+                -> setContextMenu(getItems().isEmpty() ? null : contextMenu));
     }
 
     /**

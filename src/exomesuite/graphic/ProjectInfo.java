@@ -170,7 +170,7 @@ public class ProjectInfo extends VBox implements Configuration.ConfigurationList
      * Opens a dialog to select a File and, if not null, adds it to the project.
      */
     private void addFile() {
-        File f = FileManager.openFile("%select.file", FileManager.ALL_FILTER);
+        File f = FileManager.openFile(ExomeSuite.getResources().getString("choose.file"), FileManager.ALL_FILTER);
         if (f != null) {
             project.addExtraFile(f.getAbsolutePath());
         }

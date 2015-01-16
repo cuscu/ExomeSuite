@@ -13,9 +13,14 @@
     </stylesheets>
     <children>
         <Label fx:id="message" />
-        <HBox alignment="CENTER_LEFT">
+        <HBox alignment="CENTER_LEFT" spacing="5" >
             <children>
-                <ProgressBar fx:id="progress" maxWidth="9999" HBox.hgrow="SOMETIMES"  />
+                <StackPane maxWidth="9999" HBox.hgrow="SOMETIMES" >
+                    <children>
+                        <ProgressBar fx:id="progress" maxWidth="9999"  />
+                        <Label fx:id="progressLabel" />
+                    </children>
+                </StackPane>
                 <Button fx:id="cancel" text="%cancel" styleClass="graphic-box"/>
             </children>
         </HBox>

@@ -16,6 +16,7 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.ExomeSuite;
 import exomesuite.utils.OS;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -101,14 +102,14 @@ public abstract class SystemTask extends Task<Integer> {
      */
     @Override
     protected void cancelled() {
-        System.out.println("Canceled");
+        System.out.println(ExomeSuite.getResources().getString("canceled"));
     }
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         if (process != null) {
             process.destroy();
-            println("Canceling...");
+            println(ExomeSuite.getResources().getString("canceling") + "...");
         }
         return super.cancel(mayInterruptIfRunning);
     }

@@ -113,6 +113,10 @@ public class AlignParams extends VBox {
      * @return the user selected options.
      */
     public Properties getParams() {
+        properties.put("reference", reference.getValue());
+        properties.put("forward", forward.getValue().getAbsolutePath());
+        properties.put("reverse", reverse.getValue().getAbsolutePath());
+        properties.put("encoding", encoding.getValue());
         return properties;
     }
 

@@ -16,8 +16,8 @@
  */
 package exomesuite.systemtask;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
-import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -49,32 +49,19 @@ public class Caller extends SystemTask {
 
     @Override
     protected Integer call() throws Exception {
-        String msg = "";
-        if (!FileManager.tripleCheck(genome)) {
-            msg += "Reference genome\n";
-        }
-        if (!FileManager.tripleCheck(input)) {
-            msg += "Alignments\n";
-        }
-        if (!FileManager.tripleCheck(dbsnp)) {
-            msg += "dbSNP\n";
-        }
-        if (!msg.isEmpty()) {
-            MainViewController.printMessage("Some arguments are missing:\n" + msg, "warning");
-            return 1;
-        }
         // Check if genome is already indexed.
         if (!Indexer.isIndexed(new File(genome))) {
-            updateMessage("Indexing genome");
+            updateMessage(ExomeSuite.getResources().getString("indexing.genome"));
             Indexer index = new Indexer(genome);
             index.setPrintStream(printStream);
             index.call();
         }
         // So easy, only one command.
-        updateTitle("Calling " + new File(output).getName());
-        updateMessage("Calling SNPs and indels...");
+        String message = ExomeSuite.getStringFormatted("calling.title", new File(output).getName());
+        updateTitle(message);
+        updateMessage(ExomeSuite.getResources().getString("calling.variants"));
         int ret = haplotypeCaller(genome, dbsnp, input, output);
-        updateMessage("Done.");
+        updateMessage(ExomeSuite.getResources().getString("done"));
         updateProgress(1, 1);
         return ret;
     }
@@ -101,12 +88,20 @@ public class Caller extends SystemTask {
                 calculateProgress(line);
             });
             return process.waitFor();
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException ex) {
             MainViewController.printException(ex);
+        } catch (InterruptedException ex) {
         }
         return -1;
     }
 
+    /**
+     * Calculates progress of algorithm. In fact, this method locates the symbol % in the current
+     * line. If present, uses the number before the % to update the progress.
+     *
+     *
+     * @param line
+     */
     private void calculateProgress(String line) {
         int posOfP = line.indexOf("%");
         if (posOfP == -1) {
@@ -120,7 +115,7 @@ public class Caller extends SystemTask {
             j--;
         }
         double progress = Double.valueOf(line.substring(j + 1, posOfP));
-        System.out.println("progress: " + progress);
+        //System.out.println("progress: " + progress);
         updateProgress(progress, 100.);
     }
 }

@@ -104,11 +104,11 @@ public class ExomeSuite extends Application {
     }
 
     private void testSoftware() {
-        System.out.print(resources.getString("check.samtools"));
+        System.out.print(resources.getString("check.samtools") + "...");
         System.out.println(Software.isSamtoolsInstalled());
-        System.out.print(resources.getString("check.bwa"));
+        System.out.print(resources.getString("check.bwa") + "...");
         System.out.println(Software.isSamtoolsInstalled());
-        System.out.print(resources.getString("check.gatk"));
+        System.out.print(resources.getString("check.gatk") + "...");
         System.out.println(Software.isGatkInstalled());
 //        GenomeIndexer.index(new File("/home/unidad03/DNA_Sequencing/HomoSapiensGRCh38/genome.fasta"));
     }
