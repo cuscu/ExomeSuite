@@ -23,6 +23,7 @@ import exomesuite.systemtask.Mist;
 import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
+import exomesuite.utils.Software;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +57,11 @@ public class MistLongAction extends LongAction {
         if (project == null) {
             return true;
         }
+        if (!Software.isSamtoolsInstalled()) {
+            MainViewController.printMessage(
+                    ExomeSuite.getResources().getString("samtools.not.installed"), "warning");
+            return true;
+        }
         String files = project.getProperties().getProperty(Project.FILES, "");
         List<String> fs = Arrays.asList(files.split(";"));
         return fs.stream().noneMatch((file) -> (file.endsWith(".bam")));
@@ -85,10 +91,14 @@ public class MistLongAction extends LongAction {
         // Prepare enclosure for root view.
         Stage stage = new Stage();
         Scene scene = new Scene(loader.getRoot());
+        // path/code.vcf
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".mist";
         controller.setAlignmentsOptions(bams);
         controller.setAlignments(bams.get(0));
         controller.setThreshold(10);
         controller.setLength(1);
+        controller.setOutput(output);
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.setAlwaysOnTop(true);
@@ -100,14 +110,16 @@ public class MistLongAction extends LongAction {
 
         // Control after user closed parameters window.
         if (controller.accepted()) {
-            List<String> errors = new ArrayList();
+            String selectedOutput = controller.getOutput();
             String selectedAlignments = controller.getSelectedAlignments();
             int selectedLength = controller.getSelectedLength();
             int selectedThreshold = controller.getSelectedThreshold();
+            String ensembl = OS.getProperties().getProperty("ensembl");
+
+            List<String> errors = new ArrayList();
             if (!FileManager.tripleCheck(selectedAlignments)) {
                 errors.add(ExomeSuite.getResources().getString("alignments"));
             }
-            String ensembl = OS.getProperties().getProperty("ensembl");
             if (!FileManager.tripleCheck(ensembl)) {
                 errors.add(ExomeSuite.getResources().getString("ensembl"));
             }
@@ -117,19 +129,10 @@ public class MistLongAction extends LongAction {
                 MainViewController.printMessage(message, "warning");
                 return null;
             }
-            // path/code.vcf
-            String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                    + project.getProperties().getProperty(Project.CODE) + "_dp" + selectedThreshold
-                    + "_l" + selectedLength + ".mist";
-            Mist task = new Mist(selectedAlignments, output, ensembl, selectedThreshold, selectedLength);
+            Mist task = new Mist(selectedAlignments, selectedOutput, ensembl, selectedThreshold, selectedLength);
             task.stateProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(output);
-                }
-            });
-            task.stateProperty().addListener((obs, old, newValue) -> {
-                if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(output);
+                    project.addExtraFile(selectedOutput);
                 }
             });
             return task;

@@ -32,7 +32,7 @@ public class VCFFilter {
     private Field field;
     private String selectedInfo;
     private boolean strict = true;
-    private boolean enable = true;
+    private boolean enabled = true;
 
     /**
      * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
@@ -150,8 +150,8 @@ public class VCFFilter {
      *
      * @return true if filter is enable
      */
-    public boolean isEnable() {
-        return enable;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**
@@ -159,8 +159,8 @@ public class VCFFilter {
      *
      * @param enable the new enable state
      */
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /**
@@ -174,7 +174,7 @@ public class VCFFilter {
         if (field == null) {
             return true;
         }
-        if (!enable) {
+        if (!enabled) {
             return true;
         }
         // Get the value (one of the Field.values())

@@ -232,44 +232,45 @@ public class MainViewController {
      * Opens dialog to create a new project.
      */
     public void showNewPane() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"), ExomeSuite.getResources());
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("NewProjectView.fxml"), ExomeSuite.getResources());
             loader.load();
-            NewProjectViewController controller = loader.getController();
-            Stage stage = new Stage();
-            Scene scen = new Scene(loader.getRoot());
-            stage.setScene(scen);
-            stage.setTitle(ExomeSuite.getResources().getString("create.project"));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            controller.setHandler(event -> {
-                String name = controller.getName();
-                String code = controller.getCode();
-                File path = controller.getPath();
-                // NUll check
-                if (!name.isEmpty() && !code.isEmpty() && path.exists()) {
-                    Project project = new Project(name, code, path);
-                    File forward = controller.getForward();
-                    File reverse = controller.getReverse();
-                    if (forward != null && reverse != null) {
-                        project.getProperties().setProperty(Project.FORWARD_FASTQ, forward.getAbsolutePath());
-                        project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse.getAbsolutePath());
-                    }
-                    String reference = controller.getReference();
-                    if (reference != null && !reference.isEmpty()) {
-                        project.getProperties().setProperty(Project.REFERENCE_GENOME, reference);
-                    }
-                    String encoding = controller.getEncoding();
-                    if (encoding != null) {
-                        project.getProperties().setProperty(Project.FASTQ_ENCODING, encoding);
-                    }
-                    projectList.getItems().add(project);
-                    projectList.getSelectionModel().select(project);
-                    stage.close();
-                }
-            });
-            stage.showAndWait();
         } catch (IOException ex) {
             printException(ex);
+        }
+        Stage stage = new Stage();
+        Scene scen = new Scene(loader.getRoot());
+        stage.setScene(scen);
+        stage.setTitle(ExomeSuite.getResources().getString("create.project"));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        NewProjectView controller = loader.getController();
+        controller.setHandler(event -> stage.close());
+        stage.showAndWait();
+
+        if (controller.isAccepted()) {
+            String name = controller.getName();
+            String code = controller.getCode();
+            String path = controller.getPath();
+            String forward = controller.getForward();
+            String reverse = controller.getReverse();
+            String genome = controller.getGenome();
+            String encoding = controller.getEncoding();
+            // NUll check
+            Project project = new Project(name, code, new File(path));
+            if (forward != null && !forward.isEmpty()) {
+                project.getProperties().setProperty(Project.FORWARD_FASTQ, forward);
+            }
+            if (reverse != null && !reverse.isEmpty()) {
+                project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse);
+            }
+            if (genome != null && !genome.isEmpty()) {
+                project.getProperties().setProperty(Project.REFERENCE_GENOME, genome);
+            }
+            if (encoding != null && !encoding.isEmpty()) {
+                project.getProperties().setProperty(Project.FASTQ_ENCODING, encoding);
+            }
+            projectList.getItems().add(project);
+            projectList.getSelectionModel().select(project);
         }
     }
 
@@ -355,6 +356,7 @@ public class MainViewController {
      */
     public static TabPane getWorkingArea() {
         return staticWorkingArea;
+
     }
 
     /**
@@ -362,20 +364,28 @@ public class MainViewController {
      */
     private void combineMIST() {
         try {
-            FXMLLoader loader = new FXMLLoader(CombineMIST.class.getResource("CombineMIST.fxml"), ExomeSuite.getResources());
+            FXMLLoader loader = new FXMLLoader(CombineMIST.class
+                    .getResource("CombineMIST.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
-            scene.getStylesheets().add("/exomesuite/main.css");
+
+            scene.getStylesheets()
+                    .add("/exomesuite/main.css");
             stage.setScene(scene);
+
             stage.centerOnScreen();
+
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
+
             stage.setTitle(ExomeSuite.getResources().getString("combine.mist"));
             stage.showAndWait();
         } catch (IOException ex) {
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainViewController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     /**
@@ -383,20 +393,28 @@ public class MainViewController {
      */
     private void combineVCF() {
         try {
-            FXMLLoader loader = new FXMLLoader(CombineVariants.class.getResource("CombineVariants.fxml"), ExomeSuite.getResources());
+            FXMLLoader loader = new FXMLLoader(CombineVariants.class
+                    .getResource("CombineVariants.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
-            scene.getStylesheets().add("/exomesuite/main.css");
+
+            scene.getStylesheets()
+                    .add("/exomesuite/main.css");
             stage.setScene(scene);
+
             stage.centerOnScreen();
+
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
+
             stage.setTitle(ExomeSuite.getResources().getString("combine.vcf"));
             stage.showAndWait();
         } catch (IOException ex) {
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MainViewController.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     /**
@@ -404,18 +422,25 @@ public class MainViewController {
      */
     private void showAbout() {
         try {
-            FXMLLoader loader = new FXMLLoader(About.class.getResource("About.fxml"), ExomeSuite.getResources());
+            FXMLLoader loader = new FXMLLoader(About.class
+                    .getResource("About.fxml"), ExomeSuite.getResources());
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
+
             stage.setScene(scene);
+
             stage.centerOnScreen();
-            stage.setAlwaysOnTop(true);
+
+            stage.setAlwaysOnTop(
+                    true);
             stage.initOwner(ExomeSuite.getMainStage());
             stage.showAndWait();
         } catch (IOException e) {
             printException(e);
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, e);
+            Logger
+                    .getLogger(MainViewController.class
+                            .getName()).log(Level.SEVERE, null, e);
         }
     }
 

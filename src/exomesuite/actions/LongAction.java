@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 unidad03
+ * Copyright (C) 2015 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,12 @@ public abstract class LongAction {
      */
     public abstract String getIconPath();
 
+    /**
+     * Checks if it is possible to currently run this task.
+     *
+     * @param project
+     * @return true if unable to perform action
+     */
     public abstract boolean isDisable(Project project);
 
     /**

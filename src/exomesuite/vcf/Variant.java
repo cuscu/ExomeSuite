@@ -17,6 +17,10 @@
 package exomesuite.vcf;
 
 import exomesuite.utils.OS;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Stores a variant.
@@ -29,6 +33,7 @@ public class Variant {
     private final int pos;
     private final double qual;
     private final String[] samples;
+    private final Map<String, String> infos = new TreeMap();
 
     /**
      * Parses the VCF line and creates a Variant.
@@ -45,6 +50,12 @@ public class Variant {
         qual = Double.valueOf(v[5]);
         filter = v[6];
         info = v[7];
+        Arrays.stream(info.split(";")).forEach(i -> {
+            String[] pair = i.split("=");
+            String key = pair[0];
+            String value = pair.length > 1 ? pair[1] : null;
+            infos.put(key, value);
+        });
         if (v.length > 8) {
             format = v[8];
             final int nSamples = v.length - 9;
@@ -151,13 +162,29 @@ public class Variant {
         return samples;
     }
 
+    public Map<String, String> getInfos() {
+        return infos;
+    }
+
     @Override
     public String toString() {
         String formats = "";
         if (format != null) {
             formats = "\t" + format + OS.asString("\t", samples);
         }
-        return String.format("%s\t%d\t%s\t%s\t%s\t%f\t%s\t%s\t%s", chrom, pos, id, ref, alt, qual, filter, info, formats);
+        String inf = "";
+        for (Map.Entry<String, String> entry : infos.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value == null) {
+                inf += key + ";";
+            } else {
+                inf += key + "=" + value + ";";
+            }
+        }
+        // Remove last comma
+        inf = inf.substring(0, inf.length() - 2);
+        return String.format(Locale.US, "%s\t%d\t%s\t%s\t%s\t%.4f\t%s\t%s%s", chrom, pos, id, ref, alt, qual, filter, inf, formats);
     }
 
 }

@@ -16,6 +16,7 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.ExomeSuite;
 import exomesuite.graphic.SizableImage;
 import java.util.Collections;
 import java.util.List;
@@ -42,15 +43,15 @@ import javafx.scene.layout.VBox;
 public class VCFFilterPane extends VBox {
 
     private final Label staticInfo = new Label();
-    private final ComboBox<VCFFilter.Field> field = new ComboBox<>();
-    private final ComboBox<VCFFilter.Connector> connector = new ComboBox<>();
-    private final ComboBox<String> info = new ComboBox<>();
+    private final ComboBox<VCFFilter.Field> field = new ComboBox();
+    private final ComboBox<VCFFilter.Connector> connector = new ComboBox();
+    private final ComboBox<String> info = new ComboBox();
     private final TextField value = new TextField();
-    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", 16));
-    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", 16));
-    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", 16));
-    private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", 16));
-    private final Button tag = new Button(null, new SizableImage("exomesuite/img/circle.png", 16));
+    private final Button accept = new Button(null, new SizableImage("exomesuite/img/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
+    private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", SizableImage.SMALL_SIZE));
+    private final Button tag = new Button(null, new SizableImage("exomesuite/img/circle.png", SizableImage.SMALL_SIZE));
 
     private EventHandler onUpdate, onDelete;
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
@@ -64,7 +65,7 @@ public class VCFFilterPane extends VBox {
     public VCFFilterPane(List<String> infos) {
         filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
         Collections.sort(infos);
-        info.getItems().addAll(infos);
+        info.getItems().setAll(infos);
         initialize();
         accept.setTooltip(new Tooltip("Accept"));
         cancel.setTooltip(new Tooltip("Cancel changes"));
@@ -100,7 +101,7 @@ public class VCFFilterPane extends VBox {
         });
         info.setOnAction(e -> value.requestFocus());
         connector.setOnAction(e -> value.requestFocus());
-        staticInfo.setText("Click to set the filter");
+        staticInfo.setText(ExomeSuite.getResources().getString("click.filter"));
         HBox.setHgrow(value, Priority.SOMETIMES);
         getStyleClass().add("filter-box");
         toPassive();
@@ -202,8 +203,8 @@ public class VCFFilterPane extends VBox {
      * Change the view icon and the active flag of filter.
      */
     private void alternateView() {
-        boolean act = filter.isEnable();
-        filter.setEnable(!act);
+        boolean act = filter.isEnabled();
+        filter.setEnabled(!act);
         view.setGraphic(act ? new SizableImage("exomesuite/img/noview.png", 16)
                 : new SizableImage("exomesuite/img/view.png", 16));
         if (onUpdate != null) {

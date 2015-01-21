@@ -357,6 +357,7 @@ public class Mist extends SystemTask {
         }
         if (le == -1) {
             println("Chromosome " + chr + " is not in BAM header. Impossible to process.");
+            return null;
         }
         int[] depths = new int[le + 1];
         ProcessBuilder pb = new ProcessBuilder("samtools", "mpileup", "-r", chr,
@@ -376,10 +377,10 @@ public class Mist extends SystemTask {
                     }
                 });
             } catch (IOException ex) {
-                Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
+                MainViewController.printException(ex);
             }
         } catch (IOException ex) {
-            Logger.getLogger(Mist.class.getName()).log(Level.SEVERE, null, ex);
+            MainViewController.printException(ex);
         }
         return depths;
     }

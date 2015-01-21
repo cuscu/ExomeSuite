@@ -16,7 +16,10 @@
  */
 package exomesuite.actions;
 
+import exomesuite.ExomeSuite;
 import exomesuite.graphic.SizableImage;
+import exomesuite.utils.FileManager;
+import java.io.File;
 import java.util.List;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -40,7 +43,6 @@ public class MistParameters {
     private Button cancel;
     @FXML
     private Button accept;
-
     @FXML
     private Button upThreshold;
     @FXML
@@ -49,6 +51,10 @@ public class MistParameters {
     private Button upLength;
     @FXML
     private Button downLength;
+    @FXML
+    private TextField output;
+    @FXML
+    private Button selectOutput;
 
     /**
      * true if user clicked on Accept
@@ -115,6 +121,7 @@ public class MistParameters {
                 event.consume();
             }
         });
+        selectOutput.setOnAction(event -> selectOutput());
     }
 
     /**
@@ -162,25 +169,85 @@ public class MistParameters {
         return accepted;
     }
 
+    /**
+     * Threshold is maximum dp to consider a poor region.
+     *
+     * @param i threshold to put on the textfield
+     */
     public void setThreshold(int i) {
         threshold.setText(String.valueOf(i));
     }
 
+    /**
+     * Minumum length of a poor region
+     *
+     * @param i value to put on the textfield
+     */
     public void setLength(int i) {
         length.setText(String.valueOf(i));
     }
 
+    /**
+     * Gets the current selected threshold.
+     *
+     * @return user selected threshold
+     */
     int getSelectedThreshold() {
         return Integer.valueOf(threshold.getText());
     }
 
+    /**
+     * Length entered by user.
+     *
+     * @return user selected length.
+     */
     int getSelectedLength() {
-        return Integer.valueOf(threshold.getText());
+        return Integer.valueOf(length.getText());
     }
 
+    /**
+     * Reads the alignment combobox and return the selected alignments.
+     *
+     * @return user selection
+     */
     String getSelectedAlignments() {
         return alignments.getValue();
+    }
 
+    /**
+     * Changes the output. Keep in mind that the String must represent a file.
+     *
+     * @param value the file to put on the output textfield
+     */
+    public void setOutput(String value) {
+        output.setText(value);
+    }
+
+    /**
+     * Gets the user selected output.
+     *
+     * @return
+     */
+    public String getOutput() {
+        return output.getText();
+    }
+
+    /**
+     * Called when user clicks on "..." button, opens a file saver to create or select destination
+     * file.
+     */
+    private void selectOutput() {
+        String message = ExomeSuite.getStringFormatted("select.file", "Mist");
+        // We try to open in the same folder as the suggested file.
+        if (output.getText() != null && !output.getText().isEmpty()) {
+            File file = new File(output.getText());
+            File f = FileManager.saveFile(message, file.getParentFile(), file.getName(), FileManager.MIST_FILTER);
+            if (f != null) {
+                output.setText(f.getAbsolutePath());
+            }
+        } else {
+            FileManager.saveFile(output, message, FileManager.MIST_FILTER);
+        }
     }
 
 }

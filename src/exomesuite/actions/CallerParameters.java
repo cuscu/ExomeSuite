@@ -16,12 +16,16 @@
  */
 package exomesuite.actions;
 
+import exomesuite.ExomeSuite;
 import exomesuite.graphic.SizableImage;
+import exomesuite.utils.FileManager;
+import java.io.File;
 import java.util.List;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 
 /**
  * FXML Controller class
@@ -40,6 +44,10 @@ public class CallerParameters {
     private Button cancel;
     @FXML
     private Button accept;
+    @FXML
+    private TextField output;
+    @FXML
+    private Button browseOutput;
 
     /**
      * true if user clicked on Accept
@@ -58,6 +66,7 @@ public class CallerParameters {
         cancel.setOnAction(event -> handler.handle(event));
         accept.setGraphic(new SizableImage("exomesuite/img/call.png", SizableImage.SMALL_SIZE));
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+        browseOutput.setOnAction(event -> selectOutput());
     }
 
     /**
@@ -184,6 +193,42 @@ public class CallerParameters {
      */
     public boolean accepted() {
         return accepted;
+    }
+
+    /**
+     * Sets a base output file.
+     *
+     * @param output
+     */
+    public void setOutput(String output) {
+        this.output.setText(output);
+    }
+
+    /**
+     * Gets the selected output file.
+     *
+     * @return
+     */
+    public String getOutput() {
+        return output.getText();
+    }
+
+    /**
+     * Called when user clicks on "..." button, opens a file saver to create or select destination
+     * file.
+     */
+    private void selectOutput() {
+        String message = ExomeSuite.getStringFormatted("select.file", "VCF");
+        // We try to open in the same folder as the suggested file.
+        if (output.getText() != null && !output.getText().isEmpty()) {
+            File file = new File(output.getText());
+            File f = FileManager.saveFile(message, file.getParentFile(), file.getName(), FileManager.VCF_FILTER);
+            if (f != null) {
+                output.setText(f.getAbsolutePath());
+            }
+        } else {
+            FileManager.saveFile(output, message, FileManager.VCF_FILTER);
+        }
     }
 
 }

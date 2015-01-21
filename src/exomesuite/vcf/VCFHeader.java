@@ -56,7 +56,7 @@ public class VCFHeader {
         }
     }
 
-    private Map<String, String> parseInfo(String line) {
+    Map<String, String> parseInfo(String line) {
         Map<String, String> map = new TreeMap<>();
         String substring = line.substring(8, line.length() - 1);
         InfoTokenizer it = new InfoTokenizer(substring);

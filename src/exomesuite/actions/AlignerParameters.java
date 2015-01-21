@@ -25,6 +25,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 /**
@@ -50,6 +51,12 @@ public class AlignerParameters {
     private Button browseForward;
     @FXML
     private Button browseReverse;
+    @FXML
+    private TextField output;
+    @FXML
+    private Button browseOutput;
+    @FXML
+    private Label suggestedEncoding;
 
     /**
      * If user clicked on accpet.
@@ -65,19 +72,20 @@ public class AlignerParameters {
      */
     public void initialize() {
         browseForward.setOnAction(event -> {
-            File f = FileManager.openFile(ExomeSuite.getResources().getString("select.file"),
-                    FileManager.FASTQ_FILTER);
-            if (f != null) {
-                forward.setText(f.getAbsolutePath());
+            String message = ExomeSuite.getStringFormatted("select.file", "FASTQ");
+            FileManager.openFile(forward, message, FileManager.FASTQ_FILTER);
+            if (forward.getText() != null && !forward.getText().isEmpty()) {
+                checkEncoding(forward.getText());
             }
         });
         browseReverse.setOnAction(event -> {
-            File f = FileManager.openFile(ExomeSuite.getResources().getString("select.file"),
-                    FileManager.FASTQ_FILTER);
-            if (f != null) {
-                reverse.setText(f.getAbsolutePath());
+            String message = ExomeSuite.getStringFormatted("select.file", "FASTQ");
+            FileManager.openFile(reverse, message, FileManager.FASTQ_FILTER);
+            if (reverse.getText() != null && !reverse.getText().isEmpty()) {
+                checkEncoding(reverse.getText());
             }
         });
+        browseOutput.setOnAction(event -> selectOutput());
         accept.setOnAction(event -> {
             accepted = true;
             handler.handle(event);
@@ -85,7 +93,6 @@ public class AlignerParameters {
         cancel.setOnAction(event -> handler.handle(event));
         accept.setGraphic(new SizableImage("exomesuite/img/align.png", SizableImage.SMALL_SIZE));
         cancel.setGraphic(new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
-
     }
 
     /**
@@ -95,6 +102,7 @@ public class AlignerParameters {
      */
     public void setForward(String file) {
         forward.setText(file);
+        checkEncoding(file);
     }
 
     /**
@@ -104,6 +112,7 @@ public class AlignerParameters {
      */
     public void setReverse(String file) {
         reverse.setText(file);
+        checkEncoding(file);
     }
 
     /**
@@ -212,5 +221,46 @@ public class AlignerParameters {
      */
     public boolean accepted() {
         return accepted;
+    }
+
+    /**
+     * Sets a base output file.
+     *
+     * @param output
+     */
+    public void setOutput(String output) {
+        this.output.setText(output);
+    }
+
+    /**
+     * Gets the selected output file.
+     *
+     * @return
+     */
+    public String getOutput() {
+        return output.getText();
+    }
+
+    /**
+     * Called when user clicks on "..." button, opens a file saver to create or select destination
+     * file.
+     */
+    private void selectOutput() {
+        String message = ExomeSuite.getStringFormatted("select.file", "SAM/BAM");
+        // We try to open in the same folder as the suggested file.
+        if (output.getText() != null && !output.getText().isEmpty()) {
+            File file = new File(output.getText());
+            File f = FileManager.saveFile(message, file.getParentFile(), file.getName(), FileManager.SAM_FILTER);
+            if (f != null) {
+                output.setText(f.getAbsolutePath());
+            }
+        } else {
+            FileManager.saveFile(output, message, FileManager.SAM_FILTER);
+        }
+    }
+
+    private void checkEncoding(String file) {
+        String enc = FileManager.guessEncoding(new File(file));
+        suggestedEncoding.setText(enc == null ? null : ExomeSuite.getStringFormatted("suggested.encoding", enc));
     }
 }

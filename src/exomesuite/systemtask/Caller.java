@@ -109,13 +109,16 @@ public class Caller extends SystemTask {
         }
         int j = posOfP;
         while (j > 0) {
-            if (line.charAt(j) == ' ') {
+            if (Character.isDigit(line.charAt(j - 1))) {
+                j--;
+            } else {
                 break;
             }
-            j--;
         }
-        double progress = Double.valueOf(line.substring(j + 1, posOfP));
-        //System.out.println("progress: " + progress);
-        updateProgress(progress, 100.);
+        try {
+            double progress = Double.valueOf(line.substring(j, posOfP));
+            updateProgress(progress, 100.);
+        } catch (NumberFormatException ex) {
+        }
     }
 }

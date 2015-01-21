@@ -20,7 +20,9 @@ import exomesuite.MainViewController;
 import exomesuite.graphic.IndexCell;
 import exomesuite.graphic.NaturalCell;
 import exomesuite.graphic.SizableImage;
+import exomesuite.lfs.LFS;
 import exomesuite.utils.FileManager;
+import exomesuite.vep.EnsemblRest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,6 +32,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,6 +70,10 @@ public class VCFReader extends SplitPane {
     private Label infoLabel;
     @FXML
     private Button export;
+    @FXML
+    private Button vep;
+    @FXML
+    private Button lfs;
 
     /**
      * The VCF file.
@@ -88,8 +96,8 @@ public class VCFReader extends SplitPane {
     private final TableColumn<Variant, String> qual = new TableColumn("Qual");
     private final TableColumn<Variant, String> filter = new TableColumn("Filter");
     private final List<VariantListener> listeners = new ArrayList();
-    private List<String> infos = new ArrayList();
-    private List<String> headers = new ArrayList();
+    private Set<String> infos = new TreeSet();
+    private Set<String> headers = new TreeSet();
     private VCFHeader vcfHeader;
 
     /**
@@ -141,12 +149,18 @@ public class VCFReader extends SplitPane {
         addListener(variantInfo);
 //        addListener(formatBox);
         loadFile();
+        vep.setOnAction(event -> getVEPInfo());
+        vep.setVisible(false);
+        lfs.setOnAction(event -> getLfsInfo());
+
     }
 
     private void loadFile() {
         vcfHeader = new VCFHeader(vcfFile);
         table.getItems().clear();
         totalLines.set(0);
+        headers.clear();
+        infos.clear();
         try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
             in.lines().forEachOrdered(line -> {
                 if (!line.startsWith("#")) {
@@ -207,7 +221,7 @@ public class VCFReader extends SplitPane {
      * Adds a
      */
     private void addFilter() {
-        VCFFilterPane filterPane = new VCFFilterPane(infos);
+        VCFFilterPane filterPane = new VCFFilterPane(new ArrayList(infos));
         filterPane.setOnUpdate(e -> filter());
         filterPane.setOnDelete(e -> {
             filtersPane.getChildren().remove(filterPane);
@@ -291,6 +305,40 @@ public class VCFReader extends SplitPane {
         } catch (IOException ex) {
             MainViewController.printException(ex);
         }
+    }
+
+    private void getVEPInfo() {
+        EnsemblRest.getVepInformation(table.getItems());
+
+    }
+
+    private void getLfsInfo() {
+        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
+        if (!headers.contains(lfsInfo)) {
+            addHeader(lfsInfo);
+        }
+        // Store filters status and deactivate all of them
+        boolean[] enabled = new boolean[filtersPane.getChildren().size()];
+        for (int i = 0; i < enabled.length; i++) {
+            VCFFilterPane pane = (VCFFilterPane) filtersPane.getChildren().get(i);
+            enabled[i] = pane.getFilter().isEnabled();
+            pane.getFilter().setEnabled(false);
+        }
+        // Load all variants
+        filter();
+        // Apply LFS.
+        table.getItems().parallelStream().forEach(LFS::addLFS);
+        // Export to file
+        exportTo(vcfFile);
+        // Restore filters
+        for (int i = 0; i < enabled.length; i++) {
+            VCFFilterPane pane = (VCFFilterPane) filtersPane.getChildren().get(i);
+            pane.getFilter().setEnabled(enabled[i]);
+        }
+        filter();
+        lfs.setVisible(false);
+        infos.add("LFS");
+        vcfHeader.getInfos().add(vcfHeader.parseInfo(lfsInfo));
     }
 
 }

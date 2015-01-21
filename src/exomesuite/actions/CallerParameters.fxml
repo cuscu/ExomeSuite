@@ -7,30 +7,40 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox  prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.CallerParameters">
+<VBox spacing="5" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.CallerParameters">
     <stylesheets>
         <URL value="@/exomesuite/main.css" />
     </stylesheets>
     <children>
-
         <GridPane hgap="5.0" maxWidth="9999" vgap="5.0">
             <columnConstraints>
                 <ColumnConstraints halignment="RIGHT" hgrow="NEVER" />
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <children>
+                <!-- Column 1: Labels -->
                 <Label text="%alignments" />
                 <Label text="%reference.genome" GridPane.rowIndex="1" />
                 <Label text="%algorithm" GridPane.rowIndex="2" />
+                <Label text="%output" GridPane.rowIndex="3" />
+
+                <!-- Column 2: Values -->
                 <ComboBox fx:id="alignments" GridPane.columnIndex="1" />
                 <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <ComboBox fx:id="algorithm" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" >
+                    <children>
+                        <TextField fx:id="output" editable="false" promptText="%choose.file" HBox.hgrow="SOMETIMES" />
+                        <Button fx:id="browseOutput" mnemonicParsing="false" text="%browse" />
+                    </children>
+                </HBox>
+
             </children>
         </GridPane>
         <HBox alignment="TOP_RIGHT" spacing="5">
             <children>
                 <Button fx:id="cancel" text="%cancel" />
-                <Button fx:id="accept" text="%align" />
+                <Button fx:id="accept" text="%call" />
             </children>
         </HBox>
     </children>

@@ -5,20 +5,56 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
+<?import java.net.*?>
 
-<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600" alignment="TOP_CENTER" spacing="5" xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.NewProjectView">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css" />
+    </stylesheets>
     <children>
-        <SectionTitle title="%required"/>
-        <TextParam title="%project.name" fx:id="name" prefWidth="400"  />
-        <TextParam title="%code" fx:id="code" />
-        <PathParam title="%project.path" fx:id="path"/>
+        <!--SectionTitle title="%required"/-->
+        <GridPane hgap="5.0" maxWidth="9999" vgap="5.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <children>
+                <!-- Column 1: Labels-->
+                <SectionTitle title="%required" GridPane.columnSpan="3" />
+                <Label text="%project.name" GridPane.rowIndex="1" />
+                <Label text="%code" GridPane.rowIndex="2" />
+                <Label text="%project.path" GridPane.rowIndex="3" />
+                <Label fx:id="finalPath" GridPane.rowIndex="4" GridPane.columnIndex="1"  GridPane.columnSpan="2" />
+                <SectionTitle title="%additional.information" GridPane.rowIndex="5" GridPane.columnSpan="3" />
+                <Label text="%forward.sequences" GridPane.rowIndex="6" />
+                <Label text="%reverse.sequences" GridPane.rowIndex="7" />
+                <Label text="%reference.genome" GridPane.rowIndex="8" />
+                <Label text="%encoding" GridPane.rowIndex="9" />
 
-        <Label fx:id="finalPath" />
-        <SectionTitle title="%additional.information" hLine="true" />
-        <FileParam fx:id="forward" title="%forward.sequences" promptText="%select.forward" />
-        <FileParam fx:id="reverse" title="%reverse.sequences" promptText="%select.reverse" />
-        <ChoiceParam fx:id="genome" title="%reference.genome" promptText="%select.reference" />
-        <ChoiceParam fx:id="encoding" title="%encoding" promptText="%select.encoding" />
+                <!-- Column 2: TextFields -->
+                <TextField fx:id="name" GridPane.columnIndex="1" GridPane.rowIndex="1"  />
+                <TextField fx:id="code" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <TextField fx:id="path" GridPane.columnIndex="1" GridPane.rowIndex="3" editable="false"  />
+                <TextField fx:id="forward" GridPane.columnIndex="1" GridPane.rowIndex="6" editable="false"  />
+                <TextField fx:id="reverse" GridPane.columnIndex="1" GridPane.rowIndex="7" editable="false"  />
+                <ComboBox fx:id="genome" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                <!--ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="9" /-->
+                <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="9" >
+                    <children>
+                        <ComboBox fx:id="encoding" />
+                        <Label fx:id="suggestedEncoding"/>
+                    </children>
+                </HBox>
+                
+                <!-- Column 3: Buttons -->
+                <Button text="%browse" fx:id="selectPath" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                <Button text="%browse" fx:id="selectForward" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                <Button text="%browse" fx:id="selectReverse" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+            </children>
+        </GridPane>
         <Button fx:id="acceptButton" text="%create" />
     </children>
+    <padding>
+        <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
+    </padding>
 </VBox>

@@ -17,11 +17,10 @@
 package exomesuite.systemtask;
 
 import exomesuite.ExomeSuite;
+import exomesuite.MainViewController;
 import exomesuite.utils.OS;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.concurrent.Task;
 
 /**
@@ -59,7 +58,8 @@ public abstract class SystemTask extends Task<Integer> {
     }
 
     /**
-     * Executes a system command.
+     * Executes a system command. Standard and error output go are printed to printStream if
+     * specified, otherwise they are ignored.
      *
      * @param args The command args. Note that it is not necessary to put spaces between two args.
      * See {@link ProcessBuilder} for more information.
@@ -69,7 +69,7 @@ public abstract class SystemTask extends Task<Integer> {
      * @see ProcessBuilder
      */
     protected int execute(String... args) {
-        System.out.println(OS.asString(" ", args));
+        println(OS.asString(" ", args));
         ProcessBuilder pb;
         pb = new ProcessBuilder(args);
         pb.redirectErrorStream(true);
@@ -82,7 +82,7 @@ public abstract class SystemTask extends Task<Integer> {
                     printStream.write(c);
                 }
             } else {
-                // Consume pipe, otherwise, it will be blocked ad infinitum.
+                // Consume pipe, otherwise it will be blocked ad infinitum.
                 while (process.getInputStream().read() != -1) {
                 }
             }
@@ -91,7 +91,8 @@ public abstract class SystemTask extends Task<Integer> {
             // If another thread interrupted the execution.
             return process.exitValue();
         } catch (IllegalArgumentException ex) {
-            Logger.getLogger(SystemTask.class.getName()).log(Level.SEVERE, null, ex);
+            MainViewController.printException(ex);
+//            Logger.getLogger(SystemTask.class.getName()).log(Level.SEVERE, null, ex);
         }
         process = null;
         return 0;
@@ -102,7 +103,7 @@ public abstract class SystemTask extends Task<Integer> {
      */
     @Override
     protected void cancelled() {
-        System.out.println(ExomeSuite.getResources().getString("canceled"));
+        println(ExomeSuite.getResources().getString("canceled"));
     }
 
     @Override
@@ -114,14 +115,6 @@ public abstract class SystemTask extends Task<Integer> {
         return super.cancel(mayInterruptIfRunning);
     }
 
-//    /**
-//     * Must return true if the task could be configured successfully, otherwise return false. If
-//     * this method returns true, it means the task can be launch.
-//     *
-//     * @param mainConfig The configuration of the application.
-//     * @param projectConfig The configuration of the project.
-//     * @return true is SystemTask has got all the parameters ready to launch.
-//     */
 //    public abstract boolean configure(Config mainConfig, Config projectConfig);
     /**
      * Sets the value of the printStream. By default, its value is System.out.
@@ -130,19 +123,6 @@ public abstract class SystemTask extends Task<Integer> {
      */
     public void setPrintStream(PrintStream printStream) {
         this.printStream = printStream;
-    }
-
-    /**
-     * Calls {@code super.updateMessage(message)} and prints the message on printStream and
-     * System.out.
-     *
-     * @param message The message to be printed.
-     */
-    @Override
-    protected void updateMessage(String message) {
-        super.updateMessage(message);
-//        printStream.println(message);
-//        System.out.println(message);
     }
 
     /**

@@ -16,10 +16,17 @@
  */
 package exomesuite.utils;
 
+import exomesuite.MainViewController;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -307,6 +314,56 @@ public final class FileManager {
     }
 
     /**
+     * Opens a dialog for the user to create a file. File system file is not created in this method.
+     * If the user do not write the file extension, the default will be the first of the selected
+     * ExtensionFilter.
+     *
+     * @param title dialog title
+     * @param initDir the initial directory
+     * @param initName initial name for file
+     * @param filters any number of ExtensionFilters
+     * @return the selected file or null
+     */
+    public static File saveFile(String title, File initDir, String initName, List<ExtensionFilter> filters) {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialFileName(initName);
+        chooser.setTitle(title);
+        chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
+                ? initDir : getLastPath());
+        chooser.getExtensionFilters().addAll(filters);
+        File file = chooser.showSaveDialog(null);
+        if (file != null) {
+            lastPath = file.getParentFile();
+            if (!filters.isEmpty()) {
+                String f = chooser.getSelectedExtensionFilter().getExtensions().get(0);
+                if (f != null) {
+                    String ext = f.replace("*", "");
+                    if (file.getName().endsWith(ext)) {
+                    } else {
+                        return new File(file.getAbsolutePath() + ext);
+                    }
+                }
+            }
+        }
+        return file;
+    }
+
+    /**
+     * Opens a dialog for the user to create a file. File system file is not created in this method.
+     * If the user do not write the file extension, the default will be the first of the selected
+     * ExtensionFilter.
+     *
+     * @param title dialog title
+     * @param initDir the initial directory
+     * @param initName initial name for file
+     * @param filters any number of ExtensionFilters
+     * @return the selected file or null
+     */
+    public static File saveFile(String title, File initDir, String initName, ExtensionFilter... filters) {
+        return saveFile(title, initDir, initName, Arrays.asList(filters));
+    }
+
+    /**
      * Opens a dialog for the user to create a file and sets the text of the TextField to the file
      * name. If the user do not write the file extension, the default will be the first of the
      * selected ExtensionFilter.
@@ -430,6 +487,51 @@ public final class FileManager {
      */
     public static List<String> tripleCheck(List<String> parameters) {
         return parameters.stream().filter(param -> !tripleCheck(param)).collect(Collectors.toList());
+    }
+
+    public static String guessEncoding(File fastFile) {
+        try (BufferedReader br = openGZipBR(fastFile)) {
+            int phred33 = 0;
+            int phred64 = 0;
+            for (int i = 0; i < 100; i++) {
+                br.readLine();
+                br.readLine();
+                br.readLine();
+                String encoding = br.readLine();
+                for (int j = 0; j < encoding.length(); j++) {
+                    int c = encoding.charAt(j);
+                    if (c - 64 < 0) {
+                        phred33++;
+                    } else if (c - 33 > 41) {
+                        phred64++;
+                    }
+                }
+            }
+            if (phred33 > phred64) {
+                return "phred+33";
+            } else if (phred64 > phred33) {
+                return "phred+64";
+            } else {
+                System.out.println("Encoding unknown");
+            }
+        } catch (FileNotFoundException ex) {
+            MainViewController.printException(ex);
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param input
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static BufferedReader openGZipBR(File input) throws FileNotFoundException, IOException {
+        return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
+                input))));
     }
 
 }

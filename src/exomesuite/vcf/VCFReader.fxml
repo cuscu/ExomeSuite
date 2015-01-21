@@ -21,6 +21,8 @@
                     <children>
                         <Label fx:id="infoLabel" />
                         <Button fx:id="export" styleClass="graphic-button" />
+                        <Button fx:id="vep" text="VEP" />
+                        <Button fx:id="lfs" text="LFS" />
                     </children>
                 </HBox>
                 <!-- GENOTYPE -->

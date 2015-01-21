@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox prefWidth="700"  xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.AlignerParameters">
+<VBox spacing="5" prefWidth="700" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.AlignerParameters">
     <stylesheets>
         <URL value="@/exomesuite/main.css" />
     </stylesheets>
@@ -19,24 +19,33 @@
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <children>
+                <!-- Column 1: Labels -->
                 <Label text="%forward.sequences" />
                 <Label text="%reverse.sequences" GridPane.rowIndex="1" />
-                <Label text="%reference.genome" GridPane.rowIndex="3" />
                 <Label text="%encoding" GridPane.rowIndex="2" />
-                <HBox GridPane.columnIndex="1">
+                <Label text="%reference.genome" GridPane.rowIndex="3" />
+                <Label text="%output" GridPane.rowIndex="4" />
+
+                <!-- Column 2: TextFields and ComboBoxes -->
+                <TextField fx:id="forward" editable="false" promptText="%choose.file" GridPane.columnIndex="1" />
+                <TextField fx:id="reverse" editable="false" promptText="%choose.file"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2" >
                     <children>
-                        <TextField fx:id="forward" editable="false" promptText="%choose.file"  GridPane.columnIndex="1" HBox.hgrow="SOMETIMES" />
-                        <Button fx:id="browseForward" mnemonicParsing="false" text="%browse" />
+                        <ComboBox fx:id="encoding" />
+                        <Label fx:id="suggestedEncoding"/>
                     </children>
                 </HBox>
-                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <children>
-                        <TextField fx:id="reverse" editable="false" promptText="%choose.file"  GridPane.columnIndex="1" GridPane.rowIndex="1" HBox.hgrow="SOMETIMES" />
-                        <Button fx:id="browseReverse" mnemonicParsing="false" text="%browse" />
-                    </children>
-                </HBox>
-                <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
                 <ComboBox fx:id="reference" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="output" editable="false" promptText="%choose.file" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                <!-- Column 3: Browse buttons -->
+                <Button fx:id="browseForward" text="%browse" GridPane.columnIndex="2"/>
+                <Button fx:id="browseReverse" text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Button fx:id="browseOutput" text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+
+
             </children>
         </GridPane>
         <HBox alignment="TOP_RIGHT" spacing="5">

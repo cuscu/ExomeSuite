@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox spacing="5"  xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.graphic.TaskPanel" fillWidth="true">
+<VBox spacing="5" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.graphic.TaskPanel" fillWidth="true">
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
@@ -26,4 +26,7 @@
         </HBox>
         <TextArea fx:id="textArea" VBox.vgrow="SOMETIMES" editable="false"  />
     </children>
+    <padding>
+        <javafx.geometry.Insets left="5" right="5" top="5" bottom="5" />
+    </padding>
 </VBox>

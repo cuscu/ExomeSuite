@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Lorente Arencibia, Pascual <pasculorente@gmail.com>
+ * Copyright (C) 2015 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,6 +74,8 @@ public class CallLongAction extends LongAction {
         });
         String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
         List<String> referenceGenomes = OS.getReferenceGenomes();
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".vcf";
         // Load view from AlignerParameters.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CallerParameters.fxml"),
                 ExomeSuite.getResources());
@@ -93,6 +95,7 @@ public class CallLongAction extends LongAction {
         controller.setReference(reference);
         controller.setAlgorithmOptions("GATK");
         controller.setAlgorithm("GATK");
+        controller.setOutput(output);
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.setAlwaysOnTop(true);
@@ -108,14 +111,13 @@ public class CallLongAction extends LongAction {
             String selectedAlgorithm = controller.getSelectedAlgorithm();
             String selectedAlignments = controller.getSelectedAlignments();
             String selectedReference = controller.getSelectedReference();
+            String selectedOutput = controller.getOutput();
             if (!FileManager.tripleCheck(selectedAlignments)) {
                 errors.add(ExomeSuite.getResources().getString("alignments"));
             }
             String temp = OS.getTempDir();
             String genome = OS.getProperties().getProperty(selectedReference);
             String dbsnp = OS.getProperties().getProperty("dbsnp");
-            String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                    + project.getProperties().getProperty(Project.CODE) + ".bam";
             String name = project.getProperties().getProperty(Project.NAME);
             // Check that parameters are ok.
             if (!FileManager.tripleCheck(dbsnp)) {
@@ -133,10 +135,10 @@ public class CallLongAction extends LongAction {
                 MainViewController.printMessage(message, "warning");
                 return null;
             }
-            SystemTask caller = new Caller(selectedReference, output, selectedAlignments, dbsnp);
+            SystemTask caller = new Caller(genome, selectedOutput, selectedAlignments, dbsnp);
             caller.stateProperty().addListener((obs, old, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(output);
+                    project.addExtraFile(selectedOutput);
                 }
             });
             return caller;

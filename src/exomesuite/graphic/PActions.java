@@ -185,10 +185,10 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
         MainViewController.getWorkingArea().getTabs().add(t);
         MainViewController.getWorkingArea().getSelectionModel().select(t);
         // Launch the task
-        String message = ExomeSuite.getStringFormatted("task.started", task.getTitle());
-        MainViewController.printMessage(message, "info");
         try {
             new Thread(task).start();
+            String message = ExomeSuite.getStringFormatted("task.started", task.getTitle());
+            MainViewController.printMessage(message, "info");
         } catch (Exception e) {
             MainViewController.printException(e);
         }

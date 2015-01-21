@@ -61,13 +61,6 @@ public class AlignLongAction extends LongAction {
 
     @Override
     public SystemTask getTask(Project project) {
-        // Prepare parameters to the parameters window.
-        String forward = project.getProperties().getProperty(Project.FORWARD_FASTQ);
-        String reverse = project.getProperties().getProperty(Project.REVERSE_FASTQ);
-        String encoding = project.getProperties().getProperty(Project.FASTQ_ENCODING);
-        String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
-        List<String> encodings = OS.getEncodings();
-        List<String> referenceGenomes = OS.getReferenceGenomes();
         // Load view from AlignerParameters.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignerParameters.fxml"),
                 ExomeSuite.getResources());
@@ -77,16 +70,26 @@ public class AlignLongAction extends LongAction {
             MainViewController.printException(ex);
             return null;
         }
+
+        // Set suggestions.
         AlignerParameters controller = loader.getController();
-        // Prepare enclosure for root view.
-        Stage stage = new Stage();
-        Scene scene = new Scene(loader.getRoot());
-        controller.setEncodingOptions(encodings);
+        String forward = project.getProperties().getProperty(Project.FORWARD_FASTQ);
+        String reverse = project.getProperties().getProperty(Project.REVERSE_FASTQ);
+        String encoding = project.getProperties().getProperty(Project.FASTQ_ENCODING);
+        String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".bam";
+        controller.setEncodingOptions(OS.getEncodings());
+        controller.setReferenceOptions(OS.getReferenceGenomes());
         controller.setEncoding(encoding);
-        controller.setReferenceOptions(referenceGenomes);
         controller.setReference(reference);
         controller.setForward(forward);
         controller.setReverse(reverse);
+        controller.setOutput(output);
+
+        // Prepare enclosure for root view.
+        Stage stage = new Stage();
+        Scene scene = new Scene(loader.getRoot());
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.setAlwaysOnTop(true);
@@ -109,14 +112,13 @@ public class AlignLongAction extends LongAction {
             }
             String selectedEncoding = controller.getEncoding();
             String selectedReference = controller.getReference();
+            String selectedOutput = controller.getOutput();
             String temp = OS.getTempDir();
             String genome = OS.getProperties().getProperty(selectedReference);
             String dbsnp = OS.getProperties().getProperty("dbsnp");
             String mills = OS.getProperties().getProperty("mills");
             String phase1 = OS.getProperties().getProperty("phase1");
-            String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                    + project.getProperties().getProperty(Project.CODE) + ".bam";
-            String name = project.getProperties().getProperty(Project.NAME);
+            String name = project.getProperties().getProperty(Project.CODE);
             boolean phred64 = selectedEncoding.equals("phred+64");
             boolean refine = selectedReference.equalsIgnoreCase("grch37");
             // Check that parameters are ok.
@@ -138,13 +140,13 @@ public class AlignLongAction extends LongAction {
                 errors.add(ExomeSuite.getResources().getString("temp.path"));
             }
             if (!errors.isEmpty()) {
-                String message = ExomeSuite.getResources().getString("missing.arguments") + "\n"
-                        + ": [" + OS.asString(",", errors) + "]";
+                String message = ExomeSuite.getResources().getString("missing.arguments") + ":\n["
+                        + OS.asString(",", errors) + "]";
                 MainViewController.printMessage(message, "warning");
                 return null;
             }
             SystemTask aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
-                    output, name, phred64, refine);
+                    selectedOutput, name, phred64, refine);
             aligner.stateProperty().addListener((obs, old, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
                     project.addExtraFile(output);
