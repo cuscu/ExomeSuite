@@ -14,10 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.systemtask;
+package exomesuite.actions.call;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
+import exomesuite.actions.index.Indexer;
+import exomesuite.actions.SystemTask;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +56,10 @@ public class Caller extends SystemTask {
             updateMessage(ExomeSuite.getResources().getString("indexing.genome"));
             Indexer index = new Indexer(genome);
             index.setPrintStream(printStream);
-            index.call();
+            Thread thread = new Thread(index);
+            thread.start();
+            thread.wait();
+//            index.call();
         }
         // So easy, only one command.
         String message = ExomeSuite.getStringFormatted("calling.title", new File(output).getName());
@@ -109,7 +114,7 @@ public class Caller extends SystemTask {
         }
         int j = posOfP;
         while (j > 0) {
-            if (Character.isDigit(line.charAt(j - 1))) {
+            if (Character.isDigit(line.charAt(j - 1)) || line.charAt(j - 1) == '.') {
                 j--;
             } else {
                 break;

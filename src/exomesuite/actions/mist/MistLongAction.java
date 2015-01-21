@@ -14,15 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.actions;
+package exomesuite.actions.mist;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
+import exomesuite.actions.LongAction;
+import exomesuite.actions.SystemTask;
 import exomesuite.project.Project;
-import exomesuite.systemtask.Caller;
-import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
+import exomesuite.utils.Software;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,21 +40,26 @@ import javafx.stage.StageStyle;
  *
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-public class CallLongAction extends LongAction {
+public class MistLongAction extends LongAction {
 
     @Override
     public String getName() {
-        return ExomeSuite.getResources().getString("call");
+        return ExomeSuite.getResources().getString("mist");
     }
 
     @Override
     public String getIconPath() {
-        return "exomesuite/img/call.png";
+        return "exomesuite/img/mist.png";
     }
 
     @Override
     public boolean isDisable(Project project) {
         if (project == null) {
+            return true;
+        }
+        if (!Software.isSamtoolsInstalled()) {
+            MainViewController.printMessage(
+                    ExomeSuite.getResources().getString("samtools.not.installed"), "warning");
             return true;
         }
         String files = project.getProperties().getProperty(Project.FILES, "");
@@ -72,12 +78,8 @@ public class CallLongAction extends LongAction {
                 bams.add(file);
             }
         });
-        String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
-        List<String> referenceGenomes = OS.getReferenceGenomes();
-        String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                + project.getProperties().getProperty(Project.CODE) + ".vcf";
-        // Load view from AlignerParameters.fxml
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("CallerParameters.fxml"),
+        // Load view from MistParameters.fxml
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MistParameters.fxml"),
                 ExomeSuite.getResources());
         try {
             loader.load();
@@ -85,16 +87,17 @@ public class CallLongAction extends LongAction {
             MainViewController.printException(ex);
             return null;
         }
-        CallerParameters controller = loader.getController();
+        MistParameters controller = loader.getController();
         // Prepare enclosure for root view.
         Stage stage = new Stage();
         Scene scene = new Scene(loader.getRoot());
+        // path/code.vcf
+        String output = project.getProperties().getProperty(Project.PATH) + File.separator
+                + project.getProperties().getProperty(Project.CODE) + ".mist";
         controller.setAlignmentsOptions(bams);
         controller.setAlignments(bams.get(0));
-        controller.setReferenceOptions(referenceGenomes);
-        controller.setReference(reference);
-        controller.setAlgorithmOptions("GATK");
-        controller.setAlgorithm("GATK");
+        controller.setThreshold(10);
+        controller.setLength(1);
         controller.setOutput(output);
         stage.setScene(scene);
         stage.centerOnScreen();
@@ -107,27 +110,18 @@ public class CallLongAction extends LongAction {
 
         // Control after user closed parameters window.
         if (controller.accepted()) {
-            List<String> errors = new ArrayList();
-            String selectedAlgorithm = controller.getSelectedAlgorithm();
-            String selectedAlignments = controller.getSelectedAlignments();
-            String selectedReference = controller.getSelectedReference();
             String selectedOutput = controller.getOutput();
+            String selectedAlignments = controller.getSelectedAlignments();
+            int selectedLength = controller.getSelectedLength();
+            int selectedThreshold = controller.getSelectedThreshold();
+            String ensembl = OS.getProperties().getProperty("ensembl");
+
+            List<String> errors = new ArrayList();
             if (!FileManager.tripleCheck(selectedAlignments)) {
                 errors.add(ExomeSuite.getResources().getString("alignments"));
             }
-            String temp = OS.getTempDir();
-            String genome = OS.getProperties().getProperty(selectedReference);
-            String dbsnp = OS.getProperties().getProperty("dbsnp");
-            String name = project.getProperties().getProperty(Project.NAME);
-            // Check that parameters are ok.
-            if (!FileManager.tripleCheck(dbsnp)) {
-                errors.add(ExomeSuite.getResources().getString("dbsnp"));
-            }
-            if (!FileManager.tripleCheck(genome)) {
-                errors.add(ExomeSuite.getResources().getString("reference.genome"));
-            }
-            if (!FileManager.tripleCheck(temp)) {
-                errors.add(ExomeSuite.getResources().getString("temp.path"));
+            if (!FileManager.tripleCheck(ensembl)) {
+                errors.add(ExomeSuite.getResources().getString("ensembl"));
             }
             if (!errors.isEmpty()) {
                 String message = ExomeSuite.getResources().getString("missing.arguments") + "\n"
@@ -135,16 +129,14 @@ public class CallLongAction extends LongAction {
                 MainViewController.printMessage(message, "warning");
                 return null;
             }
-            SystemTask caller = new Caller(genome, selectedOutput, selectedAlignments, dbsnp);
-            caller.stateProperty().addListener((obs, old, newValue) -> {
+            Mist task = new Mist(selectedAlignments, selectedOutput, ensembl, selectedThreshold, selectedLength);
+            task.stateProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
                     project.addExtraFile(selectedOutput);
                 }
             });
-            return caller;
+            return task;
         }
-
         return null;
     }
-
 }

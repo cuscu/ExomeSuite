@@ -14,39 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.actions;
-
-import exomesuite.project.Project;
-
 /**
+ * Elements to perform a MIST analysis.
  *
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-public abstract class LongAction {
-
-    public abstract String getName();
-
-    /**
-     * Only the path to the icon. The size will be determined by PActions.
-     *
-     * @return
-     */
-    public abstract String getIconPath();
-
-    /**
-     * Checks if it is possible to currently run this task.
-     *
-     * @param project
-     * @return true if unable to perform action
-     */
-    public abstract boolean isDisable(Project project);
-
-    /**
-     * Null if parameters are wrong or user canceled.
-     *
-     * @param project
-     * @return the task or null if you don't want to create a tab panel.
-     */
-    public abstract SystemTask getTask(Project project);
-
-}
+package exomesuite.actions.mist;

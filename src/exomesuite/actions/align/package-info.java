@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 UICHUIMI
+ * Copyright (C) 2015 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Long tasks: aligner, caller, mist...
+ * Elements to perform an alignment.
  *
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-package exomesuite.systemtask;
+package exomesuite.actions.align;

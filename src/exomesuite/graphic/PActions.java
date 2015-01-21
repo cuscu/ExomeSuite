@@ -18,12 +18,12 @@ package exomesuite.graphic;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
-import exomesuite.actions.AlignLongAction;
-import exomesuite.actions.CallLongAction;
+import exomesuite.actions.align.AlignLongAction;
+import exomesuite.actions.call.CallLongAction;
 import exomesuite.actions.LongAction;
-import exomesuite.actions.MistLongAction;
+import exomesuite.actions.mist.MistLongAction;
 import exomesuite.project.Project;
-import exomesuite.systemtask.SystemTask;
+import exomesuite.actions.SystemTask;
 import exomesuite.utils.Configuration;
 import java.io.IOException;
 import java.io.OutputStream;

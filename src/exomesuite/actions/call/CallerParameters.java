@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.actions;
+package exomesuite.actions.call;
 
 import exomesuite.ExomeSuite;
 import exomesuite.graphic.SizableImage;

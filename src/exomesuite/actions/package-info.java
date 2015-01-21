@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * Actions configuration panels.
+ * Actions configuration panels. Long tasks: aligner, caller, mist...
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */

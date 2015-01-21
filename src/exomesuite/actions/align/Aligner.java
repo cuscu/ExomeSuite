@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.systemtask;
+package exomesuite.actions.align;
 
 import exomesuite.ExomeSuite;
+import exomesuite.actions.index.Indexer;
+import exomesuite.actions.SystemTask;
 import java.io.File;
 
 /**
@@ -84,7 +86,9 @@ public class Aligner extends SystemTask {
             updateMessage("Indexing genome");
             Indexer index = new Indexer(genome);
             index.setPrintStream(printStream);
-            index.call();
+            Thread thread = new Thread(index);
+            thread.start();
+            thread.wait();
         }
         // Align using bwa
         int ret;

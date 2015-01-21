@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.actions;
+package exomesuite.actions.align;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
+import exomesuite.actions.LongAction;
+import exomesuite.actions.SystemTask;
 import exomesuite.project.Project;
-import exomesuite.systemtask.Aligner;
-import exomesuite.systemtask.SystemTask;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;

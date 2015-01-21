@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.systemtask;
+package exomesuite.actions.dindel;
 
+import exomesuite.actions.SystemTask;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

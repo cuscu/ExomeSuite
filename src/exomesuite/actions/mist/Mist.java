@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.systemtask;
+package exomesuite.actions.mist;
 
 import exomesuite.MainViewController;
+import exomesuite.actions.SystemTask;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
