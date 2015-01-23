@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox spacing="5" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.CallerParameters">
+<VBox spacing="5" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.call.CallerParameters">
     <stylesheets>
         <URL value="@/exomesuite/main.css" />
     </stylesheets>

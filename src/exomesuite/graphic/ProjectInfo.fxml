@@ -8,24 +8,28 @@
 <?import exomesuite.graphic.*?>
 <?import java.net.*?>
 
-<fx:root styleClass="root" type="javafx.scene.layout.VBox" spacing="3" alignment="TOP_CENTER"  xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="TabPane" xmlns:fx="http://javafx.com/fxml/1">
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
-    <children>
-        <SectionTitle title="%properties"  />
-        <TextParam title="%name" fx:id="name" HBox.hgrow="ALWAYS" />
-        <TextParam title="%code" fx:id="code" HBox.hgrow="ALWAYS"  />
-        <Param title="%path" fx:id="path" />
-        <TextParam title="%description" fx:id="description" />
-        <SectionTitle title="%original.data"  />
-        <FileParam title="%forward.sequences" fx:id="forward" promptText="%forward.sequences" />
-        <FileParam title="%reverse.sequences" fx:id="reverse" promptText="%reverse.sequences" />
-        <ChoiceParam title="%encoding" fx:id="encoding" HBox.hgrow="ALWAYS"  />
-        <ChoiceParam title="%reference.genome" fx:id="genome" HBox.hgrow="ALWAYS"  />
-        <SectionTitle title="%processed.data" />
-        <Button fx:id="addButton" text="%add.file" styleClass="graphic-button" />
-        <ListView fx:id="files" VBox.vgrow="ALWAYS" minHeight="100"  />
-    </children>
-
+    <tabs>
+        <Tab closable="false" text="%files" >
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="5">
+                    <children>
+                        <Button fx:id="addButton" text="%add.file" />
+                        <TableView fx:id="moreFiles" VBox.vgrow="ALWAYS" />
+                    </children>
+                    <padding>
+                        <javafx.geometry.Insets top="5"/>
+                    </padding>
+                </VBox>
+            </content>
+        </Tab>
+        <Tab text="%properties" >
+            <content>
+                <TableView fx:id="properties" editable="true"/>
+            </content>
+        </Tab>
+    </tabs>
 </fx:root>

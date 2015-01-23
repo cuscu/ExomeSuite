@@ -17,14 +17,20 @@
 package exomesuite.utils;
 
 import exomesuite.MainViewController;
+import exomesuite.graphic.ProjectInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import javafx.scene.control.TextField;
@@ -532,6 +538,46 @@ public final class FileManager {
     public static BufferedReader openGZipBR(File input) throws FileNotFoundException, IOException {
         return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
                 input))));
+    }
+
+    //    private void changePath() {
+    //        // Move files and directories
+    //        final File from = new File(project.getProperties().getProperty(Project.PATH));
+    //        final File to = path.getValue();
+    //        clone(from, to);
+    //        // Change properties by replacing path in all properties
+    //        project.getProperties().forEach((Object t, Object u) -> {
+    //            String key = (String) t;
+    //            String value = (String) u;
+    //            if (value.startsWith(from.getAbsolutePath())) {
+    //                project.getProperties().setProperty(key,
+    //                        value.replace(from.getAbsolutePath(), to.getAbsolutePath()));
+    //            }
+    //        });
+    //        // Force properties file to be written
+    //        project.getProperties().setProperty(Project.PATH, to.getAbsolutePath());
+    //    }
+    private void clone(File from, File to) {
+        for (File f : from.listFiles()) {
+            if (f.isFile()) {
+                Path source = f.toPath();
+                Path target = new File(to, f.getName()).toPath();
+                try {
+                    Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
+                    f.delete();
+                } catch (IOException ex) {
+                    MainViewController.printException(ex);
+                    Logger.getLogger(ProjectInfo.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if (f.isDirectory()) {
+                File newPath = new File(to, f.getName());
+                newPath.mkdirs();
+                clone(f, newPath);
+            } else {
+                f.delete();
+            }
+        }
+        from.delete();
     }
 
 }

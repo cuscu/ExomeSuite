@@ -92,7 +92,7 @@ public class TSVReader extends SplitPane {
     private void initialize() {
         addFilter.setGraphic(new SizableImage("exomesuite/img/new.png", 16));
         export.setGraphic(new SizableImage("exomesuite/img/save.png", 16));
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         addFilter.setOnAction(event -> {
             TSVFilterPane filterPane = new TSVFilterPane(Arrays.asList(headers));
             filterPane.setOnAccept(e -> filter());

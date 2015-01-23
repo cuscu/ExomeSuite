@@ -17,12 +17,13 @@
         <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" />
         <VBox >
             <children>
-                <HBox alignment="CENTER_LEFT">
+                <HBox spacing="5" alignment="CENTER_LEFT">
                     <children>
                         <Label fx:id="infoLabel" />
-                        <Button fx:id="export" styleClass="graphic-button" />
-                        <Button fx:id="vep" text="VEP" />
+                        <Button text="%export" fx:id="export" />
+                        <!--Button fx:id="vep" text="VEP" /-->
                         <Button fx:id="lfs" text="LFS" />
+                        <Button fx:id="viewHeaders" text="%view.headers" />
                     </children>
                 </HBox>
                 <!-- GENOTYPE -->

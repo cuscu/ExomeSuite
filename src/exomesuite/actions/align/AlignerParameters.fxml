@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<VBox spacing="5" prefWidth="700" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.AlignerParameters">
+<VBox spacing="5" prefWidth="700" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.actions.align.AlignerParameters">
     <stylesheets>
         <URL value="@/exomesuite/main.css" />
     </stylesheets>

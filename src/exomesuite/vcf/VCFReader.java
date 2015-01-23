@@ -16,12 +16,14 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.graphic.IndexCell;
 import exomesuite.graphic.NaturalCell;
 import exomesuite.graphic.SizableImage;
 import exomesuite.lfs.LFS;
 import exomesuite.utils.FileManager;
+import exomesuite.utils.OS;
 import exomesuite.vep.EnsemblRest;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,6 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,12 +45,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * Main scenario for the TSV Reader View.
@@ -74,6 +80,8 @@ public class VCFReader extends SplitPane {
     private Button vep;
     @FXML
     private Button lfs;
+    @FXML
+    private Button viewHeaders;
 
     /**
      * The VCF file.
@@ -96,8 +104,11 @@ public class VCFReader extends SplitPane {
     private final TableColumn<Variant, String> qual = new TableColumn("Qual");
     private final TableColumn<Variant, String> filter = new TableColumn("Filter");
     private final List<VariantListener> listeners = new ArrayList();
+    /**
+     * Label INFO
+     */
     private Set<String> infos = new TreeSet();
-    private Set<String> headers = new TreeSet();
+    private Set<String> headers = new LinkedHashSet();
     private VCFHeader vcfHeader;
 
     /**
@@ -107,7 +118,7 @@ public class VCFReader extends SplitPane {
      */
     public VCFReader(File vcfFile) {
         this.vcfFile = vcfFile;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFReader.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("VCFReader.fxml"), ExomeSuite.getResources());
         loader.setRoot(this);
         loader.setController(this);
         try {
@@ -149,9 +160,10 @@ public class VCFReader extends SplitPane {
         addListener(variantInfo);
 //        addListener(formatBox);
         loadFile();
-        vep.setOnAction(event -> getVEPInfo());
-        vep.setVisible(false);
+//        vep.setOnAction(event -> getVEPInfo());
+//        vep.setVisible(false);
         lfs.setOnAction(event -> getLfsInfo());
+        viewHeaders.setOnAction(event -> viewHeader());
 
     }
 
@@ -163,11 +175,11 @@ public class VCFReader extends SplitPane {
         infos.clear();
         try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
             in.lines().forEachOrdered(line -> {
-                if (!line.startsWith("#")) {
+                if (line.startsWith("#")) {
+                    addHeader(line);
+                } else {
                     table.getItems().add(toVariant(line));
                     totalLines.incrementAndGet();
-                } else {
-                    addHeader(line);
                 }
             });
         } catch (Exception ex) {
@@ -289,10 +301,15 @@ public class VCFReader extends SplitPane {
     }
 
     private void exportOnAction(ActionEvent event) {
-        File output = FileManager.saveFile("Select output file", FileManager.VCF_FILTER);
+        File output = FileManager.saveFile("Select output file", vcfFile.getParentFile(),
+                vcfFile.getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         if (output != null) {
-            exportTo(output);
-            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
+            if (output.getName().endsWith(".vcf")) {
+                exportTo(output);
+            } else {
+                exportToTSV(output);
+            }
+//            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
             // Too big files, cause header repeats for every variant
             //VCF2JSON.vcf2Json(vcfFile, json);
         }
@@ -313,10 +330,7 @@ public class VCFReader extends SplitPane {
     }
 
     private void getLfsInfo() {
-        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-        if (!headers.contains(lfsInfo)) {
-            addHeader(lfsInfo);
-        }
+        injectLFSHeasder();
         // Store filters status and deactivate all of them
         boolean[] enabled = new boolean[filtersPane.getChildren().size()];
         for (int i = 0; i < enabled.length; i++) {
@@ -337,8 +351,88 @@ public class VCFReader extends SplitPane {
         }
         filter();
         lfs.setVisible(false);
-        infos.add("LFS");
-        vcfHeader.getInfos().add(vcfHeader.parseInfo(lfsInfo));
+    }
+
+    private void viewHeader() {
+        TextArea area = new TextArea();
+        headers.forEach(header -> area.appendText(header + "\n"));
+        area.setEditable(false);
+        Scene scene = new Scene(area);
+        Stage stage = new Stage();
+        stage.setTitle(vcfFile.getName());
+        stage.centerOnScreen();
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    /**
+     * Inserts LFS header alphabetically.
+     */
+    private void injectLFSHeasder() {
+        // Insert LFS header
+        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
+        if (!headers.contains(lfsInfo)) {
+            Set<String> copy = new LinkedHashSet();
+            boolean inserted = false;
+            for (String h : headers) {
+                if (!inserted && h.startsWith("##INFO=<") && h.compareTo(lfsInfo) > 0) {
+                    copy.add(lfsInfo);
+                }
+                copy.add(h);
+            }
+            headers = copy;
+            infos.add("LFS");
+            vcfHeader.getInfos().add(vcfHeader.parseInfo(lfsInfo));
+        }
+    }
+
+    private void exportToTSV(File output) {
+        final int length = infos.size() + 7;
+        final String[] head = new String[length];
+        head[0] = "CHROM";
+        head[1] = "POS";
+        head[2] = "ID";
+        head[3] = "REF";
+        head[4] = "ALT";
+        head[5] = "QUAL";
+        head[6] = "FILTER";
+        int i = 7;
+        for (String info : infos) {
+            head[i++] = info;
+        }
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
+            writer.println(OS.asString("\t", head));
+            table.getItems().forEach(var -> {
+                String[] line = new String[length];
+                line[0] = var.getChrom();
+                line[1] = String.valueOf(var.getPos());
+                line[2] = var.getId();
+                line[3] = var.getRef();
+                line[4] = var.getAlt();
+                line[5] = String.format("%.4f", var.getQual());
+                line[6] = var.getFilter();
+                for (int k = 7; k < line.length; k++) {
+                    line[k] = ".";
+                }
+                var.getInfos().forEach((key, value) -> {
+                    int pos = -1;
+                    int j = 0;
+                    for (String info : infos) {
+                        if (info.equals(key)) {
+                            pos = j;
+                            break;
+                        }
+                        j++;
+                    }
+                    if (pos != -1) {
+                        line[pos + 7] = value;
+                    }
+                });
+                writer.println(OS.asString("\t", line));
+            });
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
+        }
     }
 
 }

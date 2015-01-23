@@ -16,6 +16,9 @@
  */
 package exomesuite.vcf;
 
+import exomesuite.ExomeSuite;
+import java.util.Map;
+
 /**
  * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM,
  * POS, INFO...), a connector (greater than, equals...) and a value. When a variant is passed to the
@@ -157,7 +160,7 @@ public class VCFFilter {
     /**
      * If true it will filter variants, if false it will accept all variants.
      *
-     * @param enable the new enable state
+     * @param enabled the new enable state
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -203,26 +206,15 @@ public class VCFFilter {
                 stringValue = variant.getAlt();
                 break;
             case INFO:
-                String[] content = variant.getInfo().split(";");
-                // variant.getInfo = "DP=10;MQ=23,43;H2"
-                // content[0] = "DP=10"
-                // content[1] = "MQ=23,43"
-                // content[2] = "H2"
-                for (String s : content) {
-                    if (s.startsWith(selectedInfo)) {
-                        if (s.contains("=")) {
-                            // Case DP=10 or MQ=23,43 or REF=G
-                            stringValue = s.split("=")[1];
-                            try {
-                                doubleValue = Double.valueOf(stringValue.split(",")[0]);
-                            } catch (NumberFormatException e) {
-                                // If not a number
-                            }
-                        } else {
-                            // Case H2
-                            stringValue = s;
+                Map<String, String> map = variant.getInfos();
+                if (map.containsKey(selectedInfo)) {
+                    stringValue = map.get(selectedInfo);
+                    if (stringValue != null) {
+                        try {
+                            doubleValue = Double.valueOf(stringValue.split(",")[0]);
+                        } catch (NumberFormatException e) {
+                            // If not a number
                         }
-                        break;
                     }
                 }
                 break;
@@ -271,6 +263,11 @@ public class VCFFilter {
                 if (stringValue != null) {
                     return stringValue.matches(value);
                 }
+                break;
+            case PRESENT:
+                return variant.getInfos().containsKey(selectedInfo);
+            case NOT_PRESENT:
+                return !variant.getInfos().containsKey(selectedInfo);
         }
         return strict;
     }
@@ -283,11 +280,20 @@ public class VCFFilter {
         /**
          * Equals to (String or natural number).
          */
+        /**
+         * Equals to (String or natural number).
+         */
+        /**
+         * Equals to (String or natural number).
+         */
+        /**
+         * Equals to (String or natural number).
+         */
         EQUALS {
 
                     @Override
                     public String toString() {
-                        return "is equals to";
+                        return ExomeSuite.getResources().getString("equals.to");
                     }
 
                 },
@@ -298,7 +304,7 @@ public class VCFFilter {
 
                     @Override
                     public String toString() {
-                        return "contains";
+                        return ExomeSuite.getResources().getString("contains");
                     }
                 },
         /**
@@ -308,7 +314,7 @@ public class VCFFilter {
 
                     @Override
                     public String toString() {
-                        return "is greater than";
+                        return ExomeSuite.getResources().getString("greater.than");
                     }
 
                 },
@@ -319,7 +325,7 @@ public class VCFFilter {
 
                     @Override
                     public String toString() {
-                        return "is less than";
+                        return ExomeSuite.getResources().getString("less.than");
                     }
 
                 },
@@ -330,7 +336,7 @@ public class VCFFilter {
 
                     @Override
                     public String toString() {
-                        return "matches";
+                        return ExomeSuite.getResources().getString("matches");
                     }
 
                 },
@@ -341,7 +347,29 @@ public class VCFFilter {
 
                     @Override
                     public String toString() {
-                        return "differs from";
+                        return ExomeSuite.getResources().getString("differs.from");
+                    }
+
+                },
+        /**
+         * Exists.
+         */
+        PRESENT {
+
+                    @Override
+                    public String toString() {
+                        return ExomeSuite.getResources().getString("is.present");
+                    }
+
+                },
+        /**
+         * If is not present.
+         */
+        NOT_PRESENT {
+
+                    @Override
+                    public String toString() {
+                        return ExomeSuite.getResources().getString("is.not.present");
                     }
 
                 }

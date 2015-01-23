@@ -18,12 +18,15 @@ package exomesuite.graphic;
 
 import exomesuite.ExomeSuite;
 import exomesuite.project.Project;
+import exomesuite.utils.Configuration;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import javafx.collections.ListChangeListener;
+import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.FlowPane;
@@ -42,6 +45,7 @@ public class ProjectList extends ListView<Project> {
         initialize();
     }
 
+    @FXML
     private void initialize() {
         String message = ExomeSuite.getResources().getString("no.projects");
         FlowPane placeholder = new FlowPane();
@@ -61,8 +65,10 @@ public class ProjectList extends ListView<Project> {
         //setContextMenu(contextMenu);
         // Cell factory
         setEditable(false);
-        getItems().addListener((ListChangeListener.Change<? extends Project> c)
-                -> setContextMenu(getItems().isEmpty() ? null : contextMenu));
+        getItems().addListener((ListChangeListener.Change<? extends Project> c) -> {
+            setContextMenu(getItems().isEmpty() ? null : contextMenu);
+        });
+        setCellFactory(row -> new ProjectCell());
     }
 
     /**
@@ -102,6 +108,34 @@ public class ProjectList extends ListView<Project> {
                     OS.removeProject(project);
             }
         }
+    }
+
+    private static class ProjectCell extends ListCell<Project> implements Configuration.ConfigurationListener {
+
+        Project project;
+
+        @Override
+        protected void updateItem(Project item, boolean empty) {
+            super.updateItem(item, empty);
+            if (!empty) {
+                setText(item.toString());
+                if (project != null) {
+                    project.getProperties().removeListener(this);
+                }
+                item.getProperties().addListener(this);
+                project = item;
+            } else {
+                setText(null);
+            }
+        }
+
+        @Override
+        public void configurationChanged(Configuration configuration, String keyChanged) {
+            if (keyChanged.equals(Project.NAME)) {
+                setText(configuration.getProperty(keyChanged));
+            }
+        }
+
     }
 
 }

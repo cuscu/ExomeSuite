@@ -8,7 +8,7 @@
 <?import java.net.*?>
 
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="1000"
-            xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController" id="main">
+            xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.MainViewController">
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
@@ -21,7 +21,7 @@
                         <VBox alignment="TOP_CENTER" >
                             <children>
                                 <SectionTitle  title="%projects"/>
-                                <ProjectList fx:id="projectList" />
+                                <ProjectList fx:id="projectList" VBox.vgrow="ALWAYS"  />
                             </children>
                         </VBox>
                         <!-- Project properties -->

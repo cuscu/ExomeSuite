@@ -87,9 +87,6 @@ public class MainViewController {
     private MenuItem about;
     @FXML
     private ProjectList projectList;
-    /**
-     * Current project properties.
-     */
     @FXML
     private Label info;
     @FXML
@@ -100,10 +97,6 @@ public class MainViewController {
     private ProjectInfo projectInfo;
     @FXML
     private TabPane workingArea;
-
-    private static TabPane staticWorkingArea;
-    private static Label infoLabel;
-    private static HBox infoHBox;
     @FXML
     private BorderPane root;
     @FXML
@@ -111,11 +104,14 @@ public class MainViewController {
     @FXML
     private Menu language;
 
-    // My ResourceBundle
-//    StringRepository repository = new StringRepository();
+    private static TabPane staticWorkingArea;
+    private static Label infoLabel;
+    private static HBox infoHBox;
+
     /**
      * Puts into the {@code tabPane} the open Button, new Button and Databases Button.
      */
+    @FXML
     public void initialize() {
         setMenus();
         projectList.getSelectionModel().selectedItemProperty().addListener((obs, old, newValue) -> {
