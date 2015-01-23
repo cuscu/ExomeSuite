@@ -18,7 +18,6 @@ package exomesuite;
 
 import exomesuite.bam.BamReader;
 import exomesuite.graphic.About;
-import exomesuite.graphic.ButtonsBar;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
@@ -57,7 +56,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -97,10 +95,6 @@ public class MainViewController {
     private ProjectInfo projectInfo;
     @FXML
     private TabPane workingArea;
-    @FXML
-    private BorderPane root;
-    @FXML
-    private ButtonsBar toolbar;
     @FXML
     private Menu language;
 
@@ -151,14 +145,7 @@ public class MainViewController {
             return;
 //            printException(e);
         }
-        if (!projectList.getItems().contains(project)) {
-            projectList.getItems().add(project);
-            projectList.getSelectionModel().select(project);
-        }
-        String message = ExomeSuite.getStringFormatted("project.opened",
-                project.getProperties().getProperty(Project.NAME));
-        printMessage(message, "info");
-        OS.addProject(project);
+        projectList.openProject(project);
     }
 
     /**

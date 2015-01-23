@@ -17,6 +17,8 @@
 package exomesuite.graphic;
 
 import exomesuite.ExomeSuite;
+import exomesuite.MainViewController;
+import static exomesuite.MainViewController.printMessage;
 import exomesuite.project.Project;
 import exomesuite.utils.Configuration;
 import exomesuite.utils.FileManager;
@@ -47,7 +49,11 @@ public class ProjectList extends ListView<Project> {
 
     @FXML
     private void initialize() {
+        // Cell factory
+        setEditable(false);
+        // The placeholder, when there are no projects opened.
         String message = ExomeSuite.getResources().getString("no.projects");
+        // In order to show a resizable message, I use a FlowPane with individual words.
         FlowPane placeholder = new FlowPane();
         String[] words = message.split(" ");
         for (String word : words) {
@@ -62,12 +68,12 @@ public class ProjectList extends ListView<Project> {
         close.setOnAction(event -> close(getSelectionModel().getSelectedItem()));
         delete.setOnAction(event -> delete(getSelectionModel().getSelectedItem()));
         final ContextMenu contextMenu = new ContextMenu(close, delete);
+        // Context menu is only shown when there are opened projects
         //setContextMenu(contextMenu);
-        // Cell factory
-        setEditable(false);
         getItems().addListener((ListChangeListener.Change<? extends Project> c) -> {
             setContextMenu(getItems().isEmpty() ? null : contextMenu);
         });
+        // This cell listens for project changes to update the name.
         setCellFactory(row -> new ProjectCell());
     }
 
@@ -110,8 +116,36 @@ public class ProjectList extends ListView<Project> {
         }
     }
 
+    public void openProject(Project project) {
+        // Check if project is already opened
+        boolean opened = false;
+        for (Project p : getItems()) {
+            if (p.getProperties().getProperty(Project.CODE).equals(project.getProperties().getProperty(Project.CODE))) {
+                MainViewController.printMessage(ExomeSuite.getResources().getString("already.opened"), "warning");
+                opened = true;
+                break;
+            }
+        }
+        // If not, add to the list, the listener will be automatically added
+        if (!opened) {
+            getItems().add(project);
+            String message = ExomeSuite.getStringFormatted("project.opened",
+                    project.getProperties().getProperty(Project.NAME));
+            printMessage(message, "info");
+            OS.addProject(project);
+            getSelectionModel().select(project);
+        }
+    }
+
+    /**
+     * This cells listen for changes in the projects, so the name is updated whenever the name
+     * property is changed.
+     */
     private static class ProjectCell extends ListCell<Project> implements Configuration.ConfigurationListener {
 
+        /**
+         * Associated project.
+         */
         Project project;
 
         @Override
@@ -119,6 +153,8 @@ public class ProjectList extends ListView<Project> {
             super.updateItem(item, empty);
             if (!empty) {
                 setText(item.toString());
+                // Update associated project, but before, remove from listener list of the previous
+                // project
                 if (project != null) {
                     project.getProperties().removeListener(this);
                 }

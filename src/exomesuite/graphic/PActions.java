@@ -18,12 +18,12 @@ package exomesuite.graphic;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
+import exomesuite.actions.LongAction;
+import exomesuite.actions.SystemTask;
 import exomesuite.actions.align.AlignLongAction;
 import exomesuite.actions.call.CallLongAction;
-import exomesuite.actions.LongAction;
 import exomesuite.actions.mist.MistLongAction;
 import exomesuite.project.Project;
-import exomesuite.actions.SystemTask;
 import exomesuite.utils.Configuration;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -91,13 +91,14 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      */
     private void setButtons() {
         getChildren().clear();
-        actions.stream().forEach((action) -> {
+        actions.stream().forEach(action -> {
             Button button = new Button(action.getName(),
                     new SizableImage(action.getIconPath(), SizableImage.MEDIUM_SIZE));
             button.setOnAction(event -> bindAndStart(action.getTask(project)));
             button.setContentDisplay(ContentDisplay.TOP);
             button.getStyleClass().add("graphic-button");
             getChildren().add(button);
+            button.setDisable(action.isDisable(project));
         });
     }
 

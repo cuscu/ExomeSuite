@@ -208,7 +208,8 @@ public class ProjectInfo extends TabPane implements Configuration.ConfigurationL
         TableColumn<Prop, String> key = new TableColumn(ExomeSuite.getResources().getString("name"));
         key.setCellValueFactory(row -> new SimpleStringProperty(row.getValue().key));
         value = new TableColumn(ExomeSuite.getResources().getString("value"));
-        value.setCellValueFactory(row -> new SimpleStringProperty(project.getProperties().getProperty(row.getValue().key)));
+        value.setCellValueFactory(row
+                -> new SimpleStringProperty(project != null ? project.getProperties().getProperty(row.getValue().key) : ""));
         properties.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         properties.getColumns().addAll(key, value);
         Prop n = new Prop(Project.NAME, Prop.TYPE.STRING);
@@ -371,7 +372,7 @@ public class ProjectInfo extends TabPane implements Configuration.ConfigurationL
                     // Combobox is closed when a different option is selected (see constructor).
                     setGraphic(comboBox);
                     comboBox.getItems().setAll(p.options);
-                    comboBox.getSelectionModel().select(getItem());
+//                    comboBox.getSelectionModel().select(getItem());
                     break;
                 case READ_ONLY:
                     // Buahahahahaha. Doesn't allow edit.

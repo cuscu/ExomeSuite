@@ -425,7 +425,7 @@ public class VCFReader extends SplitPane {
                         j++;
                     }
                     if (pos != -1) {
-                        line[pos + 7] = value;
+                        line[pos + 7] = (value == null) ? "yes" : value;
                     }
                 });
                 writer.println(OS.asString("\t", line));

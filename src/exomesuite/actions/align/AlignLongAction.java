@@ -50,8 +50,8 @@ public class AlignLongAction extends LongAction {
         if (project == null) {
             return true;
         }
-        return project.getProperties().containsProperty(Project.FORWARD_FASTQ)
-                && project.getProperties().containsProperty(Project.REVERSE_FASTQ);
+        return !project.getProperties().containsProperty(Project.FORWARD_FASTQ)
+                || !project.getProperties().containsProperty(Project.REVERSE_FASTQ);
     }
 
     @Override

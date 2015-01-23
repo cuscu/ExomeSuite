@@ -38,7 +38,7 @@ public class NaturalCell extends TableCell {
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);
         textField.setPadding(new Insets(0));
-        textField.setOnMouseClicked(e -> textField.selectAll());
+//        textField.setOnMouseClicked(e -> textField.selectAll());
         setTooltip(new Tooltip());
         setText(null);
         setGraphic(textField);
