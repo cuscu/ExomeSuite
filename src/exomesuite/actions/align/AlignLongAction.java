@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Lorente Arencibia, Pascual <pasculorente@gmail.com>
+ * Copyright (C) 2015 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.LongAction;
 import exomesuite.actions.SystemTask;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -46,12 +46,11 @@ public class AlignLongAction extends LongAction {
     }
 
     @Override
-    public boolean isDisable(Project project) {
+    public boolean isDisable(ModelProject project) {
         if (project == null) {
             return true;
         }
-        return !project.getProperties().containsProperty(Project.FORWARD_FASTQ)
-                || !project.getProperties().containsProperty(Project.REVERSE_FASTQ);
+        return project.getForwardSequences() == null || project.getReverseSequences() == null;
     }
 
     @Override
@@ -60,7 +59,7 @@ public class AlignLongAction extends LongAction {
     }
 
     @Override
-    public SystemTask getTask(Project project) {
+    public SystemTask getTask(ModelProject project) {
         // Load view from AlignerParameters.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignerParameters.fxml"),
                 ExomeSuite.getResources());
@@ -73,18 +72,18 @@ public class AlignLongAction extends LongAction {
 
         // Set suggestions.
         AlignerParameters controller = loader.getController();
-        String forward = project.getProperties().getProperty(Project.FORWARD_FASTQ);
-        String reverse = project.getProperties().getProperty(Project.REVERSE_FASTQ);
-        String encoding = project.getProperties().getProperty(Project.FASTQ_ENCODING);
-        String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
-        String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                + project.getProperties().getProperty(Project.CODE) + ".bam";
+        File forward = project.getForwardSequences();
+        File reverse = project.getReverseSequences();
+        String encoding = project.getEncoding();
+        String reference = project.getGenomeCode();
+        File path = project.getConfigFile().getParentFile();
+        String output = new File(path, project.getCode() + ".bam").getAbsolutePath();
         controller.setEncodingOptions(OS.getEncodings());
         controller.setReferenceOptions(OS.getReferenceGenomes());
         controller.setEncoding(encoding);
         controller.setReference(reference);
-        controller.setForward(forward);
-        controller.setReverse(reverse);
+        controller.setForward(forward.getAbsolutePath());
+        controller.setReverse(reverse.getAbsolutePath());
         controller.setOutput(output);
 
         // Prepare enclosure for root view.
@@ -118,7 +117,7 @@ public class AlignLongAction extends LongAction {
             String dbsnp = OS.getProperties().getProperty("dbsnp");
             String mills = OS.getProperties().getProperty("mills");
             String phase1 = OS.getProperties().getProperty("phase1");
-            String name = project.getProperties().getProperty(Project.CODE);
+            String code = project.getCode();
             boolean phred64 = selectedEncoding.equals("phred+64");
             boolean refine = selectedReference.equalsIgnoreCase("grch37");
             // Check that parameters are ok.
@@ -145,11 +144,12 @@ public class AlignLongAction extends LongAction {
                 MainViewController.printMessage(message, "warning");
                 return null;
             }
-            SystemTask aligner = new Aligner(temp, forward, reverse, genome, dbsnp, mills, phase1,
-                    selectedOutput, name, phred64, refine);
+            SystemTask aligner = new Aligner(temp, selectedForward, selectedReverse, genome,
+                    dbsnp, mills, phase1, selectedOutput, code, phred64, refine);
             aligner.stateProperty().addListener((obs, old, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(output);
+                    project.getFiles().add(new File(selectedOutput));
+                    //project.addExtraFile(output);
                 }
             });
             return aligner;

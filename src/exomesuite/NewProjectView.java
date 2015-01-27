@@ -35,8 +35,8 @@ import javafx.scene.control.TextField;
  */
 public class NewProjectView {
 
-    @FXML
-    private Label finalPath;
+//    @FXML
+//    private Label finalPath;
     @FXML
     private TextField name;
     @FXML
@@ -149,9 +149,9 @@ public class NewProjectView {
     }
 
     private void updatePath() {
-        if (path.getText() != null && code.getText() != null) {
-            finalPath.setText(path.getText() + File.separator + code.getText());
-        }
+//        if (path.getText() != null && code.getText() != null) {
+//            finalPath.setText(path.getText() + File.separator + code.getText());
+//        }
     }
 
     public boolean isAccepted() {

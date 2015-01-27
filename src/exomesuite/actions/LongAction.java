@@ -16,7 +16,7 @@
  */
 package exomesuite.actions;
 
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 
 /**
  *
@@ -39,7 +39,7 @@ public abstract class LongAction {
      * @param project
      * @return true if unable to perform action
      */
-    public abstract boolean isDisable(Project project);
+    public abstract boolean isDisable(ModelProject project);
 
     /**
      * Null if parameters are wrong or user canceled.
@@ -47,6 +47,6 @@ public abstract class LongAction {
      * @param project
      * @return the task or null if you don't want to create a tab panel.
      */
-    public abstract SystemTask getTask(Project project);
+    public abstract SystemTask getTask(ModelProject project);
 
 }

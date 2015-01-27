@@ -24,7 +24,7 @@
                 <Label text="%project.name" GridPane.rowIndex="1" />
                 <Label text="%code" GridPane.rowIndex="2" />
                 <Label text="%project.path" GridPane.rowIndex="3" />
-                <Label fx:id="finalPath" GridPane.rowIndex="4" GridPane.columnIndex="1"  GridPane.columnSpan="2" />
+                <!--Label fx:id="finalPath" GridPane.rowIndex="4" GridPane.columnIndex="1"  GridPane.columnSpan="2" /-->
                 <SectionTitle title="%additional.information" GridPane.rowIndex="5" GridPane.columnSpan="3" />
                 <Label text="%forward.sequences" GridPane.rowIndex="6" />
                 <Label text="%reverse.sequences" GridPane.rowIndex="7" />
@@ -45,7 +45,7 @@
                         <Label fx:id="suggestedEncoding"/>
                     </children>
                 </HBox>
-                
+
                 <!-- Column 3: Buttons -->
                 <Button text="%browse" fx:id="selectPath" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                 <Button text="%browse" fx:id="selectForward" GridPane.columnIndex="2" GridPane.rowIndex="6" />

@@ -65,11 +65,9 @@ public class Configuration {
 //                MainViewController.printException(ex);
                 MainViewController.printMessage("Properties file can not be accessed: "
                         + file.getAbsolutePath(), "warning");
-//                Logger.getLogger(OS.class.getName()).log(Level.SEVERE, "Check permissions", ex);
             } catch (IOException ex) {
                 MainViewController.printMessage("Config file is corrupted: "
                         + file.getAbsolutePath(), "error");
-//                Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             try {
@@ -83,7 +81,7 @@ public class Configuration {
     }
 
     /**
-     * Sets the property. If it does not exist, creates a new one. Key is lowercased.
+     * Sets the property. If it does not exist, creates a new one.
      *
      * @param key the property name
      * @param value the property new value
@@ -129,6 +127,25 @@ public class Configuration {
      */
     public boolean containsProperty(String key) {
         return properties.containsKey(key);
+    }
+
+    /**
+     * Removes the key.
+     *
+     * @param key key to remove
+     * @return the value contained in the key, or null if key was not in configuration
+     */
+    public String removeProperty(String key) {
+        String value = (String) properties.remove(key);
+        try {
+            properties.store(new FileOutputStream(file), null);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(OS.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        listeners.forEach(l -> l.configurationChanged(this, key));
+        return value;
     }
 
     /**

@@ -22,10 +22,9 @@ import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
 import exomesuite.graphic.ProjectInfo;
-import exomesuite.graphic.ProjectList;
 import exomesuite.graphic.SizableImage;
 import exomesuite.mist.CombineMIST;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import exomesuite.tsv.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
@@ -36,9 +35,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -46,7 +46,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
@@ -56,6 +59,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -84,8 +88,6 @@ public class MainViewController {
     @FXML
     private MenuItem about;
     @FXML
-    private ProjectList projectList;
-    @FXML
     private Label info;
     @FXML
     private HBox infoBox;
@@ -97,7 +99,10 @@ public class MainViewController {
     private TabPane workingArea;
     @FXML
     private Menu language;
+    @FXML
+    private ListView<ModelProject> projectListView;
 
+    private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private static TabPane staticWorkingArea;
     private static Label infoLabel;
     private static HBox infoHBox;
@@ -108,44 +113,35 @@ public class MainViewController {
     @FXML
     public void initialize() {
         setMenus();
-        projectList.getSelectionModel().selectedItemProperty().addListener((obs, old, newValue) -> {
-//                    projectActions.setProject(newValue);
-            pactions.setProject(newValue);
-            projectInfo.setProject(newValue);
-        });
         infoLabel = info;
         staticWorkingArea = workingArea;
         infoHBox = infoBox;
-        // Open recently opened projects (.config files)
-        final String openedProjects = OS.getProperties().getProperty("projects", "");
-        if (!openedProjects.isEmpty()) {
-            String[] op = openedProjects.split(";");
-            for (String s : op) {
-                openProject(new File(s));
-            }
-        }
         setLocales();
+        setProjectsList();
     }
 
     /**
-     * Opens a FileChooser and lets the user open a .config file. If returned file is not null, it
-     * will call {@code addProjectTab}.
+     * Opens the project in configFile. configFile must exist.
      *
      * @param configFile the config file of the project
      */
     public void openProject(File configFile) {
-        if (configFile == null || !configFile.exists()) {
-            return;
+        if (configFile != null && configFile.exists()) {
+            ModelProject project = new ModelProject(configFile);
+            boolean opened = false;
+            for (ModelProject pr : OS.getProjects()) {
+                if (pr.getCode().equals(project.getCode())) {
+                    opened = true;
+                    break;
+                }
+            }
+            if (!opened) {
+                OS.getProjects().add(new ModelProject(configFile));
+                String message = ExomeSuite.getStringFormatted("project.opened",
+                        project.getName());
+                printMessage(message, "info");
+            }
         }
-        Project project;
-        try {
-            project = new Project(configFile);
-        } catch (Exception e) {
-            printMessage(e.getMessage(), "error");
-            return;
-//            printException(e);
-        }
-        projectList.openProject(project);
     }
 
     /**
@@ -239,21 +235,22 @@ public class MainViewController {
             String genome = controller.getGenome();
             String encoding = controller.getEncoding();
             // NUll check
-            Project project = new Project(name, code, new File(path));
+            ModelProject pr = new ModelProject(new File(path, code + ".config"));
+            OS.getProjects().add(pr);
+            pr.setCode(code);
+            pr.setName(name);
             if (forward != null && !forward.isEmpty()) {
-                project.getProperties().setProperty(Project.FORWARD_FASTQ, forward);
+                pr.setForwardSequences(new File(forward));
             }
             if (reverse != null && !reverse.isEmpty()) {
-                project.getProperties().setProperty(Project.REVERSE_FASTQ, reverse);
+                pr.setReverseSequences(new File(reverse));
             }
             if (genome != null && !genome.isEmpty()) {
-                project.getProperties().setProperty(Project.REFERENCE_GENOME, genome);
+                pr.setGenomeCode(genome);
             }
             if (encoding != null && !encoding.isEmpty()) {
-                project.getProperties().setProperty(Project.FASTQ_ENCODING, encoding);
+                pr.setEncoding(encoding);
             }
-            projectList.getItems().add(project);
-            projectList.getSelectionModel().select(project);
         }
     }
 
@@ -293,33 +290,47 @@ public class MainViewController {
      * TSVReader or VCFReader.
      *
      * @param file the file to open
-     * @param secondary a second file if needed
+     * @param project project owner of file, if it exists. If the file comes from the filesystem,
+     * put null
      */
-    public static void showFileContent(File file, File secondary) {
-        if (file != null) {
-            /* Check if the file is already opened */
+    public static void showFileContent(File file, ModelProject project) {
+        if (file != null && file.exists()) {
+            // Check if the file is already opened
             for (Tab t : staticWorkingArea.getTabs()) {
                 if (t.getText().equals(file.getName())) {
                     staticWorkingArea.getSelectionModel().select(t);
                     return;
                 }
             }
-            /* Select the class depending on the extension */
+            // Select the class depending on the extension
             Tab t = new Tab(file.getName());
             if (file.getName().endsWith(".tsv") || file.getName().endsWith(".mist")) {
-                //t.setContent(new TSVReader(file).get());
-                TSVReader reader = new TSVReader(file);
-//                reader.setFile(file);
-                t.setContent(reader);
+                t.setContent(new TSVReader(file));
             } else if (file.getName().endsWith(".vcf")) {
-                VCFReader table = new VCFReader(file);
-                t.setContent(table);
-                //t.setContent(new VCFReader(file).getView());
+                t.setContent(new VCFReader(file));
             } else if (file.getName().endsWith(".bam")) {
-                if (secondary == null) {
-                    secondary = FileManager.openFile(ExomeSuite.getResources().getString("select.genome"), FileManager.FASTA_FILTER);
+                // A bam file needs a reference genome
+                File ref = null;
+                // First try to fetch from project
+                if (project != null) {
+                    String grch = project.getGenomeCode();
+                    String refgen = OS.getProperties().getProperty(grch);
+                    if (refgen != null) {
+                        ref = new File(refgen);
+                    }
                 }
-                t.setContent(new BamReader(file, secondary));
+                // If not, ask user
+                if (ref == null) {
+                    ref = FileManager.openFile(ExomeSuite.getResources().getString("select.genome"),
+                            FileManager.FASTA_FILTER);
+                }
+                // Still nothing? meeeeh: error
+                if (ref == null) {
+                    MainViewController.printMessage("Genome not selected", "error");
+                    return;
+                } else {
+                    t.setContent(new BamReader(file, ref));
+                }
             } else {
                 String message = ExomeSuite.getStringFormatted("extension.unsupported", file.getName());
                 printMessage(message, "warning");
@@ -329,6 +340,9 @@ public class MainViewController {
             printMessage(message, "success");
             staticWorkingArea.getTabs().add(t);
             staticWorkingArea.getSelectionModel().select(t);
+        } else {
+            String message = ExomeSuite.getStringFormatted("file.not.accesible", file);
+            MainViewController.printMessage(message, "warning");
         }
     }
 
@@ -352,23 +366,15 @@ public class MainViewController {
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
-
-            scene.getStylesheets()
-                    .add("/exomesuite/main.css");
             stage.setScene(scene);
-
             stage.centerOnScreen();
-
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
-
             stage.setTitle(ExomeSuite.getResources().getString("combine.mist"));
             stage.showAndWait();
         } catch (IOException ex) {
-            Logger.getLogger(MainViewController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            printException(ex);
         }
-
     }
 
     /**
@@ -381,21 +387,14 @@ public class MainViewController {
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
-
-            scene.getStylesheets()
-                    .add("/exomesuite/main.css");
             stage.setScene(scene);
-
             stage.centerOnScreen();
-
             stage.initOwner(ExomeSuite.getMainStage());
             stage.initModality(Modality.APPLICATION_MODAL);
-
             stage.setTitle(ExomeSuite.getResources().getString("combine.vcf"));
             stage.showAndWait();
         } catch (IOException ex) {
-            Logger.getLogger(MainViewController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            printException(ex);
         }
 
     }
@@ -410,20 +409,13 @@ public class MainViewController {
             Parent p = loader.load();
             Scene scene = new Scene(p);
             Stage stage = new Stage();
-
             stage.setScene(scene);
-
             stage.centerOnScreen();
-
-            stage.setAlwaysOnTop(
-                    true);
+            stage.setAlwaysOnTop(true);
             stage.initOwner(ExomeSuite.getMainStage());
             stage.showAndWait();
         } catch (IOException e) {
             printException(e);
-            Logger
-                    .getLogger(MainViewController.class
-                            .getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -434,7 +426,7 @@ public class MainViewController {
      * @param type one of the "info", "error", "warning" and "success" String
      */
     public static void printMessage(String message, String type) {
-        infoLabel.setText(message);
+        infoLabel.setText(df.format(new Date()) + " - " + message);
         infoLabel.getStyleClass().clear();
         infoHBox.getStyleClass().clear();
         infoLabel.getStyleClass().add(type.toLowerCase() + "-label");
@@ -497,6 +489,85 @@ public class MainViewController {
             mi.setOnAction(event -> ExomeSuite.changeLocale(locale));
             language.getItems().add(mi);
         });
+    }
+
+    private void setProjectsList() {
+        projectListView.setItems(OS.getProjects());
+        projectListView.setCellFactory(listview -> new ProjectCell());
+        // Cell factory
+        projectListView.setEditable(false);
+        // The placeholder, when there are no projects opened.
+        String message = ExomeSuite.getResources().getString("no.projects");
+        // In order to show a resizable message, I use a FlowPane with individual words.
+        FlowPane placeholder = new FlowPane();
+        String[] words = message.split(" ");
+        for (String word : words) {
+            placeholder.getChildren().add(new Label(word + " "));
+        }
+        projectListView.setPlaceholder(placeholder);
+        projectListView.getSelectionModel().selectedItemProperty().addListener((obs, old, newValue) -> {
+            pactions.setProject(newValue);
+            projectInfo.setProject(newValue);
+        });
+    }
+
+    private static class ProjectCell extends ListCell<ModelProject> {
+
+        final MenuItem close = new MenuItem(ExomeSuite.getResources().getString("close"),
+                new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
+        final MenuItem delete = new MenuItem(ExomeSuite.getResources().getString("delete"),
+                new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
+        final ContextMenu contextMenu = new ContextMenu(close, delete);
+
+        public ProjectCell() {
+            close.setOnAction(event -> close(getListView().getSelectionModel().getSelectedItem()));
+            delete.setOnAction(event -> delete(getListView().getSelectionModel().getSelectedItem()));
+        }
+
+        @Override
+        protected void updateItem(ModelProject project, boolean empty) {
+            super.updateItem(project, empty);
+            if (empty) {
+                textProperty().unbind();
+                setText(null);
+                setGraphic(null);
+                setContextMenu(null);
+            } else {
+                textProperty().unbind();
+                textProperty().bind(project.getNameProperty());
+//                setText(item.getName());
+                setGraphic(null);
+                setContextMenu(contextMenu);
+            }
+        }
+
+        private void close(ModelProject selectedItem) {
+            if (selectedItem != null) {
+                getListView().getItems().remove(selectedItem);
+            }
+        }
+
+        private void delete(ModelProject project) {
+            if (project != null) {
+                // Ask user to remove folder content
+                File path = project.getConfigFile().getParentFile();
+                //File config = project.getConfigFile();
+                String title = ExomeSuite.getResources().getString("delete.project.title");
+                String message = ExomeSuite.getStringFormatted("delete.project.message", path.toString());
+                String yes = ExomeSuite.getResources().getString("delete.project.yes");
+                String no = ExomeSuite.getResources().getString("delete.project.no");
+                String cancel = ExomeSuite.getResources().getString("cancel");
+                Dialog.Response response = new Dialog().showYesNoCancel(title, message, yes, no, cancel);
+                switch (response) {
+                    case YES:
+                        FileManager.delete(path, true);
+                    case NO:
+//                    config.delete();
+                        OS.getProjects().remove(project);
+                }
+            }
+        }
+
     }
 
 }

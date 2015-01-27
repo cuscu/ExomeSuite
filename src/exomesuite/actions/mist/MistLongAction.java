@@ -20,14 +20,13 @@ import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.LongAction;
 import exomesuite.actions.SystemTask;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.utils.Software;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
@@ -53,29 +52,26 @@ public class MistLongAction extends LongAction {
     }
 
     @Override
-    public boolean isDisable(Project project) {
+    public boolean isDisable(ModelProject project) {
         if (project == null) {
             return true;
         }
         if (!Software.isSamtoolsInstalled()) {
+            // Too much calls to this method, use only at start
             MainViewController.printMessage(
                     ExomeSuite.getResources().getString("samtools.not.installed"), "warning");
             return true;
         }
-        String files = project.getProperties().getProperty(Project.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
-        return fs.stream().noneMatch((file) -> (file.endsWith(".bam")));
+        return project.getFiles().stream().noneMatch(file -> (file.getName().endsWith(".bam")));
     }
 
     @Override
-    public SystemTask getTask(Project project) {
+    public SystemTask getTask(ModelProject project) {
         // Prepare parameters to the parameters window.
-        String files = project.getProperties().getProperty(Project.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
         List<String> bams = new ArrayList();
-        fs.forEach(file -> {
-            if (file.endsWith(".bam")) {
-                bams.add(file);
+        project.getFiles().forEach(file -> {
+            if (file.getName().endsWith(".bam")) {
+                bams.add(file.getAbsolutePath());
             }
         });
         // Load view from MistParameters.fxml
@@ -92,8 +88,9 @@ public class MistLongAction extends LongAction {
         Stage stage = new Stage();
         Scene scene = new Scene(loader.getRoot());
         // path/code.vcf
-        String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                + project.getProperties().getProperty(Project.CODE) + ".mist";
+        File path = project.getConfigFile().getParentFile();
+        String output = new File(path, project.getCode() + ".mist").getAbsolutePath();
+
         controller.setAlignmentsOptions(bams);
         controller.setAlignments(bams.get(0));
         controller.setThreshold(10);
@@ -132,7 +129,8 @@ public class MistLongAction extends LongAction {
             Mist task = new Mist(selectedAlignments, selectedOutput, ensembl, selectedThreshold, selectedLength);
             task.stateProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(selectedOutput);
+                    project.getFiles().add(new File(selectedOutput));
+//                    project.addExtraFile(selectedOutput);
                 }
             });
             return task;

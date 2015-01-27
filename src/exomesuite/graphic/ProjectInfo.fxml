@@ -28,7 +28,44 @@
         </Tab>
         <Tab text="%properties" >
             <content>
-                <TableView fx:id="properties" editable="true"/>
+                <GridPane hgap="5" vgap="5" maxWidth="9999" >
+                    <columnConstraints>
+                        <ColumnConstraints fillWidth="true" halignment="RIGHT" />
+                        <ColumnConstraints fillWidth="true" hgrow="ALWAYS"  />
+                    </columnConstraints>
+                    <padding>
+                        <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
+                    </padding>
+                    <children>
+                        <!-- Column 0: labels -->
+                        <Label text="%name"/>
+                        <Label text="%code" GridPane.rowIndex="1" />
+                        <Label text="%description" GridPane.rowIndex="2" />
+                        <Label text="%forward.sequences" GridPane.rowIndex="3" />
+                        <Label text="%reverse.sequences" GridPane.rowIndex="4" />
+                        <Label text="%reference.genome" GridPane.rowIndex="5" />
+                        <Label text="%encoding" GridPane.rowIndex="6" />
+                        <!-- Column 1: values -->
+                        <TextField fx:id="name" GridPane.columnIndex="1"  />
+                        <Label fx:id="code" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="description" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <!-- Use HBox to add a browse button -->
+                        <HBox GridPane.hgrow="ALWAYS" spacing="1"  GridPane.columnIndex="1" GridPane.rowIndex="3" >
+                            <children>
+                                <TextField fx:id="forward" editable="false" HBox.hgrow="ALWAYS"  />
+                                <Button fx:id="selectForward" text="%browse"/>
+                            </children>
+                        </HBox>
+                        <HBox GridPane.hgrow="ALWAYS" spacing="1" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                            <children>
+                                <TextField fx:id="reverse"  editable="false" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="selectReverse" text="%browse"/>
+                            </children>
+                        </HBox>
+                        <ComboBox fx:id="genome" GridPane.columnIndex="1" GridPane.rowIndex="5" maxWidth="9999"  />
+                        <ComboBox fx:id="encoding" GridPane.columnIndex="1" GridPane.rowIndex="6" maxWidth="9999" />
+                    </children>
+                </GridPane>
             </content>
         </Tab>
     </tabs>

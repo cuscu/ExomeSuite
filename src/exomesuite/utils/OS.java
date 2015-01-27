@@ -1,12 +1,15 @@
 package exomesuite.utils;
 
 import exomesuite.MainViewController;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 
 /**
  * Contains methods to control application properties (databases, opened projects..) and most
@@ -33,11 +36,11 @@ public class OS {
     /**
      * The list of supported reference genomes.
      */
-    private static final List<String> referenceGenomes = new ArrayList();
+    private static final ObservableList<String> referenceGenomes = FXCollections.observableArrayList();
     /**
      * The list of supported encondings.
      */
-    private static final List<String> encodings = new ArrayList();
+    private static final ObservableList<String> encodings = FXCollections.observableArrayList();
     /**
      * The list of ordered standard chromosomes (1-22, X and Y).
      */
@@ -46,6 +49,10 @@ public class OS {
      * The list of available locales.
      */
     private static final List<Locale> locales = new ArrayList();
+    /**
+     * The list of opened projects.
+     */
+    private static final ObservableList<ModelProject> projects = FXCollections.observableArrayList();
 
     /**
      * Static "Constructor" of the class.
@@ -61,6 +68,27 @@ public class OS {
         locales.add(new Locale("es", "ES"));
         locales.add(new Locale("en", "US"));
         locales.add(new Locale("en", "UK"));
+        if (properties.containsProperty("opened.projects")) {
+            String[] values = properties.getProperty("opened.projects").split(";");
+            Arrays.stream(values).forEach(filename -> {
+                File configFile = new File(filename);
+                if (configFile.exists()) {
+                    projects.add(new ModelProject(new File(filename)));
+                }
+            });
+        }
+        // When projects are added or removed, list of projects is generated again and stored in disk
+        projects.addListener((ListChangeListener.Change<? extends ModelProject> change) -> {
+            if (projects.isEmpty()) {
+                // When empty, opened.projects must dissapear.
+                properties.removeProperty("opened.projects");
+            } else {
+                // When not empty, generate list from configFile names.
+                List<String> names = new ArrayList();
+                projects.forEach(project -> names.add(project.getConfigFile().getAbsolutePath()));
+                properties.setProperty("opened.projects", OS.asString(";", names));
+            }
+        });
     }
 
     /**
@@ -140,50 +168,55 @@ public class OS {
         return properties;
     }
 
-    /**
-     * Removes a project from the projects list.
-     *
-     * @param project the project to remove
-     */
-    public static void removeProject(Project project) {
-        // Import projects
-        List<String> files = new ArrayList(
-                Arrays.asList(properties.getProperty("projects", "").split(";")));
-        // Check if project is in the list by trying to remove it
-        String path = project.getProperties().getProperty(Project.PATH);
-        String code = project.getProperties().getProperty(Project.CODE);
-        String configFile = path + File.separator + code + ".config";
-        if (files.remove(configFile)) {
-            properties.setProperty("projects", OS.asString(";", files));
-        }
-    }
-
-    /**
-     * Adds a project to the project list.
-     *
-     * @param project the project to add
-     */
-    public static void addProject(Project project) {
-        // Import projects
-        List<String> projects = new ArrayList(
-                Arrays.asList(properties.getProperty("projects", "").split(";")));
-        // If project is not yet in the list
-        String path = project.getProperties().getProperty(Project.PATH);
-        String code = project.getProperties().getProperty(Project.CODE);
-        String configFile = path + File.separator + code + ".config";
-        if (!projects.contains(configFile)) {
-            // Add it
-            projects.add(configFile);
-            properties.setProperty("projects", OS.asString(";", projects));
-        }
-    }
-
+//    /**
+//     * Removes a project from the projects list.
+//     *
+//     * @param project the project to remove
+//     */
+//    public static void removeProject(Project project) {
+//        // Import projects
+//        List<String> files = new ArrayList(
+//                Arrays.asList(properties.getProperty("projects", "").split(";")));
+//        // Check if project is in the list by trying to remove it
+//        String path = project.getProperties().getProperty(Project.PATH);
+//        String code = project.getProperties().getProperty(Project.CODE);
+//        String configFile = path + File.separator + code + ".config";
+//        if (files.remove(configFile)) {
+//            properties.setProperty("projects", OS.asString(";", files));
+//        }
+//    }
+//    /**
+//     * Adds a project to the project list.
+//     *
+//     * @param project the project to add
+//     */
+//    public static void addProject(Project project) {
+//        // Import projects
+//        String projectString = properties.getProperty("projects", "");
+//        // Sometimes project property could be:
+//        // PROJECTS=
+//        // In this case, the returned String is "" (empty string) and
+//        // "".split(";") returns a 1 item list.
+//        // To avoid this situation, we first ask if it is the empty String
+//        List<String> projects = projectString.equals("")
+//                ? new ArrayList()
+//                : new ArrayList(Arrays.asList(projectString.split(";")));
+//        // If project (path/code.conf) is not yet in the list.
+//        String path = project.getProperties().getProperty(Project.PATH);
+//        String code = project.getProperties().getProperty(Project.CODE);
+//        String configFile = path + File.separator + code + ".config";
+//        if (!projects.contains(configFile)) {
+//            // Add it
+//            projects.add(configFile);
+//            properties.setProperty("projects", OS.asString(";", projects));
+//        }
+//    }
     /**
      * Gets the supported reference genomes.
      *
      * @return the list of reference genomes.
      */
-    public static List<String> getReferenceGenomes() {
+    public static ObservableList<String> getReferenceGenomes() {
         return referenceGenomes;
     }
 
@@ -192,7 +225,7 @@ public class OS {
      *
      * @return the supported encodings
      */
-    public static List<String> getEncodings() {
+    public static ObservableList<String> getEncodings() {
         return encodings;
     }
 
@@ -207,5 +240,9 @@ public class OS {
 
     public static List<Locale> getAvailableLocales() {
         return locales;
+    }
+
+    public static ObservableList<ModelProject> getProjects() {
+        return projects;
     }
 }

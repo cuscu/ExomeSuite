@@ -20,13 +20,12 @@ import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.LongAction;
 import exomesuite.actions.SystemTask;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
@@ -52,30 +51,26 @@ public class CallLongAction extends LongAction {
     }
 
     @Override
-    public boolean isDisable(Project project) {
+    public boolean isDisable(ModelProject project) {
         if (project == null) {
             return true;
         }
-        String files = project.getProperties().getProperty(Project.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
-        return fs.stream().noneMatch((file) -> (file.endsWith(".bam")));
+        return project.getFiles().stream().noneMatch(file -> (file.getName().endsWith(".bam")));
     }
 
     @Override
-    public SystemTask getTask(Project project) {
+    public SystemTask getTask(ModelProject project) {
         // Prepare parameters to the parameters window.
-        String files = project.getProperties().getProperty(Project.FILES, "");
-        List<String> fs = Arrays.asList(files.split(";"));
         List<String> bams = new ArrayList();
-        fs.forEach(file -> {
-            if (file.endsWith(".bam")) {
-                bams.add(file);
+        project.getFiles().forEach(file -> {
+            if (file.getName().endsWith(".bam")) {
+                bams.add(file.getAbsolutePath());
             }
         });
-        String reference = project.getProperties().getProperty(Project.REFERENCE_GENOME);
+        String gCode = project.getGenomeCode();
         List<String> referenceGenomes = OS.getReferenceGenomes();
-        String output = project.getProperties().getProperty(Project.PATH) + File.separator
-                + project.getProperties().getProperty(Project.CODE) + ".vcf";
+        File path = project.getConfigFile().getParentFile();
+        String output = new File(path, project.getCode() + ".vcf").getAbsolutePath();
         // Load view from AlignerParameters.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("CallerParameters.fxml"),
                 ExomeSuite.getResources());
@@ -92,7 +87,7 @@ public class CallLongAction extends LongAction {
         controller.setAlignmentsOptions(bams);
         controller.setAlignments(bams.get(0));
         controller.setReferenceOptions(referenceGenomes);
-        controller.setReference(reference);
+        controller.setReference(gCode);
         controller.setAlgorithmOptions("GATK");
         controller.setAlgorithm("GATK");
         controller.setOutput(output);
@@ -118,7 +113,7 @@ public class CallLongAction extends LongAction {
             String temp = OS.getTempDir();
             String genome = OS.getProperties().getProperty(selectedReference);
             String dbsnp = OS.getProperties().getProperty("dbsnp");
-            String name = project.getProperties().getProperty(Project.NAME);
+//            String name = project.getProperties().getProperty(Project.NAME);
             // Check that parameters are ok.
             if (!FileManager.tripleCheck(dbsnp)) {
                 errors.add(ExomeSuite.getResources().getString("dbsnp"));
@@ -138,7 +133,8 @@ public class CallLongAction extends LongAction {
             SystemTask caller = new Caller(genome, selectedOutput, selectedAlignments, dbsnp);
             caller.stateProperty().addListener((obs, old, newValue) -> {
                 if (newValue == Worker.State.SUCCEEDED) {
-                    project.addExtraFile(selectedOutput);
+                    project.getFiles().add(new File(selectedOutput));
+//                    project.addExtraFile(selectedOutput);
                 }
             });
             return caller;

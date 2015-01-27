@@ -521,7 +521,8 @@ public final class FileManager {
                 System.out.println("Encoding unknown");
             }
         } catch (FileNotFoundException ex) {
-            MainViewController.printException(ex);
+//            MainViewController.printException(ex);
+            MainViewController.printMessage(fastFile + " not accesible", "warning");
         } catch (IOException ex) {
             MainViewController.printException(ex);
         }

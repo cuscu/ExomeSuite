@@ -23,7 +23,7 @@ import exomesuite.actions.SystemTask;
 import exomesuite.actions.align.AlignLongAction;
 import exomesuite.actions.call.CallLongAction;
 import exomesuite.actions.mist.MistLongAction;
-import exomesuite.project.Project;
+import exomesuite.project.ModelProject;
 import exomesuite.utils.Configuration;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,7 +56,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
     /**
      * The current selected project.
      */
-    private Project project;
+    private ModelProject project;
 
     /**
      * Creates a new Project Actions pane.
@@ -70,7 +70,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      *
      * @param project the project of the panel
      */
-    public void setProject(Project project) {
+    public void setProject(ModelProject project) {
         this.project = project;
         if (project != null) {
             setButtons();
@@ -82,7 +82,7 @@ public class PActions extends HBox implements Configuration.ConfigurationListene
      *
      * @return the current project
      */
-    public Project getProject() {
+    public ModelProject getProject() {
         return project;
     }
 
