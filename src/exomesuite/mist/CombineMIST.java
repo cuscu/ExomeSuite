@@ -18,7 +18,6 @@ package exomesuite.mist;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
-import exomesuite.graphic.FileParam;
 import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import java.io.BufferedReader;
@@ -38,6 +37,7 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 
 /**
  * The window to intersect MIST files.
@@ -51,7 +51,7 @@ public class CombineMIST {
     @FXML
     private Button addButton;
     @FXML
-    private FileParam output;
+    private TextField output;
     @FXML
     private Button startButton;
 
@@ -70,13 +70,12 @@ public class CombineMIST {
     /**
      * The field that contains the match
      */
-    private final int MATCH = 12;
+    private final int MATCH = 11;
     /**
      * Header line must not mutate
      */
     private final String[] HEADER = {"chrom", "exon_start", "exon_end", "poor_start", "poor_end",
-        "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "transcript_info",
-        "gene_biotype", "match"};
+        "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "biotype", "match"};
 
     /**
      * Initializes the controller class.
@@ -93,11 +92,19 @@ public class CombineMIST {
         });
         // The start Button is disable until user selects an output file.
         startButton.setDisable(true);
-        output.setOnValueChanged(e -> startButton.setDisable(false));
-        output.addFilter(FileManager.MIST_FILTER);
-        startButton.setOnAction(e -> intersect(fileList.getItems(), output.getValue()));
-        addButton.setGraphic(new SizableImage("exomesuite/img/new.png", SizableImage.MEDIUM_SIZE));
-        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", SizableImage.MEDIUM_SIZE));
+        startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getText())));
+        addButton.setGraphic(new SizableImage("exomesuite/img/new.png", SizableImage.SMALL_SIZE));
+        startButton.setGraphic(new SizableImage("exomesuite/img/start.png", SizableImage.SMALL_SIZE));
+    }
+
+    @FXML
+    private void selectOutput() {
+        String message = ExomeSuite.getStringFormatted("select.file", "MIST");
+        File f = FileManager.saveFile(output, message, FileManager.MIST_FILTER);
+        if (f != null) {
+            startButton.setDisable(false);
+        }
+
     }
 
     /**
@@ -151,7 +158,7 @@ public class CombineMIST {
      * @return a list with line.split("\t")
      */
     private List<String[]> readExons(File file) {
-        final List<String[]> exons = new ArrayList<>();
+        final List<String[]> exons = new ArrayList();
         final Set<String> ids = new TreeSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             // Skip HEADER

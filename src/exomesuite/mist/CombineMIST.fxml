@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
@@ -7,14 +8,23 @@
 <?import javafx.scene.layout.*?>
 <?import exomesuite.graphic.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefWidth="600.0" alignment="TOP_CENTER"
-      fx:controller="exomesuite.mist.CombineMIST">
+<VBox alignment="TOP_CENTER" prefWidth="600.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/8" fx:controller="exomesuite.mist.CombineMIST">
     <children>
-        <SectionTitle title="%select.files"/>
-        <ListView fx:id="fileList" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-        <Button fx:id="addButton" text="%add.files" styleClass="graphic-button" />
-        <FileParam fx:id="output" title="%output" behaviour="SAVE"  />
-        <Button fx:id="startButton" text="%start" styleClass="graphic-button"/>
+        <SectionTitle title="%select.files" />
+        <ListView fx:id="fileList" maxWidth="9999" VBox.vgrow="SOMETIMES" />
+        <Button fx:id="addButton" styleClass="graphic-button" text="%add.files" />
+        <SectionTitle title="%output" />
+        <HBox HBox.hgrow="ALWAYS">
+            <children>
+                <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS" />
+                <Button onAction="#selectOutput" text="%browse" />
+            </children>
+        </HBox>
+        <Button fx:id="startButton" styleClass="graphic-button" text="%start" />
     </children>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
 
 </VBox>

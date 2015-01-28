@@ -88,7 +88,8 @@ public class Mist extends SystemTask {
     }
 
     final String[] headers = {"chrom", "exon_start", "exon_end", "mist_start", "mist_end",
-        "gene_id", "gene_name", "exon_id", "transcript_name", "biotype", "match"};
+        "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "biotype", "match"};
+
 
     /*
      * IMPORTANT NOTE FOR DEVELOPERS. Genomic positions start at 1, Java array positions start at 0.
@@ -276,8 +277,8 @@ public class Mist extends SystemTask {
             // chrom, exon_start, exon_end, mist_start, mist_end, gene_id, gene_name, exon_id,
             // transcript_name, biotype, match
             writeLine(output, exon[EXON_CHR], exon[EXON_START], exon[EXON_END], mistStart + "",
-                    mistEnd + "", exon[GENE_ID], exon[GENE_NAME], exon[EXON_ID], exon[TRANS_NAME],
-                    exon[GENE_BIO], match);
+                    mistEnd + "", exon[GENE_ID], exon[GENE_NAME], exon[EXON_N], exon[EXON_ID],
+                    exon[TRANS_NAME], exon[GENE_BIO], match);
             return true;
         }
         return false;
