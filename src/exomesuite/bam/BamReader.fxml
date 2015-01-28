@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
@@ -8,38 +9,55 @@
 <?import exomesuite.graphic.*?>
 <?import java.net.*?>
 
-<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1">
+<VBox spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="exomesuite.bam.BamReader">
     <stylesheets>
-        <URL value="@/exomesuite/main.css"/>
+        <URL value="@/exomesuite/main.css" />
     </stylesheets>
     <children>
         <exomesuite.bam.BamCanvas fx:id="bamCanvas" />
-        <HBox >
+        <Label fx:id="info" />
+        <HBox alignment="CENTER" spacing="5.0">
             <children>
-                <FlowPane HBox.hgrow="ALWAYS" >
+                <VBox>
                     <children>
-                        <ChoiceParam fx:id="chromosome" title="Chromosome" value="1"  />
-                        <Button fx:id="left" styleClass="graphic-button" />
-                        <TextParam fx:id="position" title="Position" value="1"  />
-                        <Button fx:id="right" styleClass="graphic-button" />
-                        <NumberParam fx:id="zoom" title="Zoom" min="10" max="100" value="20" />
-                    </children>
-                </FlowPane>
-                <VBox >
-                    <children>
-                        <YesNoParam title="Show background color" fx:id="showBackgroundColor" />
-                        <YesNoParam title="Show bars color per nucleotide" fx:id="showNucleotideColor" />
-                        <YesNoParam title="Show X axis" fx:id="showAxisX"/>
-                        <YesNoParam title="Show Y axis" fx:id="showAxisY"/>
-                        <YesNoParam title="Show labels X axis" fx:id="showLabelsX"/>
-                        <YesNoParam title="Show lables Y axis" fx:id="showLabelsY"/>
-                        <YesNoParam title="Show DP as percentage" fx:id="showPercentageDP"/>
-                        <YesNoParam title="Show 5' and 3'" fx:id="showAlleles"/>
-
+                        <Label text="%chromosome" />
+                        <ComboBox fx:id="chromosome" prefWidth="150.0" />
                     </children>
                 </VBox>
+                <VBox>
+                    <children>
+                        <Label text="%position" />
+                        <HBox>
+                            <children>
+                                <Button fx:id="left" mnemonicParsing="false" />
+                                <TextField fx:id="position" />
+                                <Button fx:id="right" mnemonicParsing="false" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <VBox>
+                    <children>
+                        <Label text="%zoom" />
+                        <Slider fx:id="zoom" blockIncrement="5.0" majorTickUnit="50.0" min="1.0" minorTickCount="5" showTickLabels="true" />
+                    </children>
+                </VBox>
+                <MenuButton text="%options" HBox.hgrow="SOMETIMES">
+                    <items>
+                        <CheckMenuItem fx:id="bckgColor" mnemonicParsing="false" text="%show.background.color" />
+                        <CheckMenuItem fx:id="barsColor" mnemonicParsing="false" text="%show.bars.color" />
+                        <CheckMenuItem mnemonicParsing="false" text="%show.xaxis" fx:id="xAxis" />
+                        <CheckMenuItem fx:id="yAxis" mnemonicParsing="false" text="%show.yaxis" />
+                        <CheckMenuItem mnemonicParsing="false" text="%show.xlabels" fx:id="xLabels" />
+                        <CheckMenuItem fx:id="yLabels" mnemonicParsing="false" text="%show.ylabels" />
+                        <CheckMenuItem fx:id="dpPercentage" mnemonicParsing="false" text="%show.dp.percentage" />
+                        <CheckMenuItem fx:id="directions" mnemonicParsing="false" text="%show.direction" />
+                    </items>
+                </MenuButton>
             </children>
         </HBox>
-        <Label fx:id="info"/>
     </children>
-</fx:root>
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+</VBox>

@@ -44,7 +44,7 @@ public class OS {
     /**
      * The list of ordered standard chromosomes (1-22, X and Y).
      */
-    private static final List<String> standardChromosomes = new ArrayList();
+    private static final ObservableList<String> standardChromosomes = FXCollections.observableArrayList();
     /**
      * The list of available locales.
      */
@@ -234,7 +234,7 @@ public class OS {
      *
      * @return the list of chromosomes
      */
-    public static List<String> getStandardChromosomes() {
+    public static ObservableList<String> getStandardChromosomes() {
         return standardChromosomes;
     }
 

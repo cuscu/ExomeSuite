@@ -14,11 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package exomesuite.graphic;
+package exomesuite.project;
 
 import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
-import exomesuite.project.ModelProject;
+import exomesuite.graphic.SizableImage;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -121,7 +121,8 @@ public class ProjectInfo extends TabPane {
      * Opens a dialog to select a File and, if not null, adds it to the project.
      */
     private void addFile() {
-        File f = FileManager.openFile(ExomeSuite.getResources().getString("choose.file"), FileManager.ALL_FILTER);
+        File parent = project.getConfigFile().getParentFile();
+        File f = FileManager.openFile(ExomeSuite.getResources().getString("choose.file"), parent, FileManager.ALL_FILTER);
         if (f != null) {
             project.getFiles().add(f);
         }
@@ -212,19 +213,36 @@ public class ProjectInfo extends TabPane {
         });
     }
 
+    /**
+     * Tries to forget everything about this project. All binded properties -name and description-
+     * are unbinded, TextFields -name, description, sequences- are cleared, ComboBoxes -genome and
+     * encoding- are set to null and listeners -genome and encoding- are nullified too.
+     *
+     * @param project
+     */
     private void unbind(ModelProject project) {
+        // Binded properties are unbinded
         name.textProperty().unbindBidirectional(project.getNameProperty());
         description.textProperty().unbindBidirectional(project.getDescriptionProperty());
-        name.setText(null);
-        description.setText(null);
+        // TextFields are cleared
+        name.clear();
+        description.clear();
+        forward.clear();
+        reverse.clear();
+        // Listeners to null
         genome.setOnAction(null);
         encoding.setOnAction(null);
-        forward.setText(null);
-        reverse.setText(null);
+        // ComboBoxes to null
         genome.setValue(null);
         encoding.setValue(null);
     }
 
+    /**
+     * Sets listening ofd properties. Name and description are directly binded, texts are set for
+     * properties that are present, and listeners are added to comboboxes.
+     *
+     * @param project
+     */
     private void bind(ModelProject project) {
         name.textProperty().bindBidirectional(project.getNameProperty());
         description.textProperty().bindBidirectional(project.getDescriptionProperty());

@@ -20,12 +20,9 @@ import exomesuite.ExomeSuite;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 
 /**
  * FXML Controller class. Manages the databases windows. These databases are: the reference genomes,
@@ -33,24 +30,24 @@ import javafx.scene.layout.VBox;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class Databases extends VBox {
+public class Databases {
 
     @FXML
-    private FileParam mills;
+    private TextField mills;
     @FXML
-    private FileParam omni;
+    private TextField omni;
     @FXML
-    private FileParam phase1;
+    private TextField phase1;
     @FXML
-    private FileParam dbsnp;
+    private TextField dbsnp;
     @FXML
-    private FileParam hapmap;
+    private TextField hapmap;
     @FXML
-    private FileParam ensembl;
+    private TextField ensembl;
     @FXML
-    private FileParam grch37;
+    private TextField grch37;
     @FXML
-    private FileParam grch38;
+    private TextField grch38;
 
     private final static String MILLS = "mills";
     private final static String DBSNP = "dbsnp";
@@ -62,75 +59,80 @@ public class Databases extends VBox {
     private final static String GRCH38 = "GRCh38";
 
     /**
-     * Creates and shows the panel for selecting the databases.
-     */
-    public Databases() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Databases.fxml"), ExomeSuite.getResources());
-            loader.setRoot(this);
-            loader.setController(this);
-            getStylesheets().add("/exomesuite/main.css");
-            loader.load();
-        } catch (IOException ex) {
-            Logger.getLogger(Databases.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
-    /**
      * Initializes the controller class.
      */
     @FXML
     public void initialize() {
-        // MILLS
-        if (OS.getProperties().containsProperty(MILLS)) {
-            mills.setValue(new File(OS.getProperties().getProperty(MILLS)));
+        mills.setText(OS.getProperties().getProperty(MILLS, ""));
+        omni.setText(OS.getProperties().getProperty(OMNI, ""));
+        dbsnp.setText(OS.getProperties().getProperty(DBSNP, ""));
+        hapmap.setText(OS.getProperties().getProperty(HAPMAP, ""));
+        phase1.setText(OS.getProperties().getProperty(PHASE1, ""));
+        ensembl.setText(OS.getProperties().getProperty(ENSMEBL, ""));
+        grch37.setText(OS.getProperties().getProperty(GRCH37, ""));
+        grch38.setText(OS.getProperties().getProperty(GRCH38, ""));
+    }
+
+    @FXML
+    private void selectMills() {
+        selectDatabase(mills, MILLS, "VCF", FileManager.VCF_FILTER);
+    }
+
+    @FXML
+    private void selectOmni() {
+        selectDatabase(omni, OMNI, "VCF", FileManager.VCF_FILTER);
+    }
+
+    @FXML
+    private void selectPhase1() {
+        selectDatabase(phase1, PHASE1, "VCF", FileManager.VCF_FILTER);
+    }
+
+    @FXML
+    private void selectDbsnp() {
+        selectDatabase(dbsnp, DBSNP, "VCF", FileManager.VCF_FILTER);
+    }
+
+    @FXML
+    private void selectHapmap() {
+        selectDatabase(hapmap, HAPMAP, "VCF", FileManager.VCF_FILTER);
+    }
+
+    @FXML
+    private void selectGrch37() {
+        selectDatabase(grch37, GRCH37, "FASTA", FileManager.FASTA_FILTER);
+    }
+
+    @FXML
+    private void selectGrch38() {
+        selectDatabase(grch38, GRCH38, "FASTA", FileManager.FASTA_FILTER);
+    }
+
+    @FXML
+    private void selectEnsembl() {
+        selectDatabase(ensembl, ENSMEBL, "exons", FileManager.TSV_FILTER, FileManager.ALL_FILTER);
+    }
+
+    /**
+     * Opens a database. If user selects a valid database, textfield and OS properties are updated.
+     *
+     * @param textField textField that shows file
+     * @param key key in OS properties
+     * @param type a string to show to the user: select [type] file
+     * @param filters list of filters of the file
+     */
+    private void selectDatabase(TextField textField, String key, String type, FileChooser.ExtensionFilter... filters) {
+        String message = ExomeSuite.getStringFormatted("select.file", type);
+        File f;
+        if (textField.getText().isEmpty()) {
+            f = FileManager.openFile(textField, message, filters);
+        } else {
+            File parent = new File(textField.getText()).getParentFile();
+            f = FileManager.openFile(textField, message, parent, filters);
         }
-        mills.addFilter(FileManager.VCF_FILTER);
-        mills.setOnValueChanged(e -> OS.getProperties().setProperty(MILLS, mills.getValue().getAbsolutePath()));
-        // OMNI
-        if (OS.getProperties().containsProperty(OMNI)) {
-            omni.setValue(new File(OS.getProperties().getProperty(OMNI)));
+        if (f != null) {
+            OS.getProperties().setProperty(key, f.getAbsolutePath());
         }
-        omni.addFilter(FileManager.VCF_FILTER);
-        omni.setOnValueChanged(e -> OS.getProperties().setProperty(OMNI, omni.getValue().getAbsolutePath()));
-        // dbSNP
-        if (OS.getProperties().containsProperty(DBSNP)) {
-            dbsnp.setValue(new File(OS.getProperties().getProperty(DBSNP)));
-        }
-        dbsnp.addFilter(FileManager.VCF_FILTER);
-        dbsnp.setOnValueChanged(e -> OS.getProperties().setProperty(DBSNP, dbsnp.getValue().getAbsolutePath()));
-        // Hapmap
-        if (OS.getProperties().containsProperty(HAPMAP)) {
-            hapmap.setValue(new File(OS.getProperties().getProperty(HAPMAP)));
-        }
-        hapmap.addFilter(FileManager.VCF_FILTER);
-        hapmap.setOnValueChanged(e -> OS.getProperties().setProperty(HAPMAP, hapmap.getValue().getAbsolutePath()));
-        // Phase 1
-        if (OS.getProperties().containsProperty(PHASE1)) {
-            phase1.setValue(new File(OS.getProperties().getProperty(PHASE1)));
-        }
-        phase1.addFilter(FileManager.VCF_FILTER);
-        phase1.setOnValueChanged(e -> OS.getProperties().setProperty(PHASE1, phase1.getValue().getAbsolutePath()));
-        // Ensembl
-        if (OS.getProperties().containsProperty(ENSMEBL)) {
-            ensembl.setValue(new File(OS.getProperties().getProperty(ENSMEBL)));
-        }
-        ensembl.addFilter(FileManager.TSV_FILTER);
-        ensembl.addFilter(FileManager.ALL_FILTER);
-        ensembl.setOnValueChanged(e -> OS.getProperties().setProperty(ENSMEBL, ensembl.getValue().getAbsolutePath()));
-        // Human genome GRCHv37
-        if (OS.getProperties().containsProperty(GRCH37)) {
-            grch37.setValue(new File(OS.getProperties().getProperty(GRCH37)));
-        }
-        grch37.addFilter(FileManager.FASTA_FILTER);
-        grch37.setOnValueChanged(e -> OS.getProperties().setProperty(GRCH37, grch37.getValue().getAbsolutePath()));
-        // Human genome GRCH38
-        if (OS.getProperties().containsProperty(GRCH38)) {
-            grch38.setValue(new File(OS.getProperties().getProperty(GRCH38)));
-        }
-        grch38.addFilter(FileManager.FASTA_FILTER);
-        grch38.setOnValueChanged(e -> OS.getProperties().setProperty(GRCH38, grch38.getValue().getAbsolutePath()));
     }
 
 }

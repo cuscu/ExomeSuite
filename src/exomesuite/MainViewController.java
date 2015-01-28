@@ -21,10 +21,10 @@ import exomesuite.graphic.About;
 import exomesuite.graphic.Databases;
 import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
-import exomesuite.graphic.ProjectInfo;
 import exomesuite.graphic.SizableImage;
 import exomesuite.mist.CombineMIST;
 import exomesuite.project.ModelProject;
+import exomesuite.project.ProjectInfo;
 import exomesuite.tsv.TSVReader;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
@@ -42,7 +42,6 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -258,9 +257,13 @@ public class MainViewController {
      * Opens dialog to set databases selection.
      */
     public void showDatabasesPane() {
-        Databases db = new Databases();
-        ScrollPane pane = new ScrollPane(db);
-        db.setPadding(new Insets(5));
+        FXMLLoader loader = new FXMLLoader(Databases.class.getResource("Databases.fxml"), ExomeSuite.getResources());
+        try {
+            loader.load();
+        } catch (IOException ex) {
+            MainViewController.printException(ex);
+        }
+        ScrollPane pane = new ScrollPane(loader.getRoot());
         pane.setFitToHeight(true);
         pane.setFitToWidth(true);
         Scene scene = new Scene(pane);
@@ -329,7 +332,18 @@ public class MainViewController {
                     MainViewController.printMessage("Genome not selected", "error");
                     return;
                 } else {
-                    t.setContent(new BamReader(file, ref));
+                    FXMLLoader loader = new FXMLLoader(BamReader.class.getResource("BamReader.fxml"),
+                            ExomeSuite.getResources());
+                    try {
+                        loader.load();
+                    } catch (IOException ex) {
+                        MainViewController.printException(ex);
+                        return;
+                    }
+                    BamReader controller = loader.getController();
+                    controller.setBamFile(file);
+                    controller.setReferenceFile(ref);
+                    t.setContent(loader.getRoot());
                 }
             } else {
                 String message = ExomeSuite.getStringFormatted("extension.unsupported", file.getName());

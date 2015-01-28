@@ -18,6 +18,7 @@ package exomesuite.bam;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -68,11 +69,11 @@ public class BamCanvas extends StackPane {
     /**
      * Y axis as percentage.
      */
-    private final SimpleBooleanProperty percentageUnits = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty percentageUnits = new SimpleBooleanProperty(false);
     /**
      * Activate colors per base.
      */
-    private final SimpleBooleanProperty baseColors = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty baseColors = new SimpleBooleanProperty(false);
     /**
      * Y max value.
      */
@@ -83,21 +84,66 @@ public class BamCanvas extends StackPane {
      */
     private final SimpleBooleanProperty showAlleles = new SimpleBooleanProperty(false);
     /**
-     * List of alignments to show.
+     * Background color.
      */
-    private List<PileUp> alignments = new ArrayList<>();
+    private final SimpleBooleanProperty showBackgroundColor = new SimpleBooleanProperty(true);
+    /**
+     * x axis lines.
+     */
+    private final Property<Boolean> showXAxis = new SimpleBooleanProperty(false);
+    /**
+     * y axis lines.
+     */
+    private final Property<Boolean> showYAxis = new SimpleBooleanProperty(false);
+    /**
+     * x labels (positions).
+     */
+    private final Property<Boolean> showXLabels = new SimpleBooleanProperty(true);
+    /**
+     * y labels (dp or percentage)
+     */
+    private final Property<Boolean> showYLabels = new SimpleBooleanProperty(true);
 
     /**
-     * Per nucleotide background layer
+     * List of alignments to show.
+     */
+    private List<PileUp> alignments = new ArrayList();
+
+    /**
+     * Per nucleotide background layer.
      */
     private final BamBaseBackgroundLayer backgroundLayer = new BamBaseBackgroundLayer();
+    /**
+     * X and Y zero axises.
+     */
     private final BamAxisLayer axisLayer = new BamAxisLayer();
+    /**
+     * Bars layer. It is highly recommendable not to hide this.
+     */
     private final BamBarsLayer barsLayer = new BamBarsLayer();
+    /**
+     * Layer that shows the selected base.
+     */
     private final BamSelectLayer selectLayer = new BamSelectLayer();
+    /**
+     * x lines.
+     */
     private final BamAxisXLayer axisXLayer = new BamAxisXLayer();
+    /**
+     * y lines.
+     */
     private final BamAxisYLayer axisYLayer = new BamAxisYLayer();
+    /**
+     * Nucleotides names of the reference.
+     */
     private final BamBaseLabelLayer baseLabelLayer = new BamBaseLabelLayer();
+    /**
+     * x labels (positions).
+     */
     private final BamAxisXlabelsLayer axisXlabelsLayer = new BamAxisXlabelsLayer();
+    /**
+     * y labels (percentage or dp).
+     */
     private final BamAxisYLabelsLayer axisYLabelsLayer = new BamAxisYLabelsLayer();
 
     /**
@@ -115,6 +161,9 @@ public class BamCanvas extends StackPane {
         addLayer(barsLayer);
         addLayer(axisLayer);
         addLayer(baseLabelLayer);
+        axisXLayer.setVisible(false);
+        axisYLayer.setVisible(false);
+
         // White background
         setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         /*
@@ -139,6 +188,24 @@ public class BamCanvas extends StackPane {
             setSelectedIndex(index);
 
         });
+        showBackgroundColor.bindBidirectional(backgroundLayer.visibleProperty());
+        showXAxis.bindBidirectional(axisXLayer.visibleProperty());
+        showYAxis.bindBidirectional(axisYLayer.visibleProperty());
+        showAlleles.addListener((obs, old, current) -> {
+            computeMaxY();
+            repaint();
+        });
+        axisMargin.addListener((obs, old, current) -> repaint());
+        tickLength.addListener((obs, old, current) -> repaint());
+        baseWidth.addListener((obs, old, current) -> repaint());
+        genomicPosition.addListener((obs, old, current) -> repaint());
+        textMargin.addListener((obs, old, current) -> repaint());
+        selectedIndex.addListener((obs, old, current) -> repaint());
+        yTicks.addListener((obs, old, current) -> repaint());
+        maxYValue.addListener((obs, old, current) -> repaint());
+        baseColors.addListener((obs, old, current) -> repaint());
+        percentageUnits.addListener((obs, old, current) -> repaint());
+
     }
 
     /**
@@ -256,7 +323,6 @@ public class BamCanvas extends StackPane {
      */
     public void setAxisMargin(double margin) {
         axisMargin.set(margin);
-        repaint();
     }
 
     /**
@@ -266,7 +332,6 @@ public class BamCanvas extends StackPane {
      */
     public void setTickLength(double length) {
         tickLength.set(length);
-        repaint();
     }
 
     /**
@@ -276,7 +341,6 @@ public class BamCanvas extends StackPane {
      */
     public void setBaseWidth(double width) {
         baseWidth.set(width);
-        repaint();
     }
 
     /**
@@ -286,7 +350,6 @@ public class BamCanvas extends StackPane {
      */
     public void setGenomicPosition(int position) {
         genomicPosition.set(position);
-        repaint();
     }
 
     /**
@@ -296,7 +359,6 @@ public class BamCanvas extends StackPane {
      */
     public void setTextMargin(double margin) {
         textMargin.set(margin);
-        repaint();
     }
 
     /**
@@ -306,7 +368,6 @@ public class BamCanvas extends StackPane {
      */
     public final void setSelectedIndex(int index) {
         selectedIndex.set(index);
-        repaint();
     }
 
     /**
@@ -316,7 +377,6 @@ public class BamCanvas extends StackPane {
      */
     public void setYTicks(int ticks) {
         yTicks.set(ticks);
-        repaint();
     }
 
     /**
@@ -326,7 +386,6 @@ public class BamCanvas extends StackPane {
      */
     public void setPercentageUnits(boolean percentage) {
         percentageUnits.set(percentage);
-        repaint();
     }
 
     /**
@@ -336,7 +395,6 @@ public class BamCanvas extends StackPane {
      */
     public void setMaxYValue(double value) {
         maxYValue.set(value);
-        repaint();
     }
 
     /**
@@ -358,7 +416,6 @@ public class BamCanvas extends StackPane {
      */
     public void setBaseColors(boolean activate) {
         baseColors.set(activate);
-        repaint();
     }
 
     /**
@@ -441,8 +498,34 @@ public class BamCanvas extends StackPane {
      */
     void setShowAlleles(boolean selected) {
         showAlleles.set(selected);
-        computeMaxY();
-        repaint();
+    }
+
+    /**
+     * Tells if background color is been shown.
+     *
+     * @return true if background colors are shown, false if not
+     */
+    boolean isShowBackgroundColor() {
+        return showBackgroundColor.get();
+    }
+
+    /**
+     * Tells if background color is been shown. Use the property to listen for changes or make
+     * bindings.
+     *
+     * @return the property of showBackgroundColor
+     */
+    Property<Boolean> getShowBacgroundColor() {
+        return showBackgroundColor;
+    }
+
+    /**
+     * Tells if background color is been shown.
+     *
+     * @param show true if you want to show, false if you want to hide
+     */
+    void setShowBackgroundColor(boolean show) {
+        showBackgroundColor.set(show);
     }
 
     private void repaint() {
@@ -459,10 +542,10 @@ public class BamCanvas extends StackPane {
         maxYValue.set(1);
         alignments.forEach(pileup -> {
             if (showAlleles.get()) {
-                pileup.getDepths().forEach((Character t, Integer u) -> {
+                pileup.getDepths().forEach((base, dp) -> {
                     if (showAlleles.get()) {
-                        if (u > maxYValue.get()) {
-                            maxYValue.set(u);
+                        if (dp > maxYValue.get()) {
+                            maxYValue.set(dp);
                         }
                     }
                 });
@@ -485,6 +568,22 @@ public class BamCanvas extends StackPane {
                 }
             }
         });
+    }
+
+    Property<Boolean> getShowXAxis() {
+        return showXAxis;
+    }
+
+    Property<Boolean> getShowYAxis() {
+        return showYAxis;
+    }
+
+    Property<Boolean> getShowXLabels() {
+        return showXLabels;
+    }
+
+    Property<Boolean> getShowYLabels() {
+        return showYLabels;
     }
 
 }

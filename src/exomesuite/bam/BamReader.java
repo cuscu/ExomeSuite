@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 UICHUIMI
+ * Copyright (C) 2015 UICHUIMI
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,7 @@
 package exomesuite.bam;
 
 import exomesuite.MainViewController;
-import exomesuite.graphic.ChoiceParam;
-import exomesuite.graphic.NumberParam;
 import exomesuite.graphic.SizableImage;
-import exomesuite.graphic.TextParam;
-import exomesuite.graphic.YesNoParam;
-import exomesuite.utils.Ensembl;
 import exomesuite.utils.OS;
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,55 +25,59 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 
 /**
- * The super graph.
+ * FXML Controller class
  *
- * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
+ * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-public class BamReader extends VBox {
+public class BamReader {
 
     @FXML
-    private ChoiceParam chromosome;
-    @FXML
-    private TextParam position;
+    private BamCanvas bamCanvas;
     @FXML
     private Label info;
     @FXML
-    private NumberParam zoom;
+    private ComboBox<String> chromosome;
     @FXML
-    private YesNoParam showNucleotideColor;
+    private TextField position;
     @FXML
-    private YesNoParam showBackgroundColor;
+    private Slider zoom;
     @FXML
-    private YesNoParam showAxisX;
+    private CheckMenuItem bckgColor;
     @FXML
-    private YesNoParam showAxisY;
+    private CheckMenuItem barsColor;
     @FXML
-    private YesNoParam showLabelsX;
+    private CheckMenuItem xAxis;
     @FXML
-    private YesNoParam showLabelsY;
+    private CheckMenuItem yAxis;
     @FXML
-    private YesNoParam showPercentageDP;
+    private CheckMenuItem xLabels;
     @FXML
-    private YesNoParam showAlleles;
+    private CheckMenuItem yLabels;
+    @FXML
+    private CheckMenuItem dpPercentage;
+    @FXML
+    private CheckMenuItem directions;
     @FXML
     private Button left;
     @FXML
     private Button right;
-    @FXML
-    private BamCanvas bamCanvas;
-
-    private final File bamFile;
-    private final File genome;
+    /**
+     * Reference genome file.
+     */
+    private File genome;
+    /**
+     * Alignments file.
+     */
+    private File alignments;
 
     private List<PileUp> windowAlignments;
     int windowStart = 0, windowEnd = 0;
@@ -86,80 +85,52 @@ public class BamReader extends VBox {
     private static final int WINDOW_SIZE = 50;
 
     /**
-     * Creates a pane that contains a BamCanvas and some controls, such as the position selection or
-     * the showing options.
-     *
-     * @param bamFile file to show
-     * @param genome reference genome
+     * Initializes the controller class.
      */
-    public BamReader(File bamFile, File genome) {
-        Ensembl.setFile(new File(OS.getProperties().getProperty("ensembl")));
-        this.bamFile = bamFile;
-        this.genome = genome;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("BamReader.fxml"));
-            loader.setRoot(this);
-            loader.setController(this);
-            loader.load();
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-        }
-    }
-
-    @FXML
-    private void initialize() {
+    public void initialize() {
         // Canvas options (force max and min size)
-        bamCanvas.setPrefSize(9999, 9999);
-        bamCanvas.setMinSize(1, 1);
-        bamCanvas.widthProperty().addListener(object -> updatePosition());
         initializeBamCanvas();
         initializeOptionsPanel();
         // Fill chromosomes with standard (can be replace with a samtools view -H)
-        chromosome.setOptions(OS.getStandardChromosomes());
-        chromosome.setOnValueChanged(event -> updatePosition());
+        chromosome.setItems(OS.getStandardChromosomes());
+        chromosome.setValue("1");
+        position.setText("1");
+        chromosome.setOnAction(event -> updatePosition());
         // Jump to new position
-        position.setOnValueChanged(event -> updatePosition());
-        zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(zoom.getValue()));
-        left.setGraphic(new SizableImage("exomesuite/img/left-arrow.png", 32));
-        right.setGraphic(new SizableImage("exomesuite/img/right-arrow.png", 32));
+        position.setOnAction(event -> updatePosition());
         left.setOnAction(event -> {
-            position.setValue((Integer.valueOf(position.getValue()) + 1) + "");
-            updatePosition();
+            int value = Integer.valueOf(position.getText());
+            if (value > 1) {
+                position.setText((value - 1) + "");
+                bamCanvas.setSelectedIndex(value - 1);
+                updatePosition();
+            }
         });
         right.setOnAction(event -> {
-            position.setValue((Integer.valueOf(position.getValue()) - 1) + "");
+            int value = Integer.valueOf(position.getText());
+            position.setText((value + 1) + "");
+            bamCanvas.setSelectedIndex(value + 1);
             updatePosition();
         });
-    }
-
-    private void initializeOptionsPanel() {
-        // Layer show/hide
-        showBackgroundColor.setValue(true);
-        showAxisY.setValue(true);
-        showLabelsX.setValue(true);
-        showLabelsY.setValue(true);
-        showNucleotideColor.setValue(bamCanvas.getBaseColors().get());
-        showPercentageDP.setValue(bamCanvas.getPercentageUnits().get());
-        showBackgroundColor.setOnValueChanged(e -> bamCanvas.setShowBackground(showBackgroundColor.getValue()));
-        showAxisX.setOnValueChanged(e -> bamCanvas.setShowAxisX(showAxisX.getValue()));
-        showAxisY.setOnValueChanged(e -> bamCanvas.setShowAxisY(showAxisY.getValue()));
-        // Ohter options
-        showNucleotideColor.setOnValueChanged(e -> bamCanvas.setBaseColors(showNucleotideColor.getValue()));
-        showPercentageDP.setOnValueChanged(e -> bamCanvas.setPercentageUnits(showPercentageDP.getValue()));
-        showLabelsX.setOnValueChanged(e -> bamCanvas.setShowLabelsX(showLabelsX.getValue()));
-        showLabelsY.setOnValueChanged(e -> bamCanvas.setShowLabelsY(showLabelsY.getValue()));
-        showAlleles.setOnValueChanged(e -> bamCanvas.setShowAlleles(showAlleles.getValue()));
-        // By default, deactivate x axis
-        showAxisX.setValue(false);
-        bamCanvas.setShowAxisX(false);
+        // Avoid non digit character
+        position.setOnKeyTyped(event -> {
+            if (!Character.isDigit(event.getCharacter().charAt(0))) {
+                event.consume();
+            }
+        });
+        left.setGraphic(new SizableImage("exomesuite/img/left-arrow.png", SizableImage.SMALL_SIZE));
+        right.setGraphic(new SizableImage("exomesuite/img/right-arrow.png", SizableImage.SMALL_SIZE));
+//        zoom.setOnValueChanged(e -> bamCanvas.setBaseWidth(zoom.getValue()));
+        zoom.valueProperty().bindBidirectional(bamCanvas.getBaseWidth());
+        zoom.valueProperty().addListener((obs, old, current) -> updatePosition());
     }
 
     private void initializeBamCanvas() {
-        bamCanvas.setPercentageUnits(false);
-        bamCanvas.setBaseColors(false);
-        // When user clicks on a certain position
-        bamCanvas.getSelectedIndex().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            final int clickedPos = newValue.intValue();
+        bamCanvas.setPrefSize(9999, 9999);
+        bamCanvas.setMinSize(1, 1);
+        bamCanvas.widthProperty().addListener(object -> updatePosition());
+        bamCanvas.getSelectedIndex().addListener((obs, old, current) -> {
+            final int clickedPos = current.intValue();
             final int genomicStartPosition = bamCanvas.getGenomicPosition().get();
             if (clickedPos >= 0 && bamCanvas.getAlignments().size() > clickedPos) {
                 // Count reference ·
@@ -169,13 +140,32 @@ public class BamReader extends VBox {
                         emptySpaces++;
                     }
                 }
-                final int pos = newValue.intValue() + genomicStartPosition - emptySpaces;
+                final int pos = current.intValue() + genomicStartPosition - emptySpaces;
                 PileUp pu = bamCanvas.getAlignments().get(clickedPos);
                 if (pu != null) {
                     info.setText(pos + ":" + pu);
                 }
             }
         });
+    }
+
+    private void initializeOptionsPanel() {
+        bckgColor.selectedProperty().bindBidirectional(bamCanvas.getShowBacgroundColor());
+        barsColor.selectedProperty().bindBidirectional(bamCanvas.getBaseColors());
+        directions.selectedProperty().bindBidirectional(bamCanvas.getShowAlleles());
+        dpPercentage.selectedProperty().bindBidirectional(bamCanvas.getPercentageUnits());
+        xAxis.selectedProperty().bindBidirectional(bamCanvas.getShowXAxis());
+        yAxis.selectedProperty().bindBidirectional(bamCanvas.getShowYAxis());
+        xLabels.selectedProperty().bindBidirectional(bamCanvas.getShowXLabels());
+        yLabels.selectedProperty().bindBidirectional(bamCanvas.getShowYLabels());
+    }
+
+    public void setBamFile(File file) {
+        this.alignments = file;
+    }
+
+    public void setReferenceFile(File file) {
+        this.genome = file;
     }
 
     /**
@@ -185,11 +175,10 @@ public class BamReader extends VBox {
         final String chr = chromosome.getValue();
         if (chr != null && !chr.isEmpty()) {
             try {
-                final int index = Integer.valueOf(position.getValue());
+                final int index = Integer.valueOf(position.getText());
                 changePosition(chr, index);
             } catch (NumberFormatException ex) {
-                MainViewController.printMessage("Bad position: " + position.getValue(), "error");
-                System.err.println("Set a good position (" + position.getValue() + ")");
+                MainViewController.printMessage("Bad position: " + position.getText(), "error");
             }
         } else {
             MainViewController.printMessage("No chromosome selected", "error");
@@ -214,7 +203,7 @@ public class BamReader extends VBox {
             end += (1 - start);
             start = 1;
         }
-        List<PileUp> alignments = new ArrayList<>();
+        List<PileUp> pileups = new ArrayList();
         // So, I want chr:start-end
         // What do I have in alignmentWindow
         if (!windowChromosome.equals(chr) || start < windowStart || end > windowEnd) {
@@ -228,11 +217,11 @@ public class BamReader extends VBox {
             windowAlignments = readBamFile(windowChromosome, windowStart, windowEnd);
         }
         for (int i = 0; i <= end - start && i + start - windowStart < windowAlignments.size(); i++) {
-            alignments.add(windowAlignments.get(i + start - windowStart));
+            pileups.add(windowAlignments.get(i + start - windowStart));
         }
-        bamCanvas.setAlignments(alignments);
+        bamCanvas.setAlignments(pileups);
         bamCanvas.setGenomicPosition(start);
-        bamCanvas.setSelectedIndex(index);
+//        bamCanvas.setSelectedIndex(index);
     }
 
     /**
@@ -244,9 +233,9 @@ public class BamReader extends VBox {
      * @return
      */
     private List<PileUp> readBamFile(String chromosome, int start, int end) {
-        final List<PileUp> alignments = new ArrayList<>();
+        final List<PileUp> pileups = new ArrayList<>();
         ProcessBuilder pb = new ProcessBuilder("samtools", "mpileup", "-f", genome.getAbsolutePath(),
-                "-r", chromosome + ":" + start + "-" + end, bamFile.getAbsolutePath());
+                "-r", chromosome + ":" + start + "-" + end, alignments.getAbsolutePath());
         System.out.println(pb.command());
         String errorLine = "";
         try {
@@ -255,24 +244,22 @@ public class BamReader extends VBox {
                     BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
                 // [mpileup] 1 samples in 1 input files
                 // <mpileup> Set max per-file depth to 8000
-                reader.lines().forEachOrdered(line -> alignments.addAll(decodePileUp(line)));
+                reader.lines().forEachOrdered(line -> pileups.addAll(decodePileUp(line)));
                 String eLine;
                 while ((eLine = error.readLine()) != null) {
                     errorLine += "\n" + eLine;
                 }
             } catch (IOException ex) {
-                Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+                MainViewController.printException(ex);
             }
             int ret = p.waitFor();
             if (ret != 0) {
                 MainViewController.printMessage("Problems loading alignments: " + errorLine, "error");
             }
-        } catch (IOException ex) {
-            Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | InterruptedException ex) {
+            MainViewController.printException(ex);
         }
-        return alignments;
+        return pileups;
     }
 
     /**
@@ -334,7 +321,7 @@ public class BamReader extends VBox {
                     try {
                         length = Integer.valueOf(row[4].substring(i + 1, j));
                     } catch (Exception ex) {
-                        Logger.getLogger(BamReader.class.getName()).log(Level.SEVERE, null, ex);
+                        MainViewController.printException(ex);
                     }
                     for (int k = 0; k < length; k++) {
                         PileUp pu;

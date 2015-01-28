@@ -31,7 +31,7 @@
                                 <PActions fx:id="pactions" />
                                 <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS" >
                                     <content>
-                                        <ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
+                                        <exomesuite.project.ProjectInfo fx:id="projectInfo" VBox.vgrow="ALWAYS"/>
                                     </content>
                                 </ScrollPane>
                             </children>

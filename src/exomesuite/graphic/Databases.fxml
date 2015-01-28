@@ -8,23 +8,49 @@
 <?import exomesuite.graphic.*?>
 <?import java.net.*?>
 
-<fx:root type="javafx.scene.layout.VBox" spacing="5"  xmlns:fx="http://javafx.com/fxml/1" maxHeight="600" >
+<GridPane xmlns:fx="http://javafx.com/fxml/1" hgap="5" vgap="5" fx:controller="exomesuite.graphic.Databases"  >
     <stylesheets>
         <URL value="@/exomesuite/main.css"/>
     </stylesheets>
+    <columnConstraints>
+        <ColumnConstraints fillWidth="true" halignment="RIGHT" hgrow="SOMETIMES" />
+        <ColumnConstraints fillWidth="true"/>
+    </columnConstraints>
+    <padding>
+        <javafx.geometry.Insets bottom="5" top="5" left="5" right="5" />
+    </padding>
     <children>
-        <!-- Standard databases -->
-        <SectionTitle title="%variant.databases"/>
-        <FileParam  title="%mills" fx:id="mills"/>
-        <FileParam title="%phase1" fx:id="phase1" />
-        <FileParam title="%omni" fx:id="omni" />
-        <FileParam title="%hapmap" fx:id="hapmap" />
-        <FileParam title="%dbsnp" fx:id="dbsnp" />
-        <FileParam title="%ensembl.exons" fx:id="ensembl"/>
-        <!-- Reference genomes -->
-        <SectionTitle title="%reference.genome" />
-        <FileParam title="GRCHv37 (hg19)" fx:id="grch37"/>
-        <FileParam title="GRCHv38" fx:id="grch38" />
+        <!-- Column 0: labels -->
+        <Label text="%variant.databases" GridPane.columnSpan="3" GridPane.halignment="CENTER"  />
+        <Label text="%mills" GridPane.rowIndex="1" />
+        <Label text="%phase1" GridPane.rowIndex="2" />
+        <Label text="%omni" GridPane.rowIndex="3" />
+        <Label text="%hapmap" GridPane.rowIndex="4" />
+        <Label text="%dbsnp" GridPane.rowIndex="5" />
+        <Label text="%ensembl.exons" GridPane.rowIndex="6" />
+        <Label text="%reference.genome" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="7"  />
+        <Label text="GRCHv37 (hg19)" GridPane.rowIndex="8" />
+        <Label text="GRCHv38" GridPane.rowIndex="9" />
+
+        <!-- Column 1: textfileds -->
+        <TextField editable="false" fx:id="mills" GridPane.hgrow="ALWAYS" GridPane.columnIndex="1" GridPane.rowIndex="1"  />
+        <TextField editable="false" fx:id="phase1" GridPane.columnIndex="1" GridPane.rowIndex="2"  />
+        <TextField editable="false" fx:id="omni" GridPane.columnIndex="1" GridPane.rowIndex="3"  />
+        <TextField editable="false" fx:id="hapmap" GridPane.columnIndex="1" GridPane.rowIndex="4"  />
+        <TextField editable="false" fx:id="dbsnp" GridPane.columnIndex="1" GridPane.rowIndex="5"  />
+        <TextField editable="false" fx:id="ensembl" GridPane.columnIndex="1" GridPane.rowIndex="6"  />
+        <TextField editable="false" fx:id="grch37" GridPane.columnIndex="1" GridPane.rowIndex="8"  />
+        <TextField editable="false" fx:id="grch38" GridPane.columnIndex="1" GridPane.rowIndex="9"  />
+
+        <!-- Column 1: textfileds -->
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="1" onAction="#selectMills" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="2" onAction="#selectPhase1" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="3" onAction="#selectOmni" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="4" onAction="#selectHapmap" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="5" onAction="#selectDbsnp" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="6" onAction="#selectEnsembl" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="8" onAction="#selectGrch37" />
+        <Button text="%browse" GridPane.columnIndex="2" GridPane.rowIndex="9" onAction="#selectGrch38" />
 
     </children>
-</fx:root>
+</GridPane>

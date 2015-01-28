@@ -17,7 +17,7 @@
 package exomesuite.utils;
 
 import exomesuite.MainViewController;
-import exomesuite.graphic.ProjectInfo;
+import exomesuite.project.ProjectInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

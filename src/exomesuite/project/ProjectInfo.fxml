@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import exomesuite.graphic.*?>
+<?import java.net.*?>
+
+<fx:root type="TabPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <stylesheets>
+        <URL value="@/exomesuite/main.css" />
+    </stylesheets>
+    <tabs>
+        <Tab closable="false" text="%files">
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="5">
+                    <children>
+                        <Button fx:id="addButton" text="%add.file" />
+                        <TableView fx:id="moreFiles" VBox.vgrow="ALWAYS" />
+                    </children>
+                    <padding>
+                        <javafx.geometry.Insets top="5" />
+                    </padding>
+                </VBox>
+            </content>
+        </Tab>
+        <Tab text="%properties">
+            <content>
+                <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefViewportHeight="435.0" prefViewportWidth="248.0">
+                    <content>
+                        <VBox alignment="TOP_CENTER" spacing="10.0">
+                            <children>
+                                <Label fx:id="code" disable="true" />
+                                <VBox>
+                                    <children>
+                                        <!-- Column 0: labels -->
+                                        <Label text="%name">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <!-- Column 1: values -->
+                                        <TextField fx:id="name" HBox.hgrow="SOMETIMES" />
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="%description">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <TextField fx:id="description" />
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="%forward.sequences">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <!-- Use HBox to add a browse button -->
+                                        <HBox spacing="1">
+                                            <children>
+                                                <TextField fx:id="forward" editable="false" HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="selectForward" text="%browse" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="%reverse.sequences">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <HBox spacing="1">
+                                            <children>
+                                                <TextField fx:id="reverse" editable="false" HBox.hgrow="ALWAYS" />
+                                                <Button fx:id="selectReverse" text="%browse" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="%reference.genome">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <ComboBox fx:id="genome" maxWidth="9999" />
+                                    </children>
+                                </VBox>
+                                <VBox>
+                                    <children>
+                                        <Label text="%encoding">
+                                            <padding>
+                                                <Insets left="5.0" />
+                                            </padding>
+                                        </Label>
+                                        <ComboBox fx:id="encoding" maxWidth="9999" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </content>
+        </Tab>
+    </tabs>
+</fx:root>
