@@ -1,7 +1,7 @@
 package exomesuite.utils;
 
 import exomesuite.MainViewController;
-import exomesuite.project.ModelProject;
+import exomesuite.project.Project;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class OS {
     /**
      * The list of opened projects.
      */
-    private static final ObservableList<ModelProject> projects = FXCollections.observableArrayList();
+    private static final ObservableList<Project> projects = FXCollections.observableArrayList();
 
     /**
      * Static "Constructor" of the class.
@@ -73,12 +73,12 @@ public class OS {
             Arrays.stream(values).forEach(filename -> {
                 File configFile = new File(filename);
                 if (configFile.exists()) {
-                    projects.add(new ModelProject(new File(filename)));
+                    projects.add(new Project(new File(filename)));
                 }
             });
         }
         // When projects are added or removed, list of projects is generated again and stored in disk
-        projects.addListener((ListChangeListener.Change<? extends ModelProject> change) -> {
+        projects.addListener((ListChangeListener.Change<? extends Project> change) -> {
             if (projects.isEmpty()) {
                 // When empty, opened.projects must dissapear.
                 properties.removeProperty("opened.projects");
@@ -242,7 +242,7 @@ public class OS {
         return locales;
     }
 
-    public static ObservableList<ModelProject> getProjects() {
+    public static ObservableList<Project> getProjects() {
         return projects;
     }
 }

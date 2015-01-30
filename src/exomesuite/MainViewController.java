@@ -23,7 +23,7 @@ import exomesuite.graphic.Dialog;
 import exomesuite.graphic.PActions;
 import exomesuite.graphic.SizableImage;
 import exomesuite.mist.CombineMIST;
-import exomesuite.project.ModelProject;
+import exomesuite.project.Project;
 import exomesuite.project.ProjectInfo;
 import exomesuite.tsv.TSVReader;
 import exomesuite.utils.FileManager;
@@ -58,8 +58,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -99,7 +100,7 @@ public class MainViewController {
     @FXML
     private Menu language;
     @FXML
-    private ListView<ModelProject> projectListView;
+    private ListView<Project> projectListView;
 
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private static TabPane staticWorkingArea;
@@ -126,16 +127,16 @@ public class MainViewController {
      */
     public void openProject(File configFile) {
         if (configFile != null && configFile.exists()) {
-            ModelProject project = new ModelProject(configFile);
+            Project project = new Project(configFile);
             boolean opened = false;
-            for (ModelProject pr : OS.getProjects()) {
+            for (Project pr : OS.getProjects()) {
                 if (pr.getCode().equals(project.getCode())) {
                     opened = true;
                     break;
                 }
             }
             if (!opened) {
-                OS.getProjects().add(new ModelProject(configFile));
+                OS.getProjects().add(new Project(configFile));
                 String message = ExomeSuite.getStringFormatted("project.opened",
                         project.getName());
                 printMessage(message, "info");
@@ -234,7 +235,7 @@ public class MainViewController {
             String genome = controller.getGenome();
             String encoding = controller.getEncoding();
             // NUll check
-            ModelProject pr = new ModelProject(new File(path, code + ".config"));
+            Project pr = new Project(new File(path, code + ".config"));
             OS.getProjects().add(pr);
             pr.setCode(code);
             pr.setName(name);
@@ -296,7 +297,7 @@ public class MainViewController {
      * @param project project owner of file, if it exists. If the file comes from the filesystem,
      * put null
      */
-    public static void showFileContent(File file, ModelProject project) {
+    public static void showFileContent(File file, Project project) {
         if (file != null && file.exists()) {
             // Check if the file is already opened
             for (Tab t : staticWorkingArea.getTabs()) {
@@ -513,19 +514,16 @@ public class MainViewController {
         // The placeholder, when there are no projects opened.
         String message = ExomeSuite.getResources().getString("no.projects");
         // In order to show a resizable message, I use a FlowPane with individual words.
-        FlowPane placeholder = new FlowPane();
-        String[] words = message.split(" ");
-        for (String word : words) {
-            placeholder.getChildren().add(new Label(word + " "));
-        }
-        projectListView.setPlaceholder(placeholder);
+        TextFlow text = new TextFlow();
+        text.getChildren().add(new Text(message));
+        projectListView.setPlaceholder(text);
         projectListView.getSelectionModel().selectedItemProperty().addListener((obs, old, newValue) -> {
             pactions.setProject(newValue);
             projectInfo.setProject(newValue);
         });
     }
 
-    private static class ProjectCell extends ListCell<ModelProject> {
+    private static class ProjectCell extends ListCell<Project> {
 
         final MenuItem close = new MenuItem(ExomeSuite.getResources().getString("close"),
                 new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
@@ -539,7 +537,7 @@ public class MainViewController {
         }
 
         @Override
-        protected void updateItem(ModelProject project, boolean empty) {
+        protected void updateItem(Project project, boolean empty) {
             super.updateItem(project, empty);
             if (empty) {
                 textProperty().unbind();
@@ -555,13 +553,13 @@ public class MainViewController {
             }
         }
 
-        private void close(ModelProject selectedItem) {
+        private void close(Project selectedItem) {
             if (selectedItem != null) {
                 getListView().getItems().remove(selectedItem);
             }
         }
 
-        private void delete(ModelProject project) {
+        private void delete(Project project) {
             if (project != null) {
                 // Ask user to remove folder content
                 File path = project.getConfigFile().getParentFile();

@@ -23,8 +23,11 @@ import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -73,7 +76,11 @@ public class ProjectInfo extends TabPane {
     /**
      * Selected project.
      */
-    private ModelProject project;
+    private Project project;
+    /**
+     * To format dates.
+     */
+    final DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, ExomeSuite.getLocale());
 
     /**
      * Creates a Projet Info pane with the properties of the project.
@@ -102,7 +109,7 @@ public class ProjectInfo extends TabPane {
      *
      * @param project the new project
      */
-    public void setProject(ModelProject project) {
+    public void setProject(Project project) {
         if (project == null) {
             setVisible(false);
             this.project = null;
@@ -146,14 +153,20 @@ public class ProjectInfo extends TabPane {
     }
 
     private void initFilesTable() {
+        // Name column
         TableColumn<File, String> nam = new TableColumn(ExomeSuite.getResources().getString("name"));
         nam.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
+        // Type column
         TableColumn<File, String> type = new TableColumn(ExomeSuite.getResources().getString("type"));
         type.setCellValueFactory(param -> {
             String na = param.getValue().getName();
             return new SimpleStringProperty(na.substring(na.lastIndexOf(".") + 1));
         });
-        moreFiles.getColumns().addAll(nam, type);
+        TableColumn<File, Date> date = new TableColumn(ExomeSuite.getResources().getString("date"));
+        date.setCellValueFactory(param
+                -> new SimpleObjectProperty(df.format(param.getValue().lastModified())));
+        // Table configuration
+        moreFiles.getColumns().addAll(nam, type, date);
         moreFiles.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         moreFiles.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -166,6 +179,7 @@ public class ProjectInfo extends TabPane {
             }
         });
         moreFiles.setContextMenu(getFilesContextMenu());
+        // Button to add more files
         addButton.setGraphic(new SizableImage("exomesuite/img/addFile.png", SizableImage.SMALL_SIZE));
         addButton.setOnAction(event -> addFile());
     }
@@ -220,7 +234,7 @@ public class ProjectInfo extends TabPane {
      *
      * @param project
      */
-    private void unbind(ModelProject project) {
+    private void unbind(Project project) {
         // Binded properties are unbinded
         name.textProperty().unbindBidirectional(project.getNameProperty());
         description.textProperty().unbindBidirectional(project.getDescriptionProperty());
@@ -243,7 +257,7 @@ public class ProjectInfo extends TabPane {
      *
      * @param project
      */
-    private void bind(ModelProject project) {
+    private void bind(Project project) {
         name.textProperty().bindBidirectional(project.getNameProperty());
         description.textProperty().bindBidirectional(project.getDescriptionProperty());
         code.textProperty().bind(project.getCodeProperty());

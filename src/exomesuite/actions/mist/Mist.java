@@ -267,6 +267,7 @@ public class Mist extends SystemTask {
      * @param exon the TSV exon
      * @param mistStart the start of the mist region
      * @param mistEnd the end of the mist region
+     * @return true if region was longer than length, false otherwise
      */
     private boolean printMist(String[] exon, int mistStart, int mistEnd) {
         if (mistEnd - mistStart + 1 >= length) {

@@ -27,7 +27,7 @@ import javafx.scene.control.Tooltip;
 /**
  * FXML Controller class. Node of a process in the working area.
  *
- * @author Pascual Lorente Arencibia {pasculorente@gmail.com}
+ * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
 public class TaskPanel {
 
@@ -55,9 +55,7 @@ public class TaskPanel {
                 progressLabel.setText(null);
             }
         });
-        progress.visibleProperty().addListener((obs, oldValue, newValue) -> {
-            progressLabel.setVisible(newValue);
-        });
+        progressLabel.visibleProperty().bind(progress.visibleProperty());
     }
 
     /**

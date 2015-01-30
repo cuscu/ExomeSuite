@@ -38,7 +38,7 @@ import javafx.scene.layout.VBox;
 /**
  * Graphical wrapper of a VCFFilter. (uhmmm, wrappers, gnom gnom).
  *
- * @author Pascual Lorente Arencibia
+ * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
 public class VCFFilterPane extends VBox {
 
@@ -51,7 +51,7 @@ public class VCFFilterPane extends VBox {
     private final Button cancel = new Button(null, new SizableImage("exomesuite/img/cancel.png", SizableImage.SMALL_SIZE));
     private final Button delete = new Button(null, new SizableImage("exomesuite/img/delete.png", SizableImage.SMALL_SIZE));
     private final Button view = new Button(null, new SizableImage("exomesuite/img/view.png", SizableImage.SMALL_SIZE));
-    private final Button tag = new Button(null, new SizableImage("exomesuite/img/circle.png", SizableImage.SMALL_SIZE));
+    private final Button strict = new Button(null, new SizableImage("exomesuite/img/circle.png", SizableImage.SMALL_SIZE));
 
     private EventHandler onUpdate, onDelete;
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
@@ -71,7 +71,7 @@ public class VCFFilterPane extends VBox {
         cancel.setTooltip(new Tooltip("Cancel changes"));
         delete.setTooltip(new Tooltip("Delete filter"));
         view.setTooltip(new Tooltip("Enable/disable filter"));
-        tag.setTooltip(new Tooltip("Strict/Non-strict"));
+        strict.setTooltip(new Tooltip("Strict/Non-strict"));
     }
 
     private void initialize() {
@@ -83,7 +83,7 @@ public class VCFFilterPane extends VBox {
         value.setOnAction(e -> accept());
         delete.setOnAction(e -> delete());
         view.setOnAction(e -> alternateView());
-        tag.setOnAction(e -> alternateStrictness());
+        strict.setOnAction(e -> alternateStrictness());
         value.setOnKeyReleased(e -> {
             if (e.getCode() == KeyCode.ENTER) {
                 accept();
@@ -139,7 +139,7 @@ public class VCFFilterPane extends VBox {
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setVisible(false);
         HBox.setHgrow(separator, Priority.ALWAYS);
-        HBox box = new HBox(staticInfo, separator, tag, view, delete);
+        HBox box = new HBox(staticInfo, separator, strict, view, delete);
         box.setAlignment(Pos.CENTER);
         getChildren().setAll(box);
     }
@@ -216,10 +216,10 @@ public class VCFFilterPane extends VBox {
      * Change the acceptVoids flag and the tag icon.
      */
     private void alternateStrictness() {
-        boolean strict = filter.isStrict();
-        filter.setStrict(!strict);
-        tag.setGraphic(strict ? new SizableImage("exomesuite/img/nocircle.png", 16)
-                : new SizableImage("exomesuite/img/circle.png", 16));
+        boolean isStrict = filter.isStrict();
+        filter.setStrict(!isStrict);
+        strict.setGraphic(isStrict ? new SizableImage("exomesuite/img/nocircle.png", SizableImage.SMALL_SIZE)
+                : new SizableImage("exomesuite/img/circle.png", SizableImage.SMALL_SIZE));
         if (onUpdate != null) {
             onUpdate.handle(new ActionEvent());
         }

@@ -20,7 +20,7 @@ import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.LongAction;
 import exomesuite.actions.SystemTask;
-import exomesuite.project.ModelProject;
+import exomesuite.project.Project;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import exomesuite.utils.Software;
@@ -52,7 +52,7 @@ public class MistLongAction extends LongAction {
     }
 
     @Override
-    public boolean isDisable(ModelProject project) {
+    public boolean isDisable(Project project) {
         if (project == null) {
             return true;
         }
@@ -66,7 +66,7 @@ public class MistLongAction extends LongAction {
     }
 
     @Override
-    public SystemTask getTask(ModelProject project) {
+    public SystemTask getTask(Project project) {
         // Prepare parameters to the parameters window.
         List<String> bams = new ArrayList();
         project.getFiles().forEach(file -> {

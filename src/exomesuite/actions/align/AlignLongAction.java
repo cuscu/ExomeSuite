@@ -20,7 +20,7 @@ import exomesuite.ExomeSuite;
 import exomesuite.MainViewController;
 import exomesuite.actions.LongAction;
 import exomesuite.actions.SystemTask;
-import exomesuite.project.ModelProject;
+import exomesuite.project.Project;
 import exomesuite.utils.FileManager;
 import exomesuite.utils.OS;
 import java.io.File;
@@ -46,7 +46,7 @@ public class AlignLongAction extends LongAction {
     }
 
     @Override
-    public boolean isDisable(ModelProject project) {
+    public boolean isDisable(Project project) {
         if (project == null) {
             return true;
         }
@@ -59,7 +59,7 @@ public class AlignLongAction extends LongAction {
     }
 
     @Override
-    public SystemTask getTask(ModelProject project) {
+    public SystemTask getTask(Project project) {
         // Load view from AlignerParameters.fxml
         FXMLLoader loader = new FXMLLoader(getClass().getResource("AlignerParameters.fxml"),
                 ExomeSuite.getResources());

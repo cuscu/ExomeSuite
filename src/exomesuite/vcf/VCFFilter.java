@@ -211,6 +211,7 @@ public class VCFFilter {
                     stringValue = map.get(selectedInfo);
                     if (stringValue != null) {
                         try {
+                            // Take only the first value, supposing they are comma separated
                             doubleValue = Double.valueOf(stringValue.split(",")[0]);
                         } catch (NumberFormatException e) {
                             // If not a number
@@ -246,6 +247,7 @@ public class VCFFilter {
                     try {
                         return doubleValue > Double.valueOf(value);
                     } catch (NumberFormatException e) {
+                        // If user did not input a number, filter is passed
                         return true;
                     }
                 }
@@ -255,6 +257,7 @@ public class VCFFilter {
                     try {
                         return doubleValue < Double.valueOf(value);
                     } catch (NumberFormatException e) {
+                        // If user did not input a number, filter is passed
                         return true;
                     }
                 }
@@ -277,15 +280,6 @@ public class VCFFilter {
      */
     public enum Connector {
 
-        /**
-         * Equals to (String or natural number).
-         */
-        /**
-         * Equals to (String or natural number).
-         */
-        /**
-         * Equals to (String or natural number).
-         */
         /**
          * Equals to (String or natural number).
          */

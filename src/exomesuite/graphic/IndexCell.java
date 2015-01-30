@@ -22,7 +22,7 @@ import javafx.scene.control.TableCell;
 /**
  * A convenient Cell that plots the index of the cell.
  *
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
 public class IndexCell extends TableCell {
 
@@ -38,7 +38,12 @@ public class IndexCell extends TableCell {
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
-        setText(empty ? null : String.valueOf(1 + getIndex()));
+        if (empty) {
+            setText(null);
+            setGraphic(null);
+        } else {
+            setText(String.valueOf(1 + getIndex()));
+        }
     }
 
 }

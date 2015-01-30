@@ -34,7 +34,7 @@ import javafx.collections.ObservableList;
  *
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-public class ModelProject {
+public class Project {
 
     /**
      * Name of the project.
@@ -48,10 +48,6 @@ public class ModelProject {
      * Some nice description.
      */
     public static final String DESCRIPTION = "description";
-    /**
-     * A folder where everything is created.
-     */
-    public static final String PATH = "PATH";
     /**
      * Reference genome. OK, now only hg19/hgrc37.
      */
@@ -130,7 +126,7 @@ public class ModelProject {
      *
      * @param configFile wheter is or should be the config file
      */
-    public ModelProject(File configFile) {
+    public Project(File configFile) {
         this.configFile = configFile;
         // Create or load the file
         properties = new Configuration(configFile);
@@ -148,7 +144,7 @@ public class ModelProject {
         reverseSequences = new SimpleObjectProperty(rv == null ? null : new File(rv));
         if (properties.containsProperty(EXTRA_FILES)) {
             String[] values = properties.getProperty(EXTRA_FILES).split(";");
-            Arrays.stream(values).forEach(filename -> files.add(new File(filename)));
+            Arrays.stream(values).filter(filename -> new File(filename).exists()).forEach(filename -> files.add(new File(filename)));
         }
         // Make all of the properties backable to properties
         setBackupListeners();
